@@ -13,7 +13,6 @@ public class ProductController {
 
     /**
      * ALB 헬스체크 API
-     * @return
      */
     @GetMapping("v1/api/navi")
     public ResponseEntity<String> getHealthCheck(){
