@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
 
 
+    /**
+     * ALB 헬스체크 API
+     * @return
+     */
     @GetMapping("v1/api/navi")
     public ResponseEntity<String> getHealthCheck(){
         return ResponseEntity.ok("안녕! 물고기는 고마웠어요!");
