@@ -1,10 +1,22 @@
 package com.github.commerce.service.product;
 
+import com.github.commerce.entity.mongocollection.ProductOption;
+import com.github.commerce.repository.product.ProductOptionRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
+@Service
 public class ProductService {
+    private final ProductOptionRepository productOptionRepository;
+
+    public ProductOption getMongo(int productId) {
+       return productOptionRepository.findProductOptionByProductId(productId);
+    }
 
 
 //    @Transactional(readOnly=true)

@@ -26,3 +26,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  data:
+    mongodb:
+      uri: mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@cluster0.4ln8psb.mongodb.net/${MONGODB_DBNAME}?retryWrites=true&w=majority
