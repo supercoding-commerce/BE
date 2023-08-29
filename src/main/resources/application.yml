@@ -29,4 +29,4 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@cluster0.4ln8psb.mongodb.net/${MONGODB_DBNAME}?retryWrites=true&w=majority
+      uri: ${MONGO_URI}
