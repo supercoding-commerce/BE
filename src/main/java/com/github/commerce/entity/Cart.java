@@ -35,4 +35,8 @@ public class Cart {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    //MongoDB objectId
+    @Column(name = "option_id")
+    private String optionId;
 }

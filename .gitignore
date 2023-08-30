@@ -315,3 +315,6 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/gradle,java,maven,eclipse,windows,macos,intellij+all,visualstudiocode,netbeans
 src/main/resources/mysql.yml
+
+#docker-compose를 위해 필요합니다
+.env
