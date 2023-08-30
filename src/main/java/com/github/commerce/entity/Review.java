@@ -3,64 +3,65 @@ package com.github.commerce.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.Instant;
 
-@Entity
-@Table(name = "Reviews")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "reviews")
 public class Review {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "users_id", nullable = false)
+    private User users;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "products_id", nullable = false)
+    private Product products;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "payment_histories_id", nullable = false)
+    private PaymentHistory paymentHistories;
+
+    @Size(max = 200)
+    @Column(name = "content", length = 200)
+    private String content;
+
+    @Column(name = "star_point")
+    private Short starPoint;
+
+    @Column(name = "is_deleted")
+    private Byte isDeleted;
+
+    @Column(name = "created_at")
+    private Instant createdAt;
+
+    @NotNull
     @Column(name = "review_id", nullable = false)
     private Long reviewId;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "payment_historys_id")
-//    private PaymentHistory paymentHistory;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id")
-//    private User user;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "product_id")
-//    private Product product;
-
+    @Size(max = 255)
     @Column(name = "nickname")
     private String nickname;
 
+    @NotNull
+    @Column(name = "star", nullable = false)
+    private Integer star;
+
+    @Size(max = 255)
     @Column(name = "title")
     private String title;
 
-    @Column(name = "content")
-    private String content;
-
-    @Column(name = "star", nullable = false, columnDefinition = "int default 0")
-    private Integer star;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "is_deleted",nullable = false, columnDefinition = "tinyint(1) default 0")
-    private Boolean isDeleted;
-
-
-//    public static Review toEntity(User user, Product product, CreateReview.Request request) {
-//        return Review.builder()
-//                .user(user)
-//                .author(user.getNickname())
-//                .product(product)
-//                .title(request.getTitle())
-//                .content(request.getContent())
-//                .createAt(LocalDateTime.now())
-//                .isDeleted(false)
-//                .build();
-//    }
 }
