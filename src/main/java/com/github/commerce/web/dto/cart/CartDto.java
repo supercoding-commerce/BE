@@ -22,6 +22,7 @@ public class CartDto {
     private Integer quantity;
     private String orderState;
     private Integer totalPrice;
+    private String optionId;
     private Map<String, String> options;
 
     public static CartDto fromEntity(Cart cart, Map<String, String> options){
@@ -41,6 +42,7 @@ public class CartDto {
                 .orderState(OrderStateEnum.getByCode(cart.getOrderState()))
                 .quantity(cart.getQuantity())
                 .totalPrice(1000 * cart.getQuantity())
+                .optionId(cart.getOptionId())
                 .options(options)
                 .build();
     }

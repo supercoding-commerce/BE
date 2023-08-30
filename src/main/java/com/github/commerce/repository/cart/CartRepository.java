@@ -16,4 +16,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
                     "ORDER BY c.cartId ASC "
     )
     Page<Cart> findAllByCartId(Long cursorId, Pageable pageable);
+
+    Cart findByCartId(Long cartId);
 }
