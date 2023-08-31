@@ -93,7 +93,7 @@ public class CartService {
                                     .optionId(optionId)
                                     .createdAt(LocalDateTime.now())
                                     .quantity(inputQuantity)
-                                    .orderState(1) //기본값 주문대기
+                                    .isOrdered(false)
                                     .build()
                     )
             );

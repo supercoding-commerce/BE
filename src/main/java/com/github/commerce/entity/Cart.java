@@ -34,8 +34,8 @@ public class Cart {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "order_state")
-    private Integer orderState;
+    @Column(name = "is_ordered", columnDefinition = "tinyint default 0")
+    private Boolean isOrdered;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
