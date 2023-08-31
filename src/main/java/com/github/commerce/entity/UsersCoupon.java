@@ -4,9 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,8 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "carts")
-public class Cart {
+@Table(name = "users_coupons")
+public class UsersCoupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -23,24 +21,23 @@ public class Cart {
 
     @NotNull
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "products_id", nullable = false)
-    private Product products;
+    @JoinColumn(name = "coupons_id", nullable = false)
+    private Coupon coupons;
 
     @NotNull
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
 
-    @Column(name = "quantity")
-    private Integer quantity;
+    @NotNull
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 
-    @Column(name = "order_state")
-    private Integer orderState;
+    @NotNull
+    @Column(name = "expired_at", nullable = false)
+    private Instant expiredAt;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "option_id", length = 50)
-    private String optionId;
+    @Column(name = "is_used")
+    private Boolean isUsed;
 
 }

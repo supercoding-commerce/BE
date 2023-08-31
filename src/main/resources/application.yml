@@ -1,4 +1,8 @@
 spring:
+  mvc:
+    path_match:
+      matching-strategy: ant_path_matcher
+
   datasource:
     master:
       hikari:
