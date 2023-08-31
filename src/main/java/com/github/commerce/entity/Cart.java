@@ -16,15 +16,15 @@ public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cart_id", nullable = false)
+    @Column(name = "carts_id", nullable = false)
     private Long cartId;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id")
+//    @JoinColumn(name = "users_id")
 //    private User user;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "product_id")
+//    @JoinColumn(name = "products_id")
 //    private Product product;
 
     @Column(name = "quantity")

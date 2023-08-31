@@ -18,19 +18,19 @@ public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "review_id", nullable = false)
+    @Column(name = "reviews_id", nullable = false)
     private Long reviewId;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "payment_historys_id")
+//    @JoinColumn(name = "payment_histories_id")
 //    private PaymentHistory paymentHistory;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id")
+//    @JoinColumn(name = "users_id")
 //    private User user;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "product_id")
+//    @JoinColumn(name = "products_id")
 //    private Product product;
 
     @Column(name = "nickname")

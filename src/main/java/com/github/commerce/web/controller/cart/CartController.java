@@ -71,9 +71,11 @@ public class CartController {
      * @return
      */
     @DeleteMapping
-    public ResponseEntity deleteAll(){
+    public ResponseEntity<String> deleteAll(){
+
         Long userId = 1L;
-        return null;
+        cartService.deleteAll(userId);
+        return ResponseEntity.ok("삭제됨 ㅇㅇ");
     }
 
     /**
