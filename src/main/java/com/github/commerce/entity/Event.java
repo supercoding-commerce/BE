@@ -1,11 +1,13 @@
 package com.github.commerce.entity;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -29,15 +31,15 @@ public class Event {
     @Column(name = "content")
     private String content;
 
-    @NotNull
+    @CreatedDate
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "started_at")
-    private Instant startedAt;
+    private LocalDateTime startedAt;
 
     @Column(name = "expired_at")
-    private Instant expiredAt;
+    private LocalDateTime expiredAt;
 
     @Lob
     @Column(name = "event_image")
