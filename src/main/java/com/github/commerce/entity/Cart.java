@@ -22,12 +22,12 @@ public class Cart {
     private Long id;
 
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "products_id", nullable = false)
     private Product products;
 
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
 

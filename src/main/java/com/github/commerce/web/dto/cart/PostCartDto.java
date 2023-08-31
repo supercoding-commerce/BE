@@ -28,7 +28,6 @@ public class PostCartDto {
         private Long productId;
         private Integer quantity;
         private String orderState;
-        private String optionId;
         private Map<String, String> options;
 
         public static Response from(CartDto cartDto){
@@ -37,7 +36,6 @@ public class PostCartDto {
                     .productId(cartDto.getProductId())
                     .quantity(cartDto.getQuantity())
                     .orderState(cartDto.getOrderState())
-                    .optionId(cartDto.getOptionId())
                     .options(cartDto.getOptions())
                     .build();
         }

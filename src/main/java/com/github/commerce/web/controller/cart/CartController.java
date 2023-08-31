@@ -72,10 +72,8 @@ public class CartController {
      */
     @DeleteMapping
     public ResponseEntity<String> deleteAll(){
-
         Long userId = 1L;
-        cartService.deleteAll(userId);
-        return ResponseEntity.ok("삭제됨 ㅇㅇ");
+        return ResponseEntity.ok(cartService.deleteAll(userId));
     }
 
     /**
@@ -83,9 +81,11 @@ public class CartController {
      * @return
      */
     @DeleteMapping("/{cartId}")
-    public ResponseEntity deleteOne(){
+    public ResponseEntity<String> deleteOne(
+            @PathVariable Long cartId
+    ){
         Long userId = 1L;
-        return null;
+        return ResponseEntity.ok(cartService.deleteOne(cartId, userId));
     }
 
 }
