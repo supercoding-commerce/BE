@@ -2,6 +2,8 @@ package com.github.commerce.web.advice;
 
 import com.github.commerce.service.cart.exception.CartErrorResponse;
 import com.github.commerce.service.cart.exception.CartException;
+import com.github.commerce.service.review.exception.ReviewErrorResponse;
+import com.github.commerce.service.review.exception.ReviewException;
 import com.github.commerce.web.advice.exception.ErrorResponse;
 import com.github.commerce.web.advice.exception.type.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +44,15 @@ public class GlobalExceptionHandler {
                         .errorMessage(e.getErrorMessage())
                         .build());
 
+    }
+
+    @ExceptionHandler(ReviewException.class)
+    public ResponseEntity<?> handleReviewException(ReviewException e){
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ReviewErrorResponse.builder()
+                        .errorCode(e.getErrorCode())
+                        .errorMessage(e.getErrorMessage())
+                        .build());
     }
 
 

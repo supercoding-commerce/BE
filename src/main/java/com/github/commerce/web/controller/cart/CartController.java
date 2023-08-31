@@ -32,7 +32,7 @@ public class CartController {
     ){
         Long userId = 1L;
         return ResponseEntity.ok(
-                GetCartDto.Response.from(
+                GetCartDto.Response.fromPage(
                         cartService.getAllCart(userId, cursorId)
                 )
         );
