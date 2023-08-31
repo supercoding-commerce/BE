@@ -14,4 +14,8 @@ public interface CartSavedOptionRepository extends MongoRepository<CartSavedOpti
     List<CartSavedOption> findCartSavedOptionsByUserId(Long userId);
 
     CartSavedOption findByOptionId(String optionId);
+
+    void deleteByOptionId(String optionId);
+
+    void deleteAllByUserId(Long userId);
 }

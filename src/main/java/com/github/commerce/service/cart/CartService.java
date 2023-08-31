@@ -1,9 +1,15 @@
 package com.github.commerce.service.cart;
 
 import com.github.commerce.entity.Cart;
+import com.github.commerce.entity.Product;
+import com.github.commerce.entity.User;
 import com.github.commerce.entity.mongocollection.CartSavedOption;
 import com.github.commerce.repository.cart.CartRepository;
 import com.github.commerce.repository.cart.CartSavedOptionRepository;
+import com.github.commerce.repository.product.ProductRepository;
+import com.github.commerce.repository.user.UserRepository;
+import com.github.commerce.service.cart.exception.CartErrorCode;
+import com.github.commerce.service.cart.exception.CartException;
 import com.github.commerce.service.cart.util.AsyncMethod;
 import com.github.commerce.web.dto.cart.CartDto;
 import com.github.commerce.web.dto.cart.PostCartDto;
@@ -26,7 +32,9 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @Service
 public class CartService {
+    private final UserRepository userRepository;
     private final CartRepository cartRepository;
+    private final ProductRepository productRepository;
     private final CartSavedOptionRepository cartSavedOptionRepository;
     private final AsyncMethod asyncMethod;
 
@@ -57,6 +65,14 @@ public class CartService {
         Integer inputQuantity = request.getQuantity();
         Map<String, String> inputOptions = request.getOptions();
 
+        User validatedUser = validateUser(userId);
+        Product validatedProduct = validateProduct(inputProductId);
+        validateStock(inputQuantity, validatedProduct);
+
+//        if (existsInCart(userId, inputProductId)) {
+//            throw new CartException(CartErrorCode.PRODUCT_ALREADY_EXISTS);
+//        }
+
         CompletableFuture<CartSavedOption> savedOptionFuture = CompletableFuture.supplyAsync(() ->
                 cartSavedOptionRepository.save(
                         CartSavedOption.builder()
@@ -72,6 +88,8 @@ public class CartService {
             return CompletableFuture.supplyAsync(() ->
                     cartRepository.save(
                             Cart.builder()
+                                    .users(validatedUser)
+                                    .products(validatedProduct)
                                     .optionId(optionId)
                                     .createdAt(LocalDateTime.now())
                                     .quantity(inputQuantity)
@@ -90,11 +108,12 @@ public class CartService {
         Long cartId = request.getCartId();
         Long productId = request.getProductId();
         Integer quantity = request.getQuantity();
-        String optionId = request.getOptionId();
         Map<String, String> options = request.getOptions();
 
-        CompletableFuture<CartSavedOption> savedOptionFuture = asyncMethod.updateCartMongoDB(optionId, options);
-        CompletableFuture<Cart> savedCartFuture = asyncMethod.updateCartMySQL(cartId, quantity);
+        validateUser(userId);
+
+        CompletableFuture<CartSavedOption> savedOptionFuture = asyncMethod.updateCartMongoDB(cartId, userId, options);
+        CompletableFuture<Cart> savedCartFuture = asyncMethod.updateCartMySQL(cartId, userId, productId, quantity);
 
         CompletableFuture<CartDto> combinedFuture = savedOptionFuture.thenCombine(
                 savedCartFuture,
@@ -111,7 +130,57 @@ public class CartService {
     }
 
 
-    public void deleteAll(Long userId) {
+    @Transactional
+    public String deleteAll(Long userId) {
+        User validatedUser = validateUser(userId);
+        asyncMethod.deleteAllByUsersId(userId);
+        cartRepository.deleteAllByUsersId(userId);
+        return validatedUser.getUserName() + "님의 장바구니 목록이 삭제되었습니다.";
+    }
 
+    @Transactional
+    public String deleteOne(Long cartId, Long userId){
+        validateUser(userId);
+        Cart validatedCart = validateCart(cartId, userId);
+        asyncMethod.deleteOptionByOptionId(validatedCart.getOptionId());
+        cartRepository.deleteById(cartId);
+        return validatedCart.getId() + "번 장바구니 삭제";
+    }
+
+
+    private User validateUser(Long userId){
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CartException(CartErrorCode.USER_NOT_FOUND));
+    }
+
+    private void validateStock(Integer inputQuantity, Product product){
+        if (inputQuantity <= 0 || inputQuantity > product.getLeftAmount()) {
+            throw new CartException(CartErrorCode.INVALID_QUANTITY);
+        }
+    }
+
+    private Product validateProduct(Long productId){
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CartException(CartErrorCode.THIS_PRODUCT_DOES_NOT_EXIST));
+
+        Long stock = product.getLeftAmount();
+        if (stock == null || stock <= 0) {
+            throw new CartException(CartErrorCode.OUT_OF_STOCK);
+        }
+
+        return product;
+    }
+
+    private Cart validateCart(Long cartId, Long userId){
+        Cart cart = cartRepository.findByIdAndUsersId(cartId, userId);
+
+        if (cart == null) {
+            throw new CartException(CartErrorCode.THIS_CART_DOES_NOT_EXIST);
+        }
+        return cart;
+    }
+
+    private boolean existsInCart(Long userId, Long productId){
+        return cartRepository.existsByUsersIdAndProductsId(userId, productId);
     }
 }

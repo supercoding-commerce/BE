@@ -17,7 +17,6 @@ public class PutCartDto {
         private Long cartId;
         private Long productId;
         private Integer quantity;
-        private String optionId;
         private Map<String, String> options;
     }
 }
