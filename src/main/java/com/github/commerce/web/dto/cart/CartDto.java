@@ -30,7 +30,7 @@ public class CartDto {
         return CartDto.builder()
                 //.userId(cart.getUser().getId())
                 .userId(1L)
-                .cartId(cart.getCartId())
+                .cartId(cart.getId())
                 //.productId(.getId())
                 .productId(1L)
                 //.productName(product.getProductName())

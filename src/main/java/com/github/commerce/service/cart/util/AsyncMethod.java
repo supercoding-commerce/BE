@@ -33,13 +33,13 @@ public class AsyncMethod {
 
     @Async
     public CompletableFuture<Cart> updateCartMySQL(Long cartId, Integer quantity) {
-        Cart cart = cartRepository.findByCartId(cartId);
-        if (cart != null) {
-            cart.setQuantity(quantity);
-            cartRepository.save(cart);
-            return CompletableFuture.completedFuture(cart);
-        }
-        return CompletableFuture.completedFuture(null);
+        Cart cart = cartRepository.findById(cartId).orElseThrow(
+                //todo: 예외처리
+        );
+
+        cart.setQuantity(quantity);
+        cartRepository.save(cart);
+        return CompletableFuture.completedFuture(cart);
 
     }
 }
