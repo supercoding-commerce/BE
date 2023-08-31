@@ -16,7 +16,7 @@ public class GetCartDto {
     public static class Response{
         private List<CartDto> content;
 
-        public static List<CartDto> from(Page<CartDto> page){
+        public static List<CartDto> fromPage(Page<CartDto> page){
             return page.getContent();
         }
     }

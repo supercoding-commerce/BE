@@ -23,7 +23,7 @@ spring:
         driver-class-name: com.mysql.cj.jdbc.Driver
         jdbc-url: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}
   jpa:
-# ??
+# local
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
 #    RDS
 #    database-platform: org.hibernate.dialect.MySQL8Dialect
