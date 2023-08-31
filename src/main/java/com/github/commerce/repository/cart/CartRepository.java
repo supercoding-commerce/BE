@@ -7,16 +7,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
     @Query(
             //"SELECT c FROM Cart c WHERE c.user.userId = :userId " +
             "SELECT c FROM Cart c " +
-                    "WHERE c.cartId > :cursorId " +
-                    "ORDER BY c.cartId ASC "
+                    "WHERE c.id > :cursorId " +
+                    "ORDER BY c.id ASC "
     )
     Page<Cart> findAllByCartId(Long cursorId, Pageable pageable);
 
-    Cart findByCartId(Long cartId);
+    Optional<Cart> findById(Long cartId);
 
 }
