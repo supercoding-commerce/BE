@@ -1,10 +1,12 @@
 package com.github.commerce.entity;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -29,15 +31,15 @@ public class UsersCoupon {
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
 
-    @NotNull
+    @CreatedDate
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @NotNull
     @Column(name = "expired_at", nullable = false)
-    private Instant expiredAt;
+    private LocalDateTime expiredAt;
 
     @Column(name = "is_used")
-    private Boolean isUsed;
+    private Boolean isUsed = false;
 
 }
