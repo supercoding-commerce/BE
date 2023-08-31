@@ -40,12 +40,7 @@ public class Cart {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @NotNull
-    @Column(name = "cart_id", nullable = false)
-    private Long cartId;
-
-    @Size(max = 255)
-    @Column(name = "option_id")
+    @Column(name = "option_id", length = 50)
     private String optionId;
 
 }

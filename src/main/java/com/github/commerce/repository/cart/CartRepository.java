@@ -18,4 +18,5 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     Page<Cart> findAllByCartId(Long cursorId, Pageable pageable);
 
     Cart findByCartId(Long cartId);
+
 }

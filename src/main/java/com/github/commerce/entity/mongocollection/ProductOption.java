@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
-@Document(collection = "product_option")
+@Document(collection = "product_options")
 public class ProductOption {
     private int productId;
     private String content;

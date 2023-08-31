@@ -111,4 +111,7 @@ public class CartService {
     }
 
 
+    public void deleteAll(Long userId) {
+
+    }
 }

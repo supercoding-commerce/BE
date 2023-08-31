@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -35,33 +36,24 @@ public class Review {
     @JoinColumn(name = "payment_histories_id", nullable = false)
     private PaymentHistory paymentHistories;
 
-    @Size(max = 200)
+    @Column(name = "author", length = 100)
+    private String author;
+
+    @Column(name = "title", length = 100)
+    private String title;
+
     @Column(name = "content", length = 200)
     private String content;
 
-    @Column(name = "star_point")
+    @Column(name = "star_point", nullable = false, columnDefinition = "int default 0")
     private Short starPoint;
 
-    @Column(name = "is_deleted")
-    private Byte isDeleted;
+    @Column(name = "is_deleted", columnDefinition = "tinyint default 0")
+    private Boolean isDeleted;
 
     @Column(name = "created_at")
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
-    @NotNull
-    @Column(name = "review_id", nullable = false)
-    private Long reviewId;
 
-    @Size(max = 255)
-    @Column(name = "nickname")
-    private String nickname;
-
-    @NotNull
-    @Column(name = "star", nullable = false)
-    private Integer star;
-
-    @Size(max = 255)
-    @Column(name = "title")
-    private String title;
 
 }
