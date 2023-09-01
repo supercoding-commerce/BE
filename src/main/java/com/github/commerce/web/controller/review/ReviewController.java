@@ -19,6 +19,11 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
 
+    /**
+     * 리뷰 등록
+     * @param request
+     * @return
+     */
     @PostMapping
     public ResponseEntity<PostReviewDto.Response> createReview(
             @RequestBody PostReviewDto.Request request
@@ -32,6 +37,12 @@ public class ReviewController {
         );
     }
 
+    /**
+     * 상품 리뷰 조회
+     * @param productId
+     * @param cursorId
+     * @return
+     */
     @GetMapping("/{productId}")
     public ResponseEntity<List<ReviewDto>> get(
             @PathVariable Long productId,
@@ -45,6 +56,11 @@ public class ReviewController {
         );
     }
 
+    /**
+     * 리뷰 삭제
+     * @param reviewId
+     * @return
+     */
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<String> delete(
             @PathVariable Long reviewId
