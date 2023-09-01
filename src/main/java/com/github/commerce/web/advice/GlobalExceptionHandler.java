@@ -2,6 +2,8 @@ package com.github.commerce.web.advice;
 
 import com.github.commerce.service.cart.exception.CartErrorResponse;
 import com.github.commerce.service.cart.exception.CartException;
+import com.github.commerce.service.coupon.exception.CouponErrorResponse;
+import com.github.commerce.service.coupon.exception.CouponException;
 import com.github.commerce.service.order.exception.OrderErrorResponse;
 import com.github.commerce.service.order.exception.OrderException;
 import com.github.commerce.service.review.exception.ReviewErrorResponse;
@@ -61,6 +63,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleOrderException(OrderException e){
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(OrderErrorResponse.builder()
+                        .errorCode(e.getErrorCode())
+                        .errorMessage(e.getErrorMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(CouponException.class)
+    public ResponseEntity<?> handleCouponException(CouponException e){
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(CouponErrorResponse.builder()
                         .errorCode(e.getErrorCode())
                         .errorMessage(e.getErrorMessage())
                         .build());
