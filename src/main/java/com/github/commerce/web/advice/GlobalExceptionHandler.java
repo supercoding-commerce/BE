@@ -2,6 +2,8 @@ package com.github.commerce.web.advice;
 
 import com.github.commerce.service.cart.exception.CartErrorResponse;
 import com.github.commerce.service.cart.exception.CartException;
+import com.github.commerce.service.order.exception.OrderErrorResponse;
+import com.github.commerce.service.order.exception.OrderException;
 import com.github.commerce.service.review.exception.ReviewErrorResponse;
 import com.github.commerce.service.review.exception.ReviewException;
 import com.github.commerce.web.advice.exception.ErrorResponse;
@@ -55,5 +57,13 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(OrderException.class)
+    public ResponseEntity<?> handleOrderException(OrderException e){
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(OrderErrorResponse.builder()
+                        .errorCode(e.getErrorCode())
+                        .errorMessage(e.getErrorMessage())
+                        .build());
+    }
 
 }

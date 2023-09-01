@@ -41,8 +41,8 @@ public class CartService {
     @Transactional(readOnly = true)
     public Page<CartDto> getAllCart(Long userId, Long cursorId) {
         int pageSize = 10;
-        Page<Cart> carts = cartRepository.findAllByCartId(
-                cursorId, PageRequest.of(0, pageSize)
+        Page<Cart> carts = cartRepository.findAllByUserId(
+               userId, cursorId, PageRequest.of(0, pageSize)
         ); //LIMIT 10의 우회적 구현
 
         List<CartSavedOption> optionList = cartSavedOptionRepository.findCartSavedOptionsByUserId(userId);
