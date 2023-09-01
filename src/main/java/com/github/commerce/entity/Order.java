@@ -21,6 +21,11 @@ public class Order {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "users_id", nullable = false)
+    private User users;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "products_id", nullable = false)
     private Product products;
 
@@ -31,12 +36,15 @@ public class Order {
     @Column(name = "order_state")
     private Integer orderState;
 
+    @Column(name="quantity")
+    private Integer quantity;
+
     @Column(name= "total_price")
     private Integer total_price;
 
     @Column(name="created_at")
     LocalDateTime createdAt;
 
-    @Column(name="option_id", length = 50)
-    String optionId;
+//    @Column(name="option_id", length = 50)
+//    String optionId;
 }
