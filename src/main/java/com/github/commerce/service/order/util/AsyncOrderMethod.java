@@ -1,11 +1,14 @@
 package com.github.commerce.service.order.util;
 
 import com.github.commerce.entity.Cart;
+import com.github.commerce.entity.Order;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.User;
 import com.github.commerce.entity.mongocollection.CartSavedOption;
+import com.github.commerce.entity.mongocollection.OrderSavedOption;
 import com.github.commerce.repository.cart.CartRepository;
 import com.github.commerce.repository.cart.CartSavedOptionRepository;
+import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.order.OrderSavedOptionRepository;
 import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.repository.user.UserRepository;
@@ -23,34 +26,36 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @Transactional
 public class AsyncOrderMethod {
+    private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final CartRepository cartRepository;
     private final CartSavedOptionRepository cartSavedOptionRepository;
     private final OrderSavedOptionRepository orderSavedOptionRepository;
+    private final ValidateOrderMethod validateOrderMethod;
     @Async
-    public CompletableFuture<CartSavedOption> updateCartMongoDB(Long cartId, Long userId, Map<String, String> options) {
+    public CompletableFuture<OrderSavedOption> updateOrderMongoDB(Long orderId, Long userId, Map<String, String> options) {
 
-        Cart validatedCart = validateCart(cartId, userId);
-        CartSavedOption savedOption = cartSavedOptionRepository.findByOptionId(validatedCart.getOptionId());
+        Order validatedOrder = validateOrderMethod.validateOrder(orderId, userId);
+        OrderSavedOption savedOption = orderSavedOptionRepository.findByOrderId(validatedOrder.getId());
         // 조회한 데이터 업데이트
         if (savedOption != null) {
             savedOption.setOptions(options);
-            cartSavedOptionRepository.save(savedOption); // 업데이트된 값을 저장
+            orderSavedOptionRepository.save(savedOption); // 업데이트된 값을 저장
             return CompletableFuture.completedFuture(savedOption);
         }
         return CompletableFuture.completedFuture(null);
     }
 
     @Async
-    public CompletableFuture<Cart> updateCartMySQL(Long cartId, Long userId, Long productId, Integer quantity) {
-        Cart validatedCart = validateCart(cartId, userId);
-        Product validatedProduct = validateProduct(productId);
-        validateStock(quantity, validatedProduct);
+    public CompletableFuture<Order> updateOrderMySQL(Long orderId, Long userId, Long productId, Integer quantity) {
+        Order validatedOrder = validateOrderMethod.validateOrder(orderId, userId);
+        Product validatedProduct = validateOrderMethod.validateProduct(productId);
+        validateOrderMethod.validateStock(quantity, validatedProduct);
 
-        validatedCart.setQuantity(quantity);
-        cartRepository.save(validatedCart);
-        return CompletableFuture.completedFuture(validatedCart);
+        validatedOrder.setQuantity(quantity);
+        orderRepository.save(validatedOrder);
+        return CompletableFuture.completedFuture(validatedOrder);
 
     }
 
@@ -58,48 +63,5 @@ public class AsyncOrderMethod {
     public void deleteOptionByOrderId(Long orderId) {
         orderSavedOptionRepository.deleteByOrderId(orderId);
     }
-
-    @Async
-    public void deleteAllByUsersId(Long userId) {
-        cartSavedOptionRepository.deleteAllByUserId(userId);
-    }
-
-    private User validateUser(Long userId){
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new CartException(CartErrorCode.USER_NOT_FOUND));
-    }
-
-    private void validateStock(Integer inputQuantity, Product product){
-        if (inputQuantity <= 0 || inputQuantity > product.getLeftAmount()) {
-            throw new CartException(CartErrorCode.INVALID_QUANTITY);
-        }
-    }
-
-    private Product validateProduct(Long productId){
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new CartException(CartErrorCode.THIS_PRODUCT_DOES_NOT_EXIST));
-
-        Long stock = product.getLeftAmount();
-        if (stock == null || stock <= 0) {
-            throw new CartException(CartErrorCode.OUT_OF_STOCK);
-        }
-
-        return product;
-    }
-
-    private Cart validateCart(Long cartId, Long userId){
-        Cart cart = cartRepository.findByIdAndUsersId(cartId, userId);
-
-        if (cart == null) {
-            throw new CartException(CartErrorCode.THIS_CART_DOES_NOT_EXIST);
-        }
-        return cart;
-    }
-
-    private boolean existsInCart(Long userId, Long productId){
-        return cartRepository.existsByUsersIdAndProductsId(userId, productId);
-    }
-
-
 
 }

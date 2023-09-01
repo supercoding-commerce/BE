@@ -10,7 +10,11 @@ import java.util.List;
 public interface OrderSavedOptionRepository extends MongoRepository<OrderSavedOption, ObjectId> {
     List<OrderSavedOption> findAllByOrderId(Long orderId);
 
+    OrderSavedOption findByOrderId(Long orderId);
+
     List<OrderSavedOption> findAllByUserId(Long userId);
 
     void deleteByOrderId(Long orderId);
+
+    OrderSavedOption findByOrderIdAndUserId(Long orderId, Long userId);
 }
