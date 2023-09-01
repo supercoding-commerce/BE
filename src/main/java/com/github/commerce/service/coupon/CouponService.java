@@ -3,12 +3,14 @@ package com.github.commerce.service.coupon;
 import com.github.commerce.entity.Coupon;
 import com.github.commerce.repository.coupon.CouponRepository;
 import com.github.commerce.web.dto.coupon.CouponRegisterRequest;
+import com.github.commerce.web.dto.coupon.CouponResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -17,17 +19,17 @@ public class CouponService {
 
     private final CouponRepository couponRepository;
 
-    public List<Coupon> getAllCoupons(){
-        return couponRepository.findAll();
+    public List<CouponResponseDto> getAllCoupons(){
+        return couponRepository.findAll().stream().map(CouponResponseDto::new).collect(Collectors.toList());
     }
 
-    public Coupon getCouponByCouponId(Long couponId){
-        return couponRepository.findCouponById(couponId);
+    public CouponResponseDto getCouponByCouponId(Long couponId){
+        return new CouponResponseDto(couponRepository.findCouponById(couponId));
     }
 
     @Transactional
-    public Coupon registerCoupon(CouponRegisterRequest couponRegisterRequest){
+    public CouponResponseDto registerCoupon(CouponRegisterRequest couponRegisterRequest){
         Coupon coupon = new Coupon(couponRegisterRequest);
-        return couponRepository.save(coupon);
+        return new CouponResponseDto(couponRepository.save(coupon));
     }
 }
