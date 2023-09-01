@@ -1,7 +1,7 @@
-package com.github.commerce.web.dto.cart;
+package com.github.commerce.web.dto.order;
 
 public enum OrderStateEnum {
-    주문대기(1, "주문대기"),
+    결제대기(1, "결제대기"),
     결제완료(2, "결제완료"),
     배송대기(3, "배송대기"),
     배송중(4, "배송중"),
@@ -17,13 +17,13 @@ public enum OrderStateEnum {
 
     public static String getByCode(int code) {
         switch(code){
-            case 1: return 주문대기.label;
+            case 1: return 결제대기.label;
             case 2: return 결제완료.label;
             case 3: return 배송대기.label;
             case 4: return 배송중.label;
             case 5: return 배송완료.label;
             //case 7: return ETC.name;
-            default: return 주문대기.label;
+            default: return 결제대기.label;
         }
     }
 }

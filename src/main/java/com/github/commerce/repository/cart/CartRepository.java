@@ -12,12 +12,13 @@ import java.util.Optional;
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
     @Query(
-            //"SELECT c FROM Cart c WHERE c.user.userId = :userId " +
             "SELECT c FROM Cart c " +
-                    "WHERE c.id > :cursorId " +
+                    "WHERE c.users.id = :userId " +
+            //"SELECT c FROM Cart c " +
+                    "AND c.id > :cursorId " +
                     "ORDER BY c.id ASC "
     )
-    Page<Cart> findAllByCartId(Long cursorId, Pageable pageable);
+    Page<Cart> findAllByUserId(Long userId, Long cursorId, Pageable pageable);
 
     Optional<Cart> findById(Long cartId);
 
