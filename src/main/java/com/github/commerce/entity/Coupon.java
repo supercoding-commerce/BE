@@ -36,10 +36,10 @@ public class Coupon {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-
     @Column(name = "period")
     private Integer period;
 
+    @Builder.Default
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
