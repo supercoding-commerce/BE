@@ -6,16 +6,16 @@ import com.github.commerce.entity.User;
 import com.github.commerce.repository.cart.CartRepository;
 import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.repository.user.UserRepository;
-import com.github.commerce.service.cart.exception.CartErrorCode;
-import com.github.commerce.service.cart.exception.CartException;
 import com.github.commerce.service.cart.util.AsyncCartMethod;
 import com.github.commerce.service.cart.util.ValidatCartMethod;
 import com.github.commerce.web.dto.cart.CartDto;
+import com.github.commerce.web.dto.cart.CartRmqDto;
 import com.github.commerce.web.dto.cart.PostCartDto;
 import com.github.commerce.web.dto.cart.PutCartDto;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -27,18 +27,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class CartService {
-    private final UserRepository userRepository;
     private final CartRepository cartRepository;
-    private final ProductRepository productRepository;
-    private final AsyncCartMethod asyncCartMethod;
     private final ValidatCartMethod validatCartMethod;
+    private final RabbitTemplate rabbitTemplate;
 
     @Transactional(readOnly = true)
     public List<List<CartDto>> getAllCarts(Long userId){
@@ -83,7 +80,7 @@ public class CartService {
     // 즉, 첫 번째 작업이 끝난 후 그 결과를 다음 작업에 전달하여 순차적으로 실행됩니다.
     // 이를 통해 비동기 작업을 순차적으로 연결하거나, 한 작업의 결과를 다른 작업에 전달하여 활용할 수 있습니다.
     @Transactional
-    public CartDto addToCart(PostCartDto.Request request, Long userId) {
+    public String addToCart(PostCartDto.Request request, Long userId) {
         Long inputProductId = request.getProductId();
         Integer inputQuantity = request.getQuantity();
         List<Map<String, String>> inputOptions = request.getOptions();
@@ -98,31 +95,29 @@ public class CartService {
         Product validatedProduct = validatCartMethod.validateProduct(inputProductId);
         validatCartMethod.validateStock(inputQuantity, validatedProduct);
 
-//        if (existsInCart(userId, inputProductId)) {
-//            throw new CartException(CartErrorCode.PRODUCT_ALREADY_EXISTS);
-//        }
+        CartRmqDto newCart = CartRmqDto.fromEntity(
+                Cart.builder()
+                        .users(validatedUser)
+                        .products(validatedProduct)
+                        .options(inputOptionsJson)
+                        .quantity(inputQuantity)
+                        .isOrdered(false)
+                        .build()
+        );
 
-//        CompletableFuture<CartSavedOption> savedOptionFuture = CompletableFuture.supplyAsync(() ->
-//                cartSavedOptionRepository.save(
-//                        CartSavedOption.builder()
-//                                .userId(userId)
-//                                .productId(inputProductId)
+        rabbitTemplate.convertAndSend("cart", "cart", newCart);
+//        return CartDto.fromEntity(cartRepository.save(
+//                        Cart.builder()
+//                                .users(validatedUser)
+//                                .products(validatedProduct)
 //                                .options(inputOptionsJson)
+//                                .createdAt(LocalDateTime.now())
+//                                .quantity(inputQuantity)
+//                                .isOrdered(false)
 //                                .build()
 //                )
 //        );
-
-        return CartDto.fromEntity(cartRepository.save(
-                        Cart.builder()
-                                .users(validatedUser)
-                                .products(validatedProduct)
-                                .options(inputOptionsJson)
-                                .createdAt(LocalDateTime.now())
-                                .quantity(inputQuantity)
-                                .isOrdered(false)
-                                .build()
-                )
-        );
+        return validatedProduct.getName() + "상품을 장바구니에 넣습니다.";
     }
 
     @Transactional
