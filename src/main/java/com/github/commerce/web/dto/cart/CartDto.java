@@ -5,6 +5,7 @@ import com.github.commerce.entity.Product;
 import com.github.commerce.entity.mongocollection.CartSavedOption;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Getter
@@ -22,9 +23,11 @@ public class CartDto {
     private Integer quantity;
     private Boolean isOrdered;
     private Integer totalPrice;
-    private Map<String, String> options;
+    private String options;
+    private LocalDateTime createdAt;
+    //private Map<String, String> options;
 
-    public static CartDto fromEntity(Cart cart, Map<String, String> options){
+    public static CartDto fromEntity(Cart cart){
         Product product = cart.getProducts();
         return CartDto.builder()
                 .userId(cart.getUsers().getId())
@@ -37,7 +40,8 @@ public class CartDto {
                 .isOrdered(cart.getIsOrdered())
                 .quantity(cart.getQuantity())
                 .totalPrice((int) (product.getPrice() * cart.getQuantity()))
-                .options(options)
+                .options(cart.getOptions())
+                .createdAt(cart.getCreatedAt())
                 .build();
     }
 }

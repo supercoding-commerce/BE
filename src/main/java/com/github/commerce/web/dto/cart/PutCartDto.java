@@ -2,6 +2,7 @@ package com.github.commerce.web.dto.cart;
 
 import lombok.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -17,6 +18,6 @@ public class PutCartDto {
         private Long cartId;
         private Long productId;
         private Integer quantity;
-        private Map<String, String> options;
+        private List<Map<String, String>> options;
     }
 }

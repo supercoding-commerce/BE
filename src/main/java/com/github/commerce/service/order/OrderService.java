@@ -17,7 +17,9 @@ import com.github.commerce.service.order.exception.OrderErrorCode;
 import com.github.commerce.service.order.exception.OrderException;
 import com.github.commerce.service.order.util.AsyncOrderMethod;
 import com.github.commerce.service.order.util.ValidateOrderMethod;
+import com.github.commerce.web.controller.order.SSEController;
 import com.github.commerce.web.dto.cart.CartDto;
+import com.github.commerce.web.dto.order.DelayedOrderDto;
 import com.github.commerce.web.dto.order.OrderDto;
 import com.github.commerce.web.dto.order.PostOrderDto;
 import com.github.commerce.web.dto.order.PutOrderDto;
@@ -26,6 +28,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,6 +46,8 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final AsyncOrderMethod asyncOrderMethod;
     private final ValidateOrderMethod validateOrderMethod;
+    private WebClient.Builder webClientBuilder;
+    private SSEController sseController;
 
     @Transactional
     public OrderDto createOrder(PostOrderDto.Request request, Long userId) {
@@ -57,7 +63,25 @@ public class OrderService {
 
         User validatedUser = validateOrderMethod.validateUser(userId);
         Product validatedProduct = validateOrderMethod.validateProduct(inputProductId);
-        validateOrderMethod.validateStock(inputQuantity, validatedProduct);
+
+        try {
+            validateOrderMethod.validateStock(inputQuantity, validatedProduct);
+        }catch(OrderException e){
+            // 상품 재고 부족 에러가 발생한 경우
+            // 에러 메시지를 그대로 던지지 않고 메시지 큐에 정보를 전달
+            DelayedOrderDto delayedOrder = DelayedOrderDto.builder()
+                    .userId(userId)
+                    .productId(inputProductId)
+                    .quantity(inputQuantity)
+                    .options(inputOptions)
+                    .build();
+            //messageQueueService.enqueueOrderRequest(delayedOrder);
+
+            //판매자에게 알람
+            //sendEventToSeller(validatedProduct.getUsers().getId(), "상품 재고 부족 알림");
+
+            throw e;
+        }
 
         Order savedOrder = orderRepository.save(
                 Order.builder()
@@ -152,6 +176,30 @@ public class OrderService {
         return validatedOrder.getId() + "번 주문 삭제";
     }
 
-
+//    // 판매자에게 SSE 이벤트를 발생시키는 메서드
+//    private void sendEventToSeller(Long sellerUserId, String message) {
+//        String eventData = "data: {"
+//                + "\"sellerUserId\": " + sellerUserId + ","
+//                + "\"message\": \"" + message + "\""
+//                + "}\n\n";
+//
+//
+//        // SSE 이벤트를 발생시키는 WebClient를 사용하여 /sse/sendEvent 엔드포인트로 요청을 보냅니다.
+//        webClientBuilder.baseUrl("http://localhost:8080/sse") // SSEController의 엔드포인트 URL로 설정
+//                .build()
+//                .get()
+//                .uri("/sendEvent")
+//                .header("Content-Type", "text/event-stream") // SSE 이벤트 타입으로 설정
+//                .bodyValue(eventData) // 생성한 이벤트 데이터를 body에 넣습니다.
+//                .exchange()
+//                .flatMap(response -> {
+//                    if (response.statusCode().is2xxSuccessful()) {
+//                        return Mono.empty(); // 성공적으로 요청을 보내면 빈 Mono를 반환합니다.
+//                    } else {
+//                        return Mono.error(new RuntimeException("SSE 이벤트 발생에 실패했습니다."));
+//                    }
+//                })
+//                .block(); // 블로킹 방식으로 요청을 보냅니다.
+//    }
 
 }
