@@ -35,6 +35,12 @@ spring:
     mongodb:
       uri: ${MONGO_URI}
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
 springdoc:
   swagger-ui:
     path: /api-doc.html

@@ -51,12 +51,13 @@ public class CartController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<PostCartDto.Response> add(
+    public ResponseEntity<String> add(
             @RequestBody PostCartDto.Request request
             ){
         Long userId = 1L;
         return ResponseEntity.ok(
-                PostCartDto.Response.from(cartService.addToCart(request, userId))
+                //PostCartDto.Response.from(cartService.addToCart(request, userId))
+                cartService.addToCart(request, userId)
         );
     }
 
