@@ -45,6 +45,9 @@ public class ReviewService {
         if (existReview(paymentHistoryId, productId)) {
             throw new ReviewException(ReviewErrorCode.REVIEW_ALREADY_EXISTS);
         }
+        if (validatedPayment.getPoint() == null) {
+            throw new ReviewException(ReviewErrorCode.PAYMENT_POINT_NULL);
+        }
 
         ReviewDto reviewDto = ReviewDto.fromEntity(
                 reviewRepository.save(

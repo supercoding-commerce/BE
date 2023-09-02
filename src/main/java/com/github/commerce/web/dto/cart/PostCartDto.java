@@ -1,6 +1,8 @@
 package com.github.commerce.web.dto.cart;
 
 import lombok.*;
+
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -15,7 +17,7 @@ public class PostCartDto {
 
         private Long productId;
         private Integer quantity;
-        private Map<String, String> options;
+        private List<Map<String, String>> options;
     }
 
     @Setter
@@ -27,9 +29,8 @@ public class PostCartDto {
         private Long cartId;
         private Long productId;
         private Integer quantity;
-        //private String orderState;
         private Boolean isOrdered;
-        private Map<String, String> options;
+        private String options;
 
         public static Response from(CartDto cartDto){
             return Response.builder()

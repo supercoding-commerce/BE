@@ -1,6 +1,5 @@
 package com.github.commerce.web.dto.order;
 
-import com.github.commerce.web.dto.cart.CartDto;
 import lombok.*;
 import org.springframework.data.domain.Page;
 

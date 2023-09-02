@@ -23,19 +23,26 @@ public class CartController {
 
     /**
      * 장바구니 전체조회
-     * @param cursorId 기본값 0
+     * @param cursorId
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<CartDto>> getAllCart(
-            @RequestParam(defaultValue = "0") Long cursorId
+    public ResponseEntity getAllCartWithCursor(
+            @RequestParam(required = false) Long cursorId
     ){
         Long userId = 1L;
-        return ResponseEntity.ok(
-                GetCartDto.Response.fromPage(
-                        cartService.getAllCart(userId, cursorId)
-                )
-        );
+
+        if(cursorId == null){
+            return ResponseEntity.ok(
+                            cartService.getAllCarts(userId)
+            );
+        }else{
+            return ResponseEntity.ok(
+                    GetCartDto.Response.fromPage(
+                            cartService.getAllCartWithCursor(userId, cursorId)
+                    )
+            );
+        }
     }
 
     /**
