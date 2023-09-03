@@ -21,18 +21,18 @@ public class UsersInfo {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
 
     @Column(name = "balance", precision = 10, scale = 2)
     private BigDecimal balance;
 
-    @Size(max = 255)
+    @Size(max = 10)
     @Column(name = "grade")
     private String grade;
 
-    @Size(max = 255)
+    @Size(max = 10)
     @NotNull
     @Column(name = "gender", nullable = false)
     private String gender;
@@ -42,7 +42,7 @@ public class UsersInfo {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Size(max = 255)
+    @Size(max = 4)
     @NotNull
     @Column(name = "age", nullable = false)
     private String age;

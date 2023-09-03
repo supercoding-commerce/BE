@@ -8,6 +8,8 @@ import com.github.commerce.service.order.exception.OrderErrorResponse;
 import com.github.commerce.service.order.exception.OrderException;
 import com.github.commerce.service.review.exception.ReviewErrorResponse;
 import com.github.commerce.service.review.exception.ReviewException;
+import com.github.commerce.service.user.exception.UserErrorResponse;
+import com.github.commerce.service.user.exception.UserException;
 import com.github.commerce.web.advice.exception.ErrorResponse;
 import com.github.commerce.web.advice.exception.type.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +74,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleCouponException(CouponException e){
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(CouponErrorResponse.builder()
+                        .errorCode(e.getErrorCode())
+                        .errorMessage(e.getErrorMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<?> handleUserException(UserException e){
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(UserErrorResponse.builder()
                         .errorCode(e.getErrorCode())
                         .errorMessage(e.getErrorMessage())
                         .build());
