@@ -95,7 +95,7 @@ public class CartService {
         Product validatedProduct = validatCartMethod.validateProduct(inputProductId);
         validatCartMethod.validateStock(inputQuantity, validatedProduct);
 
-        CartRmqDto newCart = CartRmqDto.fromEntity(
+        CartRmqDto newCart = CartRmqDto.fromEntityForPost(
                 Cart.builder()
                         .users(validatedUser)
                         .products(validatedProduct)
@@ -105,26 +105,15 @@ public class CartService {
                         .build()
         );
 
-        rabbitTemplate.convertAndSend("cart", "cart", newCart);
-//        return CartDto.fromEntity(cartRepository.save(
-//                        Cart.builder()
-//                                .users(validatedUser)
-//                                .products(validatedProduct)
-//                                .options(inputOptionsJson)
-//                                .createdAt(LocalDateTime.now())
-//                                .quantity(inputQuantity)
-//                                .isOrdered(false)
-//                                .build()
-//                )
-//        );
+        rabbitTemplate.convertAndSend("exchange", "postCart", newCart);
         return validatedProduct.getName() + "상품을 장바구니에 넣습니다.";
     }
 
     @Transactional
-    public CartDto modifyCart(PutCartDto.Request request, Long userId) {
+    public String modifyCart(PutCartDto.Request request, Long userId) {
         Long cartId = request.getCartId();
         Long productId = request.getProductId();
-        Integer quantity = request.getQuantity();
+        Integer inputQuantity = request.getQuantity();
         List<Map<String, String>> options = request.getOptions();
 
         // Gson 인스턴스 생성
@@ -133,16 +122,30 @@ public class CartService {
         // inputOptions를 JSON 문자열로 변환
         String inputOptionsJson = gson.toJson(options);
 
-        validatCartMethod.validateUser(userId);
+        User validatedUser = validatCartMethod.validateUser(userId);
         Cart validatedCart = validatCartMethod.validateCart(cartId, userId);
         Product validatedProduct = validatCartMethod.validateProduct(productId);
-        validatCartMethod.validateStock(quantity, validatedProduct);
+        validatCartMethod.validateStock(inputQuantity, validatedProduct);
 
-        validatedCart.setQuantity(quantity);
-        validatedCart.setOptions(inputOptionsJson);
-        return CartDto.fromEntity(
-                cartRepository.save(validatedCart)
+//        validatedCart.setQuantity(quantity);
+//        validatedCart.setOptions(inputOptionsJson);
+        CartRmqDto newCart = CartRmqDto.fromEntityForModify(
+                Cart.builder()
+                        .id(validatedCart.getId())
+                        .users(validatedUser)
+                        .products(validatedProduct)
+                        .options(inputOptionsJson)
+                        .quantity(inputQuantity)
+                        .isOrdered(false)
+                        .createdAt(validatedCart.getCreatedAt())
+                        .build()
         );
+        rabbitTemplate.convertAndSend("exchange", "putCart", newCart);
+        return validatedProduct.getName() + "상품을 장바구니서 수정합니다.";
+
+//        return CartDto.fromEntity(
+//                cartRepository.save(validatedCart)
+//        );
     }
 
 

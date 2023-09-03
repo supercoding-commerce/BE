@@ -2,6 +2,7 @@ package com.github.commerce.web.controller.order;
 
 import com.github.commerce.service.order.OrderService;
 import com.github.commerce.web.dto.cart.CartDto;
+import com.github.commerce.web.dto.cart.GetCartDto;
 import com.github.commerce.web.dto.cart.PutCartDto;
 import com.github.commerce.web.dto.order.GetOrderDto;
 import com.github.commerce.web.dto.order.OrderDto;
@@ -29,7 +30,7 @@ public class OrderController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<OrderDto> createOrder(
+    public ResponseEntity<String> createOrder(
             @RequestBody PostOrderDto.Request request
             ){
         Long userId = 1L;
@@ -42,17 +43,24 @@ public class OrderController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<OrderDto>> getOrderList(
+    public ResponseEntity getOrderList(
             @RequestParam(defaultValue = "0") Long cursorId
     ){
         Long userId = 1L;
-        return ResponseEntity.ok(GetOrderDto.Response.fromPage(
-                orderService.getOrderList(userId, cursorId))
-        );
+
+        if(cursorId == null){
+            return ResponseEntity.ok(
+                    orderService.getOrderList(userId)
+            );
+        }else{
+            return ResponseEntity.ok(GetOrderDto.Response.fromPage(
+                    orderService.getOrderListByCursor(userId, cursorId))
+            );
+        }
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity getOrder(
+    public ResponseEntity<OrderDto> getOrder(
             @PathVariable Long orderId
     ){
         Long userId = 1L;

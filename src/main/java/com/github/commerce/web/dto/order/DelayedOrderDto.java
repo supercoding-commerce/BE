@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -13,6 +14,5 @@ public class DelayedOrderDto {
     private Long userId;
     private Long productId;
     private Integer quantity;
-    private Map<String, String> options;
-
+    private List<Map<String, String>> options;
 }

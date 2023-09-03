@@ -67,7 +67,7 @@ public class CartController {
      * @return
      */
     @PutMapping
-    public ResponseEntity<CartDto> modify(
+    public ResponseEntity<String> modify(
             @RequestBody PutCartDto.Request request
             ){
         Long userId = 1L;
