@@ -19,11 +19,11 @@ import com.github.commerce.service.order.util.AsyncOrderMethod;
 import com.github.commerce.service.order.util.ValidateOrderMethod;
 import com.github.commerce.web.controller.order.SSEController;
 import com.github.commerce.web.dto.cart.CartDto;
-import com.github.commerce.web.dto.order.DelayedOrderDto;
-import com.github.commerce.web.dto.order.OrderDto;
-import com.github.commerce.web.dto.order.PostOrderDto;
-import com.github.commerce.web.dto.order.PutOrderDto;
+import com.github.commerce.web.dto.order.*;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -31,10 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -46,15 +49,22 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final AsyncOrderMethod asyncOrderMethod;
     private final ValidateOrderMethod validateOrderMethod;
+    private final RabbitTemplate rabbitTemplate;
     private WebClient.Builder webClientBuilder;
     private SSEController sseController;
 
     @Transactional
-    public OrderDto createOrder(PostOrderDto.Request request, Long userId) {
+    public String createOrder(PostOrderDto.Request request, Long userId) {
         Long inputProductId = request.getProductId();
         Integer inputQuantity = request.getQuantity();
-        Map<String, String> inputOptions = request.getOptions();
         Long inputCartId = request.getCartId();
+        List<Map<String, String>> inputOptions = request.getOptions();
+
+        // Gson 인스턴스 생성
+        Gson gson = new Gson();
+        // inputOptions를 JSON 문자열로 변환
+        String inputOptionsJson = gson.toJson(inputOptions);
+
         Cart validatedCart = null;
 
         if (inputCartId != null) {
@@ -62,28 +72,30 @@ public class OrderService {
         }
 
         User validatedUser = validateOrderMethod.validateUser(userId);
+        //TODO: 재고 소진 기능마련
         Product validatedProduct = validateOrderMethod.validateProduct(inputProductId);
+        //TODO: 재고 부족 기능마련
+        validateOrderMethod.validateStock(inputQuantity, validatedProduct);
+//        try {
+//            validateOrderMethod.validateStock(inputQuantity, validatedProduct);
+//        }catch(OrderException e){
+//            // 상품 재고 부족 에러가 발생한 경우
+//            // 에러 메시지를 그대로 던지지 않고 메시지 큐에 정보를 전달
+//            DelayedOrderDto delayedOrder = DelayedOrderDto.builder()
+//                    .userId(userId)
+//                    .productId(inputProductId)
+//                    .quantity(inputQuantity)
+//                    .options(inputOptions)
+//                    .build();
+//            //messageQueueService.enqueueOrderRequest(delayedOrder);
+//
+//            //판매자에게 알람
+//            //sendEventToSeller(validatedProduct.getUsers().getId(), "상품 재고 부족 알림");
+//
+//            throw e;
+//        }
 
-        try {
-            validateOrderMethod.validateStock(inputQuantity, validatedProduct);
-        }catch(OrderException e){
-            // 상품 재고 부족 에러가 발생한 경우
-            // 에러 메시지를 그대로 던지지 않고 메시지 큐에 정보를 전달
-            DelayedOrderDto delayedOrder = DelayedOrderDto.builder()
-                    .userId(userId)
-                    .productId(inputProductId)
-                    .quantity(inputQuantity)
-                    .options(inputOptions)
-                    .build();
-            //messageQueueService.enqueueOrderRequest(delayedOrder);
-
-            //판매자에게 알람
-            //sendEventToSeller(validatedProduct.getUsers().getId(), "상품 재고 부족 알림");
-
-            throw e;
-        }
-
-        Order savedOrder = orderRepository.save(
+        OrderRmqDto newOrder = OrderRmqDto.fromEntity(
                 Order.builder()
                 .users(validatedUser)
                 .products(validatedProduct)
@@ -92,55 +104,51 @@ public class OrderService {
                 .orderState(1)
                 .carts(validatedCart)
                 .total_price((int) (validatedProduct.getPrice() * inputQuantity))
+                .options(inputOptionsJson)
                 .build()
         );
 
-        Long orderId = savedOrder.getId();
-        OrderSavedOption orderSavedOption = OrderSavedOption.builder()
-                .userId(userId)
-                .productId(inputProductId)
-                .orderId(orderId)
-                .options(inputOptions)
-                .build();
-        orderSavedOptionRepository.save(orderSavedOption);
+        rabbitTemplate.convertAndSend("exchange", "postOrder", newOrder);
+        return validatedProduct.getName() + "상품을 장바구니에 넣습니다.";
 
-        if(validatedCart != null){
-            validatedCart.setIsOrdered(true);
-            cartRepository.save(validatedCart);
-        }
-
-
-        return OrderDto.fromEntity(orderRepository.save(savedOrder), inputOptions);
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderDto> getOrderList(Long userId, Long cursorId) {
+    public List<List<OrderDto>> getOrderList(Long userId){
+        List<Order> sortedOrders = orderRepository.findAllByUsersIdOrderByCreatedAtDesc(userId);
+        // 카트 레코드를 날짜별로 그룹화
+        Map<LocalDate, List<Order>> groupedOrders = sortedOrders.stream()
+                .collect(Collectors.groupingBy(o -> o.getCreatedAt().toLocalDate()));
+
+
+        // 각 그룹을 CartDto 리스트로 변환
+        List<List<OrderDto>> result = new ArrayList<>();
+        for (Map.Entry<LocalDate, List<Order>> entry : groupedOrders.entrySet()) {
+            List<OrderDto> orderDtos = entry.getValue().stream()
+                    .map(OrderDto::fromEntity)
+                    .collect(Collectors.toList());
+            result.add(orderDtos);
+        }
+
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderDto> getOrderListByCursor(Long userId, Long cursorId) {
         int pageSize = 10;
         Page<Order> orders = orderRepository.findAllByUsersIdAndCursorId(
                 userId, cursorId, PageRequest.of(0, pageSize)
         ); //LIMIT 10의 우회적 구현
 
-        List<OrderSavedOption> optionList = orderSavedOptionRepository.findAllByUserId(userId);
-        return orders.map(order -> {
-            OrderSavedOption matchedOption = optionList.stream()
-                    .filter(option -> option.getOrderId().equals(order.getId()))
-                    .findFirst().orElseGet(OrderSavedOption::new); // 빈 값으로 초기화
-
-            return OrderDto.fromEntity(order, matchedOption.getOptions());
-        });
+        return orders.map(OrderDto::fromEntity);
     }
 
     @Transactional(readOnly = true)
     public OrderDto getOrder(Long orderId, Long userId) {
 
-        OrderSavedOption savedOption = orderSavedOptionRepository.findByOrderIdAndUserId(orderId, userId);
-        if(savedOption == null){
-            savedOption = new OrderSavedOption();
-        }
         return OrderDto.fromEntity(
                 orderRepository.findByIdAndUsersId(orderId, userId)
-                        .orElseThrow(() -> new OrderException(OrderErrorCode.THIS_ORDER_DOES_NOT_EXIST)),
-                savedOption.getOptions()
+                        .orElseThrow(() -> new OrderException(OrderErrorCode.THIS_ORDER_DOES_NOT_EXIST))
         );
     }
 
@@ -149,29 +157,26 @@ public class OrderService {
         Long orderId = request.getOrderId();
         Long productId = request.getProductId();
         Integer quantity = request.getQuantity();
-        Map<String, String> options = request.getOptions();
+        List<Map<String, String>> options = request.getOptions();
+        // Gson 인스턴스 생성
+        Gson gson = new Gson();
+        // inputOptions를 JSON 문자열로 변환
+        String inputOptionsJson = gson.toJson(options);
 
         validateOrderMethod.validateUser(userId);
+        Order validatedOrder = validateOrderMethod.validateOrder(orderId, userId);
+        Product validatedProduct = validateOrderMethod.validateProduct(productId);
+        validateOrderMethod.validateStock(quantity, validatedProduct);
 
-        CompletableFuture<OrderSavedOption> savedOptionFuture = asyncOrderMethod.updateOrderMongoDB(orderId, userId, options);
-        CompletableFuture<Order> savedOrderFuture = asyncOrderMethod.updateOrderMySQL(orderId, userId, productId, quantity);
-
-        CompletableFuture<OrderDto> combinedFuture = savedOptionFuture.thenCombine(
-                savedOrderFuture,
-                (savedOption, savedOrder) -> OrderDto.fromEntity(savedOrder, savedOption.getOptions())
-        ).exceptionally(exception -> {
-            // 예외 처리 로직 추가
-            exception.printStackTrace();
-            return null; // 또는 예외 상황에 대한 대체 값을 반환
-        });
-        return combinedFuture.join();
+        validatedOrder.setQuantity(quantity);
+        validatedOrder.setOptions(inputOptionsJson);
+        return OrderDto.fromEntity(orderRepository.save(validatedOrder));
     }
 
     @Transactional
     public String deleteOne(Long orderId, Long userId) {
         validateOrderMethod.validateUser(userId);
         Order validatedOrder = validateOrderMethod.validateOrder(orderId, userId);
-        asyncOrderMethod.deleteOptionByOrderId(validatedOrder.getId());
         orderRepository.deleteById(orderId);
         return validatedOrder.getId() + "번 주문 삭제";
     }

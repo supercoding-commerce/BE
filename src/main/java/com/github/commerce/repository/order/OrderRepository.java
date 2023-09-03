@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -19,4 +20,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findAllByUsersIdAndCursorId(Long userId, Long cursorId, PageRequest of);
 
     Optional<Order> findByIdAndUsersId(Long orderId, Long userId);
+
+    List<Order> findAllByUsersIdOrderByCreatedAtDesc(Long userId);
 }

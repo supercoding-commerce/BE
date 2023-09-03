@@ -45,6 +45,9 @@ public class Order {
     @Column(name="created_at")
     LocalDateTime createdAt;
 
+    @Column(name = "options")
+    private String options;
+
 //    @Column(name="option_id", length = 50)
 //    String optionId;
 }
