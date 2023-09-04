@@ -4,9 +4,6 @@ import com.github.commerce.entity.Cart;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.User;
 import com.github.commerce.repository.cart.CartRepository;
-import com.github.commerce.repository.product.ProductRepository;
-import com.github.commerce.repository.user.UserRepository;
-import com.github.commerce.service.cart.util.AsyncCartMethod;
 import com.github.commerce.service.cart.util.ValidatCartMethod;
 import com.github.commerce.web.dto.cart.CartDto;
 import com.github.commerce.web.dto.cart.CartRmqDto;
@@ -38,23 +35,22 @@ public class CartService {
     private final RabbitTemplate rabbitTemplate;
 
     @Transactional(readOnly = true)
-    public List<List<CartDto>> getAllCarts(Long userId){
+    public List<Map<LocalDate, List<CartDto>>> getAllCarts(Long userId){
         List<Cart> sortedCarts = cartRepository.findAllByUsersIdOrderByCreatedAtDesc(userId);
         // 카트 레코드를 날짜별로 그룹화
-        Map<LocalDate, List<Cart>> groupedCarts = sortedCarts.stream()
-                .collect(Collectors.groupingBy(cart -> cart.getCreatedAt().toLocalDate()));
+        //여기서 중요한 점은 LocalDate는 날짜만을 다루기 때문에 시간 정보가 무시되고 날짜 정보만을 사용하여 그룹화가 이루어집니다.
+        // 만약 시간 정보도 포함하여 그룹화하려면 LocalDateTime을 사용하거나 다른 방식으로 날짜와 시간을 함께 처리해야 합니다.
+        Map<LocalDate, List<CartDto>> groupedCarts = sortedCarts.stream()
+                .collect(Collectors.groupingBy(
+                        cart -> cart.getCreatedAt().toLocalDate(),
+                        Collectors.mapping(CartDto::fromEntity, Collectors.toList())
+                ));
 
-
-        // 각 그룹을 CartDto 리스트로 변환
-        List<List<CartDto>> result = new ArrayList<>();
-        for (Map.Entry<LocalDate, List<Cart>> entry : groupedCarts.entrySet()) {
-            List<CartDto> cartDtos = entry.getValue().stream()
-                    .map(CartDto::fromEntity)
-                    .collect(Collectors.toList());
-            result.add(cartDtos);
-        }
+        List<Map<LocalDate, List<CartDto>>> result = new ArrayList<>();
+        result.add(groupedCarts);
 
         return result;
+
     }
 
     @Transactional(readOnly = true)
@@ -64,21 +60,9 @@ public class CartService {
                userId, cursorId, PageRequest.of(0, pageSize)
         ); //LIMIT 10의 우회적 구현
 
-        //List<CartSavedOption> optionList = cartSavedOptionRepository.findCartSavedOptionsByUserId(userId);
-//        return carts.map(cart -> {
-//            CartSavedOption matchedOption = optionList.stream()
-//                    .filter(option -> option.getOptionId().equals(cart.getOptionId()))
-//                    .findFirst().orElseGet(CartSavedOption::new); // 빈 값으로 초기화
-//
-//            return CartDto.fromEntity(cart, matchedOption.getOptions());
-//        });
         return carts.map(CartDto::fromEntity);
     }
 
-
-    //thenCompose: 이 메서드는 첫 번째 CompletableFuture의 결과를 사용하여 두 번째 CompletableFuture를 실행하는데 사용됩니다.
-    // 즉, 첫 번째 작업이 끝난 후 그 결과를 다음 작업에 전달하여 순차적으로 실행됩니다.
-    // 이를 통해 비동기 작업을 순차적으로 연결하거나, 한 작업의 결과를 다른 작업에 전달하여 활용할 수 있습니다.
     @Transactional
     public String addToCart(PostCartDto.Request request, Long userId) {
         Long inputProductId = request.getProductId();
@@ -127,8 +111,6 @@ public class CartService {
         Product validatedProduct = validatCartMethod.validateProduct(productId);
         validatCartMethod.validateStock(inputQuantity, validatedProduct);
 
-//        validatedCart.setQuantity(quantity);
-//        validatedCart.setOptions(inputOptionsJson);
         CartRmqDto newCart = CartRmqDto.fromEntityForModify(
                 Cart.builder()
                         .id(validatedCart.getId())
@@ -143,9 +125,6 @@ public class CartService {
         rabbitTemplate.convertAndSend("exchange", "putCart", newCart);
         return validatedProduct.getName() + "상품을 장바구니서 수정합니다.";
 
-//        return CartDto.fromEntity(
-//                cartRepository.save(validatedCart)
-//        );
     }
 
 

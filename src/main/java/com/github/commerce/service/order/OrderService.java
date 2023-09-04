@@ -109,26 +109,21 @@ public class OrderService {
         );
 
         rabbitTemplate.convertAndSend("exchange", "postOrder", newOrder);
-        return validatedProduct.getName() + "상품을 장바구니에 넣습니다.";
+        return validatedProduct.getName() + "상품 주문요청";
 
     }
 
     @Transactional(readOnly = true)
-    public List<List<OrderDto>> getOrderList(Long userId){
+    public List<Map<LocalDate, List<OrderDto>>> getOrderList(Long userId){
         List<Order> sortedOrders = orderRepository.findAllByUsersIdOrderByCreatedAtDesc(userId);
         // 카트 레코드를 날짜별로 그룹화
-        Map<LocalDate, List<Order>> groupedOrders = sortedOrders.stream()
-                .collect(Collectors.groupingBy(o -> o.getCreatedAt().toLocalDate()));
+        Map<LocalDate, List<OrderDto>> groupedOrders = sortedOrders.stream()
+                .collect(Collectors.groupingBy(
+                        order -> order.getCreatedAt().toLocalDate(),
+                        Collectors.mapping(OrderDto::fromEntity, Collectors.toList())));
 
-
-        // 각 그룹을 CartDto 리스트로 변환
-        List<List<OrderDto>> result = new ArrayList<>();
-        for (Map.Entry<LocalDate, List<Order>> entry : groupedOrders.entrySet()) {
-            List<OrderDto> orderDtos = entry.getValue().stream()
-                    .map(OrderDto::fromEntity)
-                    .collect(Collectors.toList());
-            result.add(orderDtos);
-        }
+        List<Map<LocalDate, List<OrderDto>>> result = new ArrayList<>();
+        result.add(groupedOrders);
 
         return result;
     }
@@ -153,24 +148,39 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDto modifyOrder(PutOrderDto.Request request, Long userId) {
+    public String modifyOrder(PutOrderDto.Request request, Long userId) {
         Long orderId = request.getOrderId();
         Long productId = request.getProductId();
-        Integer quantity = request.getQuantity();
+        Integer inputQuantity = request.getQuantity();
         List<Map<String, String>> options = request.getOptions();
         // Gson 인스턴스 생성
         Gson gson = new Gson();
         // inputOptions를 JSON 문자열로 변환
         String inputOptionsJson = gson.toJson(options);
 
-        validateOrderMethod.validateUser(userId);
+        User validatedUser = validateOrderMethod.validateUser(userId);
         Order validatedOrder = validateOrderMethod.validateOrder(orderId, userId);
         Product validatedProduct = validateOrderMethod.validateProduct(productId);
-        validateOrderMethod.validateStock(quantity, validatedProduct);
+        validateOrderMethod.validateStock(inputQuantity, validatedProduct);
 
-        validatedOrder.setQuantity(quantity);
-        validatedOrder.setOptions(inputOptionsJson);
-        return OrderDto.fromEntity(orderRepository.save(validatedOrder));
+//        validatedOrder.setQuantity(inputQuantity);
+//        validatedOrder.setOptions(inputOptionsJson);
+
+        OrderRmqDto newOrder = OrderRmqDto.fromEntityForModify(
+                Order.builder()
+                        .id(validatedOrder.getId())
+                        .users(validatedUser)
+                        .products(validatedProduct)
+                        .createdAt(validatedOrder.getCreatedAt())
+                        .quantity(inputQuantity)
+                        .orderState(1)
+                        .total_price((int) (validatedProduct.getPrice() * inputQuantity))
+                        .options(inputOptionsJson)
+                        .build()
+        );
+        rabbitTemplate.convertAndSend("exchange", "putOrder", newOrder);
+        //return OrderDto.fromEntity(orderRepository.save(validatedOrder));
+        return validatedProduct.getName() + "상품 주문 수정";
     }
 
     @Transactional
