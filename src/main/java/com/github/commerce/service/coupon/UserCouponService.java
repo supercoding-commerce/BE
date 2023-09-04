@@ -11,6 +11,7 @@ import com.github.commerce.service.coupon.exception.CouponException;
 import com.github.commerce.web.dto.coupon.UsersCouponIssueRequest;
 import com.github.commerce.web.dto.coupon.UsersCouponResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserCouponService {
@@ -36,13 +38,13 @@ public class UserCouponService {
             throw new CouponException(CouponErrorCode.USER_NOT_FOUND);
         }
 
-        return usersCouponRepository.findUsersCouponByUsersIdAndExpiredAtAfterAndIsUsedOrderByExpiredAt(user.getId(), LocalDateTime.now(), false).stream().map(UsersCouponResponseDto::new).collect(Collectors.toList());
+        return usersCouponRepository.findUsersCouponByUsersIdAndExpiredAtAfterOrderByExpiredAt(user.getId(), LocalDateTime.now()).stream().map(UsersCouponResponseDto::new).collect(Collectors.toList());
     }
 
     //회원이 쿠폰 발급
     //synchronized 키워드
     @Transactional
-    public synchronized UsersCouponResponseDto issueUserCoupon(UsersCouponIssueRequest usersCouponIssueRequest){
+    public UsersCouponResponseDto issueUserCoupon(UsersCouponIssueRequest usersCouponIssueRequest){
 
         User user = userRepository.findUserByEmail(usersCouponIssueRequest.getUserEmail());
         Coupon coupon = couponRepository.findCouponById(usersCouponIssueRequest.getCouponId());
@@ -57,21 +59,24 @@ public class UserCouponService {
             throw new CouponException(CouponErrorCode.THIS_COUPON_DOES_NOT_EXIST);
         }
 
-        //해당 유저가 동일한 쿠폰을 발급받은 적이 있을 때
-        if(usersCouponRepository.existsByUsersIdAndCouponsId(user.getId(), usersCouponIssueRequest.getCouponId())){
-            throw new CouponException(CouponErrorCode.COUPON_ALREADY_EXISTS);
-        }
-
-        //쿠폰이 모두 소진되었을 때
-        if(coupon.getCouponAmount()<=0){
-            throw new CouponException(CouponErrorCode.OUT_OF_STOCK);
-        }
+//        //해당 유저가 동일한 쿠폰을 발급받은 적이 있을 때
+//        if(usersCouponRepository.existsByUsersIdAndCouponsId(user.getId(), usersCouponIssueRequest.getCouponId())){
+//            throw new CouponException(CouponErrorCode.COUPON_ALREADY_EXISTS);
+//        }
 
         //TODO. 현재 회원의 등급이 쿠폰 발급 가능 회원 등급에 해당하지 않을 때 예외처리
 
         //쿠폰 한 개 사용
-        coupon.setCouponAmount(coupon.getCouponAmount()-1);
-        couponRepository.save(coupon);
+        synchronized (this){ //synchronized 키워드 -> UserCouponService 인스턴스에 락이 걸리게 됨. -> 성능 이슈
+            //쿠폰이 모두 소진되었을 때
+            if(coupon.getCouponAmount()<=0){
+                throw new CouponException(CouponErrorCode.OUT_OF_STOCK);
+            }
+            log.info("stock={}", coupon.getCouponAmount());
+            coupon.setCouponAmount(coupon.getCouponAmount()-1);
+            couponRepository.save(coupon);
+        }
+
         return new UsersCouponResponseDto(usersCouponRepository.save(new UsersCoupon(coupon, user, LocalDateTime.now().plusDays(coupon.getPeriod()))));
     }
 
