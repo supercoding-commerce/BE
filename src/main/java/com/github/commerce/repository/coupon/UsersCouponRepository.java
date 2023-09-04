@@ -12,7 +12,7 @@ public interface UsersCouponRepository extends JpaRepository<UsersCoupon, Long> 
 
     boolean existsByUsersIdAndCouponsId(Long id, Long couponId);
 
-    List<UsersCoupon> findUsersCouponByUsersIdAndExpiredAtAfterAndIsUsedOrderByExpiredAt(Long id, LocalDateTime now, boolean isUsed);
+    List<UsersCoupon> findUsersCouponByUsersIdAndExpiredAtAfterOrderByExpiredAt(Long id, LocalDateTime now);
 
     UsersCoupon findUsersCouponByUsersIdAndCouponsIdAndExpiredAtAfterAndIsUsed(Long id, Long id1, LocalDateTime now, boolean isUsed);
 }

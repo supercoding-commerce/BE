@@ -23,9 +23,13 @@ public class UserCouponController {
     }
 
     //쿠폰 발급
+//    @PostMapping("/issue")
+//    public ResponseEntity<UsersCouponResponseDto> issueCoupon(@RequestBody UsersCouponIssueRequest usersCouponIssueRequest){
+//        return ResponseEntity.ok(userCouponService.issueUserCoupon(usersCouponIssueRequest));
+//    }
     @PostMapping("/issue")
-    public ResponseEntity<UsersCouponResponseDto> issueCoupon(@RequestBody UsersCouponIssueRequest usersCouponIssueRequest){
-        return ResponseEntity.ok(userCouponService.issueUserCoupon(usersCouponIssueRequest));
+    public ResponseEntity<UsersCouponResponseDto> issueCoupon(@RequestParam("userId")String userId, @RequestParam("couponId") Long couponId){
+        return ResponseEntity.ok(userCouponService.issueUserCoupon(new UsersCouponIssueRequest(userId, couponId)));
     }
 
     //쿠폰 사용 완료
