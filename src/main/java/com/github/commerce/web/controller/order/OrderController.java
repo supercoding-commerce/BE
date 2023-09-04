@@ -1,21 +1,15 @@
 package com.github.commerce.web.controller.order;
 
 import com.github.commerce.service.order.OrderService;
-import com.github.commerce.web.dto.cart.CartDto;
-import com.github.commerce.web.dto.cart.GetCartDto;
-import com.github.commerce.web.dto.cart.PutCartDto;
 import com.github.commerce.web.dto.order.GetOrderDto;
 import com.github.commerce.web.dto.order.OrderDto;
 import com.github.commerce.web.dto.order.PostOrderDto;
 import com.github.commerce.web.dto.order.PutOrderDto;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -44,7 +38,7 @@ public class OrderController {
      */
     @GetMapping
     public ResponseEntity getOrderList(
-            @RequestParam(defaultValue = "0") Long cursorId
+            @RequestParam(required = false) Long cursorId
     ){
         Long userId = 1L;
 
@@ -75,7 +69,7 @@ public class OrderController {
      * @return
      */
     @PutMapping
-    public ResponseEntity<OrderDto> modify(
+    public ResponseEntity<String> modify(
             @RequestBody PutOrderDto.Request request
     ){
         Long userId = 1L;

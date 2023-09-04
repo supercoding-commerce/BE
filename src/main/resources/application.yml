@@ -35,11 +35,11 @@ spring:
     mongodb:
       uri: ${MONGO_URI}
 
-  rabbitmq:
-    host: ${RMQ_HOST}
-    port: 5672
-    username: ${RMQ_USER}
-    password: ${RMQ_PASSWORD}
+rabbitmq:
+  host: ${RMQ_HOST}
+  port: 5672
+  username: ${RMQ_USER}
+  password: ${RMQ_PASSWORD}
 
 springdoc:
   swagger-ui:
