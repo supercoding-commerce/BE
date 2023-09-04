@@ -2,6 +2,7 @@ package com.github.commerce.web.dto.order;
 
 import lombok.*;
 
+import java.util.List;
 import java.util.Map;
 
 public class PostOrderDto {
@@ -15,6 +16,6 @@ public class PostOrderDto {
         private Long productId;
         private Long cartId;
         private Integer quantity;
-        private Map<String, String> options;
+        private List<Map<String, String>> options;
     }
 }

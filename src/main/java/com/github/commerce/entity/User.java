@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -25,7 +26,7 @@ public class User {
     @Column(name = "email", nullable = false, length = 100)
     private String email;
 
-    @Size(max = 100)
+    @Size(max = 255)
     @Column(name = "password", length = 100)
     private String password;
 
@@ -38,14 +39,14 @@ public class User {
     @Column(name = "telephone")
     private String telephone;
 
-    @Size(max = 255)
     @Column(name = "role")
-    private String role;
+    @Enumerated(value = EnumType.STRING)
+    private UserRoleEnum role;
 
     @Column(name = "is_delete")
-    private Boolean isDelete;
+    private Boolean isDelete=false;
 
     @Column(name = "created_at")
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
 }

@@ -4,6 +4,7 @@ import com.github.commerce.entity.Order;
 import com.github.commerce.entity.Product;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 @Getter
 @Setter
@@ -17,9 +18,10 @@ public class OrderDto {
     private String orderState;
     private Integer quantity;
     private Integer total_price;
-    private Map<String, String> options;
+    private String options;
+    LocalDateTime createdAt;
 
-    public static OrderDto fromEntity(Order order, Map<String, String> options){
+    public static OrderDto fromEntity(Order order){
         Product product = order.getProducts();
         //Cart cart = order.getCarts();
         return OrderDto.builder()
@@ -29,7 +31,8 @@ public class OrderDto {
                 .quantity(order.getQuantity())
                 .total_price(order.getTotal_price())
                 .orderState(OrderStateEnum.getByCode(order.getOrderState()))
-                .options(options)
+                .options(order.getOptions())
+                .createdAt(order.getCreatedAt())
                 .build();
     }
 }

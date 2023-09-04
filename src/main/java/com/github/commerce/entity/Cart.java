@@ -40,7 +40,10 @@ public class Cart {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "option_id", length = 50)
-    private String optionId;
+//    @Column(name = "option_id", length = 50)
+//    private String optionId;
+
+    @Column(name = "options")
+    private String options;
 
 }

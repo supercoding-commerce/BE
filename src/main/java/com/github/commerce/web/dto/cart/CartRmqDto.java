@@ -2,20 +2,19 @@ package com.github.commerce.web.dto.cart;
 
 import com.github.commerce.entity.Cart;
 import com.github.commerce.entity.Product;
-import com.github.commerce.entity.mongocollection.CartSavedOption;
+import com.github.commerce.entity.User;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CartDto {
-    private Long userId;
+public class CartRmqDto {
     private Long cartId;
+    private Long userId;
     private Long productId;
     private String productName;
     private Long price;
@@ -24,24 +23,26 @@ public class CartDto {
     private Boolean isOrdered;
     private Integer totalPrice;
     private String options;
-    private LocalDateTime createdAt;
-    //private Map<String, String> options;
 
-    public static CartDto fromEntity(Cart cart){
-        Product product = cart.getProducts();
-        return CartDto.builder()
+    public static CartRmqDto fromEntityForPost(Cart cart){
+        return CartRmqDto.builder()
                 .userId(cart.getUsers().getId())
-                .cartId(cart.getId())
-                .productId(product.getId())
-                .productName(product.getName())
-                .price(product.getPrice())
-                .imageUrl(product.getThumbnailUrl())
-                //.orderState(OrderStateEnum.getByCode(cart.getOrderState()))
+                .productId(cart.getProducts().getId())
                 .isOrdered(cart.getIsOrdered())
                 .quantity(cart.getQuantity())
-                .totalPrice((int) (product.getPrice() * cart.getQuantity()))
                 .options(cart.getOptions())
-                .createdAt(cart.getCreatedAt())
                 .build();
     }
+
+    public static CartRmqDto fromEntityForModify(Cart cart){
+        return CartRmqDto.builder()
+                .cartId(cart.getId())
+                .userId(cart.getUsers().getId())
+                .productId(cart.getProducts().getId())
+                .isOrdered(cart.getIsOrdered())
+                .quantity(cart.getQuantity())
+                .options(cart.getOptions())
+                .build();
+    }
+
 }
