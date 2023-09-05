@@ -22,7 +22,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final SellerRepository sellerRepository;
     private final UserInfoRepository userInfoRepository;
-    //private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public boolean registerSeller(ReigsterSellerDto reigsterSellerDto) {
@@ -39,8 +39,8 @@ public class UserService {
 
         User user = User.builder()
                 .email(reigsterSellerDto.getEmail())
-                .password(reigsterSellerDto.getPassword())
-                //.password(passwordEncoder.encode(reigsterSellerDto.getPassword()))
+                //.password(reigsterSellerDto.getPassword())
+                .password(passwordEncoder.encode(reigsterSellerDto.getPassword()))
                 .userName(reigsterSellerDto.getUserName())
                 .telephone(reigsterSellerDto.getTelephone())
                 .role(UserRoleEnum.SELLER)
@@ -73,8 +73,8 @@ public class UserService {
 
         User user = User.builder()
                 .email(registerUserInfoDto.getEmail())
-                .password(registerUserInfoDto.getPassword())
-                //.password(passwordEncoder.encode(registerUserInfoDto.getPassword()))
+                //.password(registerUserInfoDto.getPassword())
+                .password(passwordEncoder.encode(registerUserInfoDto.getPassword()))
                 .userName(registerUserInfoDto.getUserName())
                 .telephone(registerUserInfoDto.getTelephone())
                 .role(UserRoleEnum.USER)
