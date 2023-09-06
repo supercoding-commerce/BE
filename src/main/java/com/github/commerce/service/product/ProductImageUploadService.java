@@ -26,7 +26,7 @@ public class ProductImageUploadService {
     private final ProductContentImageRepository productContentImageRepository;
 
     @Async
-    public CompletableFuture<Void> uploadThumbNailImage(MultipartFile thumbNailFile, Product product) {
+    public void uploadThumbNailImage(MultipartFile thumbNailFile, Product product) {
         try {
             if (thumbNailFile != null) {
                 String url = awsS3Service.memoryUpload(thumbNailFile,
@@ -36,11 +36,11 @@ public class ProductImageUploadService {
         } catch (IOException e) {
             throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
         }
-        return CompletableFuture.completedFuture(null);
+        //return CompletableFuture.completedFuture(null);
     }
 
     @Async
-    public CompletableFuture<Void> uploadImageFileList(List<MultipartFile> imgList, Product product) {
+    public void uploadImageFileList(List<MultipartFile> imgList, Product product) {
 //        List<ProductContentImage> productContentImageList =
         List<String> urlList = new ArrayList<>();
         imgList.forEach(multipartFile -> {
@@ -57,7 +57,7 @@ public class ProductImageUploadService {
 //                .collect(Collectors.toList());
 //        productContentImageRepository.saveAll(productContentImageList);
 
-        return CompletableFuture.completedFuture(null);
+        //return CompletableFuture.completedFuture(null);
     }
 
 }
