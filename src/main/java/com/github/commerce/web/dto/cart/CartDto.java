@@ -2,7 +2,6 @@ package com.github.commerce.web.dto.cart;
 
 import com.github.commerce.entity.Cart;
 import com.github.commerce.entity.Product;
-import com.github.commerce.entity.mongocollection.CartSavedOption;
 import lombok.*;
 
 import java.time.LocalDateTime;

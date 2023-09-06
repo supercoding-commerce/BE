@@ -1,6 +1,6 @@
 package com.github.commerce.web.controller.product;
 
-import com.github.commerce.entity.mongocollection.ProductOption;
+import com.github.commerce.entity.collection.ProductOption;
 import com.github.commerce.service.product.ProductService;
 import com.github.commerce.web.dto.product.ProductRequest;
 import io.swagger.annotations.Api;

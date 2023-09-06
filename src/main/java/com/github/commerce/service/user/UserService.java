@@ -85,7 +85,7 @@ public class UserService {
         userInfoRepository.save(
                 UsersInfo.builder()
                         .users(user)
-                        .grade(Grade.Green.name())
+                        .grade(Grade.Green)
                         .gender(registerUserInfoDto.getGender())
                         .address(registerUserInfoDto.getAddress())
                         .age(registerUserInfoDto.getAge())
