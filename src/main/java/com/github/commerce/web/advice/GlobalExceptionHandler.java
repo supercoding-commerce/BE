@@ -1,11 +1,14 @@
 package com.github.commerce.web.advice;
 
+import com.github.commerce.entity.Product;
 import com.github.commerce.service.cart.exception.CartErrorResponse;
 import com.github.commerce.service.cart.exception.CartException;
 import com.github.commerce.service.coupon.exception.CouponErrorResponse;
 import com.github.commerce.service.coupon.exception.CouponException;
 import com.github.commerce.service.order.exception.OrderErrorResponse;
 import com.github.commerce.service.order.exception.OrderException;
+import com.github.commerce.service.product.exception.ProductErrorResponse;
+import com.github.commerce.service.product.exception.ProductException;
 import com.github.commerce.service.review.exception.ReviewErrorResponse;
 import com.github.commerce.service.review.exception.ReviewException;
 import com.github.commerce.service.user.exception.UserErrorResponse;
@@ -87,5 +90,12 @@ public class GlobalExceptionHandler {
                         .errorMessage(e.getErrorMessage())
                         .build());
     }
-
+    @ExceptionHandler(ProductException.class)
+    public ResponseEntity<?> handleProductException(ProductException e){
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ProductErrorResponse.builder()
+                        .errorCode(e.getErrorCode())
+                        .errorMessage(e.getErrorMessage())
+                        .build());
+    }
 }
