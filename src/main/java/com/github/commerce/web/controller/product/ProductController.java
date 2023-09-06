@@ -1,13 +1,16 @@
 package com.github.commerce.web.controller.product;
 
 import com.github.commerce.entity.collection.ProductOption;
+import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.product.ProductService;
 import com.github.commerce.web.dto.product.ProductRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,19 +26,17 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("v1/api/mongo/{productId}")
-    public ResponseEntity<ProductOption> getMongo(
-            @PathVariable() int productId
-    ) {
-        return ResponseEntity.ok(productService.getMongo(productId));
-    }
     // 상품 등록
     @ApiOperation(value = "상품 등록")
-    @PostMapping(value = "/", consumes = "multipart/form-data")
-    public ResponseEntity<?> createProduct(@RequestPart ProductRequest productRequest,
+
+    @PostMapping("/test")
+    public ResponseEntity<String> createProduct(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestPart(value="productRequest") ProductRequest productRequest,
                                            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
                                            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
-        productService.createProductItem(productRequest,thumbnailImage,imageFiles);
+        System.out.printf("1111111" + productRequest.getName());
+        productService.createProductItem(productRequest,thumbnailImage,imageFiles, userDetails.getUser().getId());
         return ResponseEntity.ok("상품 등록 완료");
     }
 }

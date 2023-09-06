@@ -31,10 +31,12 @@ public class AwsS3Service {
     private String bucket;
 
     public String memoryUpload(MultipartFile uploadFile, String fileName) throws IOException {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(uploadFile.getSize());
+        objectMetadata.setContentType(uploadFile.getContentType());
+
         try (InputStream inputStream = uploadFile.getInputStream()) {
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(uploadFile.getSize());
-            objectMetadata.setContentType(uploadFile.getContentType());
+
             amazonS3Client.putObject(
                     new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                             .withCannedAcl(CannedAccessControlList.PublicRead)	// PublicRead 권한으로 업로드 됨

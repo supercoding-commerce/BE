@@ -1,54 +1,63 @@
 package com.github.commerce.service.product;
 
 import com.github.commerce.entity.Product;
-import com.github.commerce.entity.collection.ProductOption;
-import com.github.commerce.repository.product.ProductOptionRepository;
+import com.github.commerce.entity.User;
 import com.github.commerce.repository.product.ProductRepository;
+import com.github.commerce.repository.user.UserRepository;
 import com.github.commerce.service.product.exception.ProductErrorCode;
 import com.github.commerce.service.product.exception.ProductException;
 import com.github.commerce.web.dto.product.ProductRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
-import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class ProductService {
-    private final ProductOptionRepository productOptionRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
     private final ProductImageUploadService productImageUploadService;
-
-    public ProductOption getMongo(int productId) {
-       return productOptionRepository.findProductOptionByProductId(productId);
-    }
 
     //상품 등록
     @Transactional
-    public void createProductItem(ProductRequest productRequest, MultipartFile thumbnailImage, List<MultipartFile> imageFiles) {
+    public void createProductItem(ProductRequest productRequest, MultipartFile thumbnailImage, List<MultipartFile> imageFiles, Long id) {
        // TODO -> 판매자 정보 추가해야함 어떤 판매자인지 알아야하니깐
+
         boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
         try{
-            Product product = Product.from(productRequest);
-            productRepository.save(product);
+            System.out.println("222222" + productRequest.getName());
+            User user = userRepository.findById(id).orElseThrow(null);
+            Product product = productRepository.save(
+                    Product.builder()
+                            .name(productRequest.getName())
+                            .users(user)
+                            .price(productRequest.getPrice())
+                            .content(productRequest.getContent())
+                            .leftAmount(productRequest.getLeftAmount())
+                            .createdAt(LocalDateTime.now())
+                            .isDeleted(false)
+                            .productCategory("test")
+                            .ageCategory("test")
+                            .genderCategory("test")
+                            .build()
+            );
+            System.out.println("33333");
+
             if(product.getId() != null){
-                CompletableFuture<Void> thumbFuture = productImageUploadService.uploadThumbNailImage(thumbnailImage, product);
-                thumbFuture.join();
+                productImageUploadService.uploadThumbNailImage(thumbnailImage, product);
                 if (imageExists) {
-                    CompletableFuture<Void> imageListFuture = productImageUploadService.uploadImageFileList(imageFiles, product);
-                    imageListFuture.join();
+                   productImageUploadService.uploadImageFileList(imageFiles, product);
                 }
             }
         }catch (Exception e){
-            throw new ProductException(ProductErrorCode.INTERNAL_SERVER_ERROR);
+            throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
         }
     }
 }
