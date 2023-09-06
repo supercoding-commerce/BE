@@ -24,7 +24,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final UserDetailsServiceImpl userDetailsService;
 
     public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
-        log.info("JwtAuthorizationFilter");
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
     }
@@ -36,13 +35,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(tokenValue)) {
 
             if (!jwtUtil.validateToken(tokenValue)) {
-                log.error("Token Error");
                 return;
             }
 
             Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
 
             try {
+                //SecurityContextHolder.getContext().setAuthentication(createAuthentication(info.getSubject()));
                 setAuthentication(info.getSubject());
             } catch (Exception e) {
                 log.error(e.getMessage());

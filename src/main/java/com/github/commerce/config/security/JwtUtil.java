@@ -18,7 +18,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     // Header KEY 값
-    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String AUTHORIZATION_HEADER = "X-AUTH-TOKEN";
     // 사용자 권한 값의 KEY
     public static final String AUTHORIZATION_KEY = "auth";
     // Token 식별자
@@ -39,7 +39,6 @@ public class JwtUtil {
 
     // 토큰 생성
     public String createToken(String email, UserRoleEnum role) {
-        log.info("createToken");
         Date date = new Date();
 
         return BEARER_PREFIX +
@@ -63,7 +62,6 @@ public class JwtUtil {
 
     // 토큰 검증
     public boolean validateToken(String token) {
-        log.info("validateToken");
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
@@ -81,7 +79,6 @@ public class JwtUtil {
 
     // 토큰에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
-        log.info("getUserInfoFromToken");
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 }

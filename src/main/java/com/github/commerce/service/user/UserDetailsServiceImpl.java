@@ -21,7 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findUserByEmail(email);
 
-        //등록되지 않은 아이디
+        //존재하지 않는 유저
         if(user ==null||user.getIsDelete()==true) {
             throw new UserException(UserErrorCode.UER_NOT_FOUND);
         }
