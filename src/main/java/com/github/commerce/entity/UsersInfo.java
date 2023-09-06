@@ -28,9 +28,9 @@ public class UsersInfo {
     @Column(name = "balance", precision = 10, scale = 2)
     private BigDecimal balance;
 
-    @Size(max = 10)
     @Column(name = "grade")
-    private String grade;
+    @Enumerated(value = EnumType.STRING)
+    private Grade grade;
 
     @Size(max = 10)
     @NotNull
