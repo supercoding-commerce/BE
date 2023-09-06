@@ -44,3 +44,6 @@ rabbitmq:
 springdoc:
   swagger-ui:
     path: /api-doc.html
+
+jwt:
+  secret-key-source: 6rmA7LGE7ZiEIO2ZlOydtO2MhSEgM+2MgCDshKDsg53ri5jrk6Trj4Qg7ZmU7J207YyFIQ==
