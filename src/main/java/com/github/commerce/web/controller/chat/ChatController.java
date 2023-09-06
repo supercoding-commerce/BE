@@ -19,14 +19,14 @@ import java.util.List;
 public class ChatController {
     private final ChatService chatService;
 
-    @GetMapping("/{sellerId}")
+    @GetMapping("/seller/{sellerId}")
     public ResponseEntity<List<Chat>> getSellerChats(
             @PathVariable Long sellerId
     ){
         return ResponseEntity.ok(chatService.getSellerChats(sellerId));
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<Chat>> getUserChats(
             @PathVariable Long userId
     ){
