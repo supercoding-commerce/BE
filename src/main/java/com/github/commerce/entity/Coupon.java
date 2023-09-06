@@ -1,5 +1,7 @@
 package com.github.commerce.entity;
 
+import com.github.commerce.service.coupon.exception.CouponErrorCode;
+import com.github.commerce.service.coupon.exception.CouponException;
 import com.github.commerce.web.dto.coupon.CouponRegisterRequest;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -43,7 +45,6 @@ public class Coupon {
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
-
     @Column(name = "coupon_grade")
     @Enumerated(EnumType.STRING)
     @Builder.Default
@@ -60,4 +61,12 @@ public class Coupon {
         this.couponAmount = couponRegisterRequest.getCouponAmount();
     }
 
+    public Integer decreaseCouponAmount(int usedAmount) {
+        if (this.couponAmount - usedAmount < 0) {
+            throw new CouponException(CouponErrorCode.OUT_OF_STOCK);
+        }
+        this.couponAmount -= usedAmount;
+
+        return this.couponAmount;
+    }
 }
