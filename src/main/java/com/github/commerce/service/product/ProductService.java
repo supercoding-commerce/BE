@@ -1,7 +1,7 @@
 package com.github.commerce.service.product;
 
 import com.github.commerce.entity.Product;
-import com.github.commerce.entity.mongocollection.ProductOption;
+import com.github.commerce.entity.collection.ProductOption;
 import com.github.commerce.repository.product.ProductOptionRepository;
 import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.service.product.exception.ProductErrorCode;
