@@ -1,5 +1,6 @@
 package com.github.commerce.entity;
 
+import com.github.commerce.web.dto.product.ProductRequest;
 import lombok.*;
 
 import javax.persistence.*;
@@ -69,4 +70,13 @@ public class Product {
     @Column(name = "age_category")
     private String ageCategory;
 
+    public static Product from(ProductRequest productRequest) {
+        return Product.builder()
+                .name(productRequest.getName())
+                .content(productRequest.getContent())
+                .price(productRequest.getPrice())
+                .leftAmount(productRequest.getLeftAmount())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 }
