@@ -81,7 +81,7 @@ public class OrderService {
                 .quantity(inputQuantity)
                 .orderState(1)
                 .carts(validatedCart)
-                .total_price((int) (validatedProduct.getPrice() * inputQuantity))
+                .totalPrice((long) (validatedProduct.getPrice() * inputQuantity))
                 .options(inputOptionsJson)
                 .build()
         );
@@ -152,7 +152,7 @@ public class OrderService {
                         .createdAt(validatedOrder.getCreatedAt())
                         .quantity(inputQuantity)
                         .orderState(1)
-                        .total_price((int) (validatedProduct.getPrice() * inputQuantity))
+                        .totalPrice((long) (validatedProduct.getPrice() * inputQuantity))
                         .options(inputOptionsJson)
                         .build()
         );

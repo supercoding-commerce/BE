@@ -1,9 +1,7 @@
 package com.github.commerce.web.dto.order;
 
-import com.github.commerce.entity.Cart;
 import com.github.commerce.entity.Order;
 import com.github.commerce.entity.Product;
-import com.github.commerce.entity.User;
 import lombok.*;
 
 @Getter
@@ -18,7 +16,7 @@ public class OrderRmqDto {
     private Long userId;
     private Integer orderState;
     private Integer quantity;
-    private Integer total_price;
+    private Long total_price;
     private String options;
 
     public static OrderRmqDto fromEntity(Order order){
@@ -29,7 +27,7 @@ public class OrderRmqDto {
                 .userId(order.getUsers().getId())
                 .productId(product.getId())
                 .quantity(order.getQuantity())
-                .total_price(order.getTotal_price())
+                .total_price(order.getTotalPrice())
                 .orderState(order.getOrderState())
                 .options(order.getOptions())
                 .build();
@@ -42,7 +40,7 @@ public class OrderRmqDto {
                 .userId(order.getUsers().getId())
                 .productId(order.getProducts().getId())
                 .quantity(order.getQuantity())
-                .total_price(order.getTotal_price())
+                .total_price(order.getTotalPrice())
                 .orderState(order.getOrderState())
                 .options(order.getOptions())
                 .build();

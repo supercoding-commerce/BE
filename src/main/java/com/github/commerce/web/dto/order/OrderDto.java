@@ -5,7 +5,7 @@ import com.github.commerce.entity.Product;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,7 +17,7 @@ public class OrderDto {
     private Long cartId;
     private String orderState;
     private Integer quantity;
-    private Integer total_price;
+    private Long totalPrice;
     private String options;
     LocalDateTime createdAt;
 
@@ -29,10 +29,10 @@ public class OrderDto {
                 //.cartId(cart.getId())
                 .productId(product.getId())
                 .quantity(order.getQuantity())
-                .total_price(order.getTotal_price())
+                .totalPrice(order.getTotalPrice())
                 .orderState(OrderStateEnum.getByCode(order.getOrderState()))
                 .options(order.getOptions())
-                .createdAt(order.getCreatedAt())
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 }
