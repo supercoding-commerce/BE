@@ -32,7 +32,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<String> createProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart(value="productRequest") ProductRequest productRequest,
+            @ModelAttribute(value="productRequest") ProductRequest productRequest,
                                            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
                                            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
         Long profileId = userDetails.getUser().getId();
