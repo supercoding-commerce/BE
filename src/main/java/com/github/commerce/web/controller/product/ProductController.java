@@ -35,8 +35,9 @@ public class ProductController {
             @RequestPart(value="productRequest") ProductRequest productRequest,
                                            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
                                            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
+        Long profileId = userDetails.getUser().getId();
         System.out.printf("1111111" + productRequest.getName());
-        productService.createProductItem(productRequest,thumbnailImage,imageFiles, userDetails.getUser().getId());
+        productService.createProductItem(productRequest,thumbnailImage,imageFiles,profileId);
         return ResponseEntity.ok("상품 등록 완료");
     }
 
@@ -49,6 +50,15 @@ public class ProductController {
     // 상품 수정
 
 
+
     // 상품 삭제
+    @DeleteMapping("/{product_id}")
+    public ResponseEntity<?> deleteProduct(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("product_id") Long productId){
+        Long profileId = userDetails.getUser().getId();
+        productService.deleteProductByProductId(productId,profileId);
+        return ResponseEntity.ok(profileId + "번 상품 삭제 성공");
+    }
 
 }

@@ -6,6 +6,8 @@ import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.repository.user.UserRepository;
 import com.github.commerce.service.product.exception.ProductErrorCode;
 import com.github.commerce.service.product.exception.ProductException;
+import com.github.commerce.service.user.exception.UserErrorCode;
+import com.github.commerce.service.user.exception.UserException;
 import com.github.commerce.web.dto.product.ProductRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -61,6 +64,23 @@ public class ProductService {
         }catch (Exception e){
             throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
         }
+    }
+
+    // 상품 삭제
+    public void deleteProductByProductId(Long productId, Long profileId) {
+        Product valiProduct = validProfileAndProduct(productId,profileId);
+        productRepository.deleteById(valiProduct.getId());
+    }
+
+    private Product validProfileAndProduct(Long productId, Long profileId) {
+        Long validProfileId = Optional.ofNullable(profileId)
+                .orElseThrow(()-> new UserException(UserErrorCode.UER_NOT_FOUND));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
+        if(!Objects.equals(product.getUsers().getId(),validProfileId)){
+            throw new UserException(UserErrorCode.AUTHENTICATION_FAIL);
+        }
+        return product;
     }
 }
 

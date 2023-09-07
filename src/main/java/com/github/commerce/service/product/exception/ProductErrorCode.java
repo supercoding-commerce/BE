@@ -7,8 +7,10 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum  ProductErrorCode {
-
+    //status(HttpStatus.BAD_REQUEST) 400
     TOO_MANY_FILES("본문에 삽입하 이미지 파일은 최대 5까지 가능합니다.",HttpStatus.BAD_REQUEST),
+
+    NOTFOUND_PRODUCT("상품을 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
 
     INTERNAL_SERVER_ERROR( "Internal Server Error",HttpStatus.INTERNAL_SERVER_ERROR),
 
