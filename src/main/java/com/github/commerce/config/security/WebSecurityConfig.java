@@ -1,4 +1,4 @@
-package com.github.commerce.config;
+package com.github.commerce.config.security;
 
 import com.github.commerce.config.security.JwtUtil;
 import com.github.commerce.service.user.UserDetailsServiceImpl;
@@ -56,6 +56,7 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/"),
                                 new AntPathRequestMatcher("/v1/api/user/**")
                         ).permitAll()
+                        .antMatchers("/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
