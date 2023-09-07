@@ -10,5 +10,4 @@ public class RegisterUserDto {
     private String password;
     private String userName;
     private String telephone;
-    private String role;
 }
