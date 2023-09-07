@@ -13,4 +13,5 @@ public interface PayMoneyRepository extends JpaRepository<PayMoney, Long> {
     // 보유한 페이머니 , findTop1By -> 1개만 가져온다.
     Optional<PayMoney> findTop1ByUsersOrderByIdDesc(User user);
 
+    Optional<PayMoney> findByUsersId(Long userId);
 }
