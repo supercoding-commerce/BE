@@ -18,7 +18,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     // Header KEY 값
-    public static final String AUTHORIZATION_HEADER = "X-AUTH-TOKEN";
+    public static final String AUTHORIZATION_HEADER = "Authorization";
     // 사용자 권한 값의 KEY
     public static final String AUTHORIZATION_KEY = "auth";
     // Token 식별자
