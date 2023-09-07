@@ -51,7 +51,7 @@ public class ProductController {
     @ApiOperation(value = "상품 식별값을 입력하여 단일의 product 레코드를 수정합니다.")
     @PatchMapping(value = "/{product_id}")
     public ResponseEntity<?> updateProduct(@PathVariable("product_id") Long productId,
-                                           @RequestPart ProductRequest productRequest,
+                                           @ModelAttribute ProductRequest productRequest,
                                            @AuthenticationPrincipal UserDetailsImpl userDetails
                                            ) {
         Long profileId = userDetails.getUser().getId();
