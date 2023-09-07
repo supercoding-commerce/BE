@@ -1,11 +1,14 @@
 package com.github.commerce.entity;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -13,6 +16,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "charge_histories")
 public class ChargeHistory {
     @Id
@@ -25,25 +29,20 @@ public class ChargeHistory {
     @JoinColumn(name = "payments_id", nullable = false)
     private Payment payments;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "users_id", nullable = false)
-    private User users;
+    @Column(name = "pay_money")
+    private Long payMoney;
 
-    @Column(name = "charge_amount")
-    private Long chargeAmount;
+    @Column(name = "payment_amount")
+    private Long paymentAmount;
 
-    @Column(name = "charge_bonus")
-    private Long chargeBonus;
+    @Column(name = "bonus_pay_money")
+    private Long bonusPayMoney;
 
-    @Column(name = "total_charge_amount")
-    private Long totalChargeAmount;
+    @Column(name = "total_pay_money")
+    private Long totalPayMoney;
 
+    @CreatedDate
     @Column(name = "charge_date")
-    private Instant chargeDate;
-
-    @Size(max = 255)
-    @Column(name = "pg_payment_id")
-    private String pgPaymentId;
+    private LocalDateTime chargeDate;
 
 }

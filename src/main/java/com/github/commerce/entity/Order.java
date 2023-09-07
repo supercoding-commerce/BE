@@ -40,14 +40,11 @@ public class Order {
     private Integer quantity;
 
     @Column(name= "total_price")
-    private Integer total_price;
+    private Long totalPrice;
 
     @Column(name="created_at")
     LocalDateTime createdAt;
 
     @Column(name = "options")
     private String options;
-
-//    @Column(name="option_id", length = 50)
-//    String optionId;
 }
