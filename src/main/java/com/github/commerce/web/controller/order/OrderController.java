@@ -55,7 +55,7 @@ public class OrderController {
      */
     @ApiOperation(value = "사용자 주문내역 조회, 로그인필요, cursorId는 없어도 됩니다.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = ResponseEntity.class),
+            @ApiResponse(code = 200, message = "Success", response = List.class),
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @GetMapping
@@ -77,6 +77,10 @@ public class OrderController {
     }
 
     @ApiOperation(value = "판매자의 판매내역 조회, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = List.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @GetMapping("/seller")
     public ResponseEntity<List<Map<LocalDate, List<OrderDto>>>> getSellerOrder(
             @AuthenticationPrincipal UserDetailsImpl userDetails
@@ -86,6 +90,10 @@ public class OrderController {
     }
 
     @ApiOperation(value = "개별주문 상세조회, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = OrderDto.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDto> getOrder(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -104,6 +112,10 @@ public class OrderController {
      * @return
      */
     @ApiOperation(value = "개별주문 수정, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = String.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @PutMapping
     public ResponseEntity<String> modify(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -119,6 +131,10 @@ public class OrderController {
      * @return
      */
     @ApiOperation(value = "개별주문 삭제, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = String.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @DeleteMapping("/{orderId}")
     public ResponseEntity<String> deleteOne(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
