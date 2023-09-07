@@ -20,7 +20,7 @@ public class CouponController {
     private final CouponService couponService;
 
     //모든 쿠폰 조회
-    @ApiOperation("모든 쿠폰 조회")
+    @ApiOperation("쇼핑몰의 모든 쿠폰 조회")
     @GetMapping
     public ResponseEntity<List<CouponResponseDto>> getAllCoupons(){
         return ResponseEntity.ok(couponService.getAllCoupons());
@@ -34,8 +34,8 @@ public class CouponController {
     }
 
     //쿠폰 생성
-    //TODO. Admin 권한 확인
-    @ApiOperation("쿠폰 생성")
+    //TODO. Admin 권한 확인 - UserDetails 사용
+    @ApiOperation("관리자가 쿠폰 생성")
     @PostMapping("/register")
     public ResponseEntity<CouponResponseDto> registerCoupon(@RequestBody CouponRegisterRequest couponRegisterRequest){
         return ResponseEntity.ok(couponService.registerCoupon(couponRegisterRequest));

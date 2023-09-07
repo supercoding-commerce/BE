@@ -61,11 +61,10 @@ public class UserCouponService {
             throw new CouponException(CouponErrorCode.THIS_COUPON_DOES_NOT_EXIST);
         }
 
-        //TODO. 임시 주석 - 등급 구분할 수 있을 때 풀기
-//        //해당 유저가 동일한 쿠폰을 발급받은 적이 있을 때
-//        if(usersCouponRepository.existsByUsersIdAndCouponsId(user.getId(), usersCouponIssueRequest.getCouponId())){
-//            throw new CouponException(CouponErrorCode.COUPON_ALREADY_EXISTS);
-//        }
+        //해당 유저가 동일한 쿠폰을 발급받은 적이 있을 때
+        if(usersCouponRepository.existsByUsersIdAndCouponsId(user.getId(), couponId)){
+            throw new CouponException(CouponErrorCode.COUPON_ALREADY_EXISTS);
+        }
 
         //TODO. 현재 회원의 등급이 쿠폰 발급 가능 회원 등급에 해당하지 않을 때 예외처리
 
@@ -92,6 +91,7 @@ public class UserCouponService {
     }
 
     //쿠폰을 사용완료 했을 때
+    @Transactional //update이므로 @Transactional 사용
     public UsersCouponResponseDto usedUserCoupon(String userEmail, Long couponId) {
         User user = userRepository.findUserByEmail(userEmail);
         //User user = userRepository.findUserByEmail(userDetails.getUser().getEmail());
