@@ -8,7 +8,7 @@ public class PostReviewDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class Request {
+    public static class ReviewRequest {
         private Long productId;
         private String title;
         private String content;
