@@ -13,7 +13,6 @@ import java.util.ArrayList;
 @AllArgsConstructor
 @Builder
 public class ReviewDto {
-    private Long paymentHistoryId;
     private Long productId;
     private Long reviewId;
     private String author;
@@ -28,7 +27,6 @@ public class ReviewDto {
         Product product = review.getProducts();
         return ReviewDto.builder()
                 .reviewId(review.getId())
-                .paymentHistoryId(review.getPaymentHistories().getId())
                 .author(review.getAuthor())
                 .productId(product.getId())
                 .starPoint(Integer.valueOf(review.getStarPoint()))

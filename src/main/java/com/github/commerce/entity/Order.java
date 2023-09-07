@@ -33,6 +33,10 @@ public class Order {
     @JoinColumn(name = "carts_id", nullable = true)
     private Cart carts;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviews_id", nullable = true)
+    private Review reviews;
+
     @Column(name = "order_state")
     private Integer orderState;
 

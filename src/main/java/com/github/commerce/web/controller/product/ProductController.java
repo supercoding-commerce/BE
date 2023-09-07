@@ -32,7 +32,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<String> createProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart(value="productRequest") ProductRequest productRequest,
+            @ModelAttribute(value="productRequest") ProductRequest productRequest,
                                            @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
                                            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
         Long profileId = userDetails.getUser().getId();
@@ -48,10 +48,22 @@ public class ProductController {
     // 상품 검색 (카테고리 검색)
 
     // 상품 수정
+    @ApiOperation(value = "상품 식별값을 입력하여 단일의 product 레코드를 수정합니다.")
+    @PatchMapping(value = "/{product_id}")
+    public ResponseEntity<?> updateProduct(@PathVariable("product_id") Long productId,
+                                           @ModelAttribute ProductRequest productRequest,
+                                           @AuthenticationPrincipal UserDetailsImpl userDetails
+                                           ) {
+        Long profileId = userDetails.getUser().getId();
+        productService.updateProductById(productId,profileId,productRequest);
+
+        return ResponseEntity.ok(productId + "번 상품 수정 성공");
+    }
 
 
 
     // 상품 삭제
+    @ApiOperation(value="상품 식별값을 입력하여 단일의 product 레코드를 삭제합니다.")
     @DeleteMapping("/{product_id}")
     public ResponseEntity<?> deleteProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,

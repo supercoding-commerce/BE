@@ -9,7 +9,6 @@ public class PostReviewDto {
     @NoArgsConstructor
     @Builder
     public static class Request {
-        private Long paymentHistoryId;
         private Long productId;
         private String title;
         private String content;
@@ -24,7 +23,6 @@ public class PostReviewDto {
     @Builder
     public static class Response {
 
-        private Long paymentHistoryId;
         private Long reviewId;
         private Long productId;
         private String author;
@@ -35,7 +33,6 @@ public class PostReviewDto {
 
         public static PostReviewDto.Response from(ReviewDto reviewDto) {
             return Response.builder()
-                    .paymentHistoryId(reviewDto.getPaymentHistoryId())
                     .author(reviewDto.getAuthor())
                     .reviewId(reviewDto.getReviewId())
                     .productId(reviewDto.getProductId())

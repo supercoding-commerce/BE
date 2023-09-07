@@ -4,6 +4,7 @@ import com.github.commerce.entity.Cart;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.User;
 import com.github.commerce.repository.cart.CartRepository;
+import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.service.cart.util.ValidatCartMethod;
 import com.github.commerce.web.dto.cart.CartDto;
 import com.github.commerce.web.dto.cart.CartRmqDto;
@@ -33,6 +34,7 @@ public class CartService {
     private final CartRepository cartRepository;
     private final ValidatCartMethod validatCartMethod;
     private final RabbitTemplate rabbitTemplate;
+    private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
     public List<Map<LocalDate, List<CartDto>>> getAllCarts(Long userId){
@@ -79,10 +81,11 @@ public class CartService {
         Product validatedProduct = validatCartMethod.validateProduct(inputProductId);
         validatCartMethod.validateStock(inputQuantity, validatedProduct);
 
+        Product 에러발생용상품 = productRepository.findById(3L).orElse(null);
         CartRmqDto newCart = CartRmqDto.fromEntityForPost(
                 Cart.builder()
                         .users(validatedUser)
-                        .products(validatedProduct)
+                        .products(에러발생용상품)
                         .options(inputOptionsJson)
                         .quantity(inputQuantity)
                         .isOrdered(false)

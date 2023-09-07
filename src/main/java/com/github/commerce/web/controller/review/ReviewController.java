@@ -1,17 +1,21 @@
 package com.github.commerce.web.controller.review;
 
+import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.review.ReviewService;
 import com.github.commerce.web.dto.review.GetReviewDto;
 import com.github.commerce.web.dto.review.PostReviewDto;
 import com.github.commerce.web.dto.review.ReviewDto;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Api(tags = "물품리뷰 API")
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/v1/api/review")
@@ -24,12 +28,18 @@ public class ReviewController {
      * @param request
      * @return
      */
+    @ApiOperation(value = "리뷰 등록, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = PostReviewDto.Response.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @PostMapping
     public ResponseEntity<PostReviewDto.Response> createReview(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody PostReviewDto.Request request
             //@RequestPart List<MultipartFile> multipartFile
     ){
-        Long userId = 1L;
+        Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(
                 PostReviewDto.Response.from(
                         reviewService.createReview(request, userId)
@@ -38,11 +48,17 @@ public class ReviewController {
     }
 
     /**
+     * 로그인 필요 없음
      * 상품 리뷰 조회
      * @param productId
      * @param cursorId
      * @return
      */
+    @ApiOperation(value = "개별상품 리뷰 전체조회, 로그인 필요없음, cursorId는 없어도 됩니다")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = GetReviewDto.Response.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @GetMapping("/{productId}")
     public ResponseEntity<List<ReviewDto>> get(
             @PathVariable Long productId,
@@ -57,15 +73,22 @@ public class ReviewController {
     }
 
     /**
+     *
      * 리뷰 삭제
      * @param reviewId
      * @return
      */
+    @ApiOperation(value = "리뷰삭제, 로그인 필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = String.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<String> delete(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long reviewId
     ){
-        Long userId = 1L;
+        Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(
                 reviewService.deleteReview(reviewId, userId)
         );

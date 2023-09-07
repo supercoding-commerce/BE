@@ -51,21 +51,18 @@ public class GetReviewDto {
                     .map(review -> {
                         BigInteger rawReviewId = (BigInteger) review[0];
                         Long reviewId = rawReviewId.longValue();
-                        BigInteger rawHistoryId = (BigInteger) review[1];
-                        Long paymentHistoryId = rawHistoryId.longValue();
-                        BigInteger rawProductId = (BigInteger) review[2];
+                        BigInteger rawProductId = (BigInteger) review[1];
                         Long productId = rawProductId.longValue();
-                        String author = (String) review[3];
-                        String title = (String) review[4];
-                        String content = (String) review[5];
-                        Integer starPoint = (Integer)review[6];
-                        Timestamp timestamp = (Timestamp) review[7];
+                        String author = (String) review[2];
+                        String title = (String) review[3];
+                        String content = (String) review[4];
+                        Integer starPoint = (Integer)review[5];
+                        Timestamp timestamp = (Timestamp) review[6];
                         LocalDateTime createdAt = timestamp.toLocalDateTime();
 
 
                         return ReviewDto.builder()
                                 .reviewId(reviewId)
-                                .paymentHistoryId(paymentHistoryId)
                                 .productId(productId)
                                 .author(author)
                                 .title(title)
