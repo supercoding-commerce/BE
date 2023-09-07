@@ -4,54 +4,32 @@ import com.github.commerce.entity.Cart;
 import com.github.commerce.entity.Order;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.User;
-import com.github.commerce.entity.mongocollection.CartSavedOption;
-import com.github.commerce.entity.mongocollection.OrderSavedOption;
-import com.github.commerce.repository.cart.CartRepository;
 import com.github.commerce.repository.order.OrderRepository;
-import com.github.commerce.repository.order.OrderSavedOptionRepository;
-import com.github.commerce.repository.product.ProductRepository;
-import com.github.commerce.repository.user.UserRepository;
-import com.github.commerce.service.cart.exception.CartErrorCode;
-import com.github.commerce.service.cart.exception.CartException;
 import com.github.commerce.service.order.exception.OrderErrorCode;
 import com.github.commerce.service.order.exception.OrderException;
-import com.github.commerce.service.order.util.AsyncOrderMethod;
 import com.github.commerce.service.order.util.ValidateOrderMethod;
-import com.github.commerce.web.controller.order.SSEController;
-import com.github.commerce.web.dto.cart.CartDto;
 import com.github.commerce.web.dto.order.*;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class OrderService {
-    private final UserRepository userRepository;
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
-    private final OrderSavedOptionRepository orderSavedOptionRepository;
-    private final CartRepository cartRepository;
-    private final AsyncOrderMethod asyncOrderMethod;
     private final ValidateOrderMethod validateOrderMethod;
     private final RabbitTemplate rabbitTemplate;
-    private WebClient.Builder webClientBuilder;
-    private SSEController sseController;
 
     @Transactional
     public String createOrder(PostOrderDto.Request request, Long userId) {

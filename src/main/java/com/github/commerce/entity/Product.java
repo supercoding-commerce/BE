@@ -1,5 +1,6 @@
 package com.github.commerce.entity;
 
+import com.github.commerce.web.dto.product.ProductRequest;
 import lombok.*;
 
 import javax.persistence.*;
@@ -30,12 +31,10 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Lob
     @Column(name = "content")
     private String content;
 
     @Size(max = 255)
-    @NotNull
     @Column(name = "thumbnail_url", nullable = false)
     private String thumbnailUrl;
 
@@ -54,19 +53,25 @@ public class Product {
     private LocalDateTime updatedAt;
 
     @NotNull
-    @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "tinyint default 0")
+    private Boolean isDeleted ;
 
-    @Lob
     @Column(name = "product_category")
     private String productCategory;
 
-    @Lob
     @Column(name = "gender_category")
     private String genderCategory;
 
-    @Lob
     @Column(name = "age_category")
     private String ageCategory;
 
+    public static Product from(ProductRequest productRequest) {
+        return Product.builder()
+                .name(productRequest.getName())
+                .content(productRequest.getContent())
+                .price(productRequest.getPrice())
+                .leftAmount(productRequest.getLeftAmount())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 }

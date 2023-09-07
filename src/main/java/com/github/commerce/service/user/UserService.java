@@ -1,14 +1,21 @@
 package com.github.commerce.service.user;
 
+import com.github.commerce.config.security.JwtUtil;
 import com.github.commerce.entity.*;
 import com.github.commerce.repository.user.SellerRepository;
 import com.github.commerce.repository.user.UserInfoRepository;
 import com.github.commerce.repository.user.UserRepository;
 import com.github.commerce.service.user.exception.UserErrorCode;
 import com.github.commerce.service.user.exception.UserException;
+import com.github.commerce.web.dto.user.LoginRequestDto;
 import com.github.commerce.web.dto.user.RegisterUserInfoDto;
 import com.github.commerce.web.dto.user.ReigsterSellerDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +24,15 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
     private final SellerRepository sellerRepository;
     private final UserInfoRepository userInfoRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public boolean registerSeller(ReigsterSellerDto reigsterSellerDto) {
@@ -39,7 +49,6 @@ public class UserService {
 
         User user = User.builder()
                 .email(reigsterSellerDto.getEmail())
-                //.password(reigsterSellerDto.getPassword())
                 .password(passwordEncoder.encode(reigsterSellerDto.getPassword()))
                 .userName(reigsterSellerDto.getUserName())
                 .telephone(reigsterSellerDto.getTelephone())
@@ -73,7 +82,6 @@ public class UserService {
 
         User user = User.builder()
                 .email(registerUserInfoDto.getEmail())
-                //.password(registerUserInfoDto.getPassword())
                 .password(passwordEncoder.encode(registerUserInfoDto.getPassword()))
                 .userName(registerUserInfoDto.getUserName())
                 .telephone(registerUserInfoDto.getTelephone())
@@ -85,7 +93,7 @@ public class UserService {
         userInfoRepository.save(
                 UsersInfo.builder()
                         .users(user)
-                        .grade(Grade.Green.name())
+                        .grade(Grade.Green)
                         .gender(registerUserInfoDto.getGender())
                         .address(registerUserInfoDto.getAddress())
                         .age(registerUserInfoDto.getAge())
@@ -96,4 +104,27 @@ public class UserService {
         return true;
     }
 
+
+    public String login(LoginRequestDto loginRequestDto) {
+        String email=loginRequestDto.getEmail();
+        String password=loginRequestDto.getPassword();
+
+        try{
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password)
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            User user = userRepository.findUserByEmail(email);
+            if(user==null||user.getIsDelete()==true) {
+                throw new UserException(UserErrorCode.UER_NOT_FOUND);
+            }
+
+            return jwtUtil.createToken(user.getEmail(),user.getRole());
+        }catch (Exception e) {
+            log.error(e.getMessage());
+            throw new UserException(UserErrorCode.LOGIN_FAIL);
+        }
+
+    }
 }

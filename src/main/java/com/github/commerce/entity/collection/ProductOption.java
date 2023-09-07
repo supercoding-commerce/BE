@@ -1,4 +1,4 @@
-package com.github.commerce.entity.mongocollection;
+package com.github.commerce.entity.collection;
 
 import lombok.Getter;
 import lombok.Setter;
