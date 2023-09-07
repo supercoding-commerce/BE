@@ -36,7 +36,7 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<PostReviewDto.Response> createReview(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PostReviewDto.Request request
+            @RequestBody PostReviewDto.ReviewRequest request
             //@RequestPart List<MultipartFile> multipartFile
     ){
         Long userId = userDetails.getUser().getId();

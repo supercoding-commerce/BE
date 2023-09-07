@@ -42,7 +42,7 @@ public class ReviewService {
     private final PointHistoryRepository pointHistoryRepository;
 
     @Transactional
-    public ReviewDto createReview(PostReviewDto.Request request, Long userId) {
+    public ReviewDto createReview(PostReviewDto.ReviewRequest request, Long userId) {
 
         Long productId = request.getProductId();
         User validatedUser = validateUser(userId);
