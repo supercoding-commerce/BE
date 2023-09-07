@@ -28,12 +28,14 @@ public class ProductService {
     //상품 등록
     @Transactional
     public void createProductItem(ProductRequest productRequest, MultipartFile thumbnailImage, List<MultipartFile> imageFiles, Long id) {
-       // TODO -> 판매자 정보 추가해야함 어떤 판매자인지 알아야하니깐
 
+        User user = userRepository.findById(id)
+                .orElseThrow(null);
         boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
+
+        if(imageExists && imageFiles.size() > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
         try{
             System.out.println("222222" + productRequest.getName());
-            User user = userRepository.findById(id).orElseThrow(null);
             Product product = productRepository.save(
                     Product.builder()
                             .name(productRequest.getName())
