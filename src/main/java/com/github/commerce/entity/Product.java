@@ -65,13 +65,20 @@ public class Product {
     @Column(name = "age_category")
     private String ageCategory;
 
-    public static Product from(ProductRequest productRequest) {
+
+    public static Product from(Product originProduct, ProductRequest productRequest) {
         return Product.builder()
+                .id(originProduct.getId())
                 .name(productRequest.getName())
-                .content(productRequest.getContent())
+                .users(originProduct.getUsers())
                 .price(productRequest.getPrice())
+                .content(productRequest.getContent())
                 .leftAmount(productRequest.getLeftAmount())
                 .createdAt(LocalDateTime.now())
+                .isDeleted(false)
+                .productCategory("test")
+                .ageCategory("test")
+                .genderCategory("test")
                 .build();
     }
 }
