@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -72,6 +73,18 @@ public class ProductService {
         productRepository.deleteById(valiProduct.getId());
     }
 
+    // 상품 수정
+    public void updateProductById(Long productId, Long profileId, ProductRequest productRequest) {
+        Product originProduct = validProfileAndProduct(productId,profileId);
+
+        try {
+            Product updateProduct = Product.from(originProduct,productRequest);
+            productRepository.save(updateProduct);
+        } catch (Exception e){
+            throw new ProductException(ProductErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private Product validProfileAndProduct(Long productId, Long profileId) {
         Long validProfileId = Optional.ofNullable(profileId)
                 .orElseThrow(()-> new UserException(UserErrorCode.UER_NOT_FOUND));
@@ -82,6 +95,8 @@ public class ProductService {
         }
         return product;
     }
+
+
 }
 
 

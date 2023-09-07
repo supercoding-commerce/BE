@@ -5,6 +5,7 @@ import com.github.commerce.service.user.UserService;
 import com.github.commerce.web.dto.user.LoginRequestDto;
 import com.github.commerce.web.dto.user.RegisterUserInfoDto;
 import com.github.commerce.web.dto.user.ReigsterSellerDto;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 
+@Api(tags="회원관련 API")
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/v1/api/user")
