@@ -5,8 +5,7 @@ import com.github.commerce.service.review.ReviewService;
 import com.github.commerce.web.dto.review.GetReviewDto;
 import com.github.commerce.web.dto.review.PostReviewDto;
 import com.github.commerce.web.dto.review.ReviewDto;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +29,10 @@ public class ReviewController {
      * @return
      */
     @ApiOperation(value = "리뷰 등록, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = PostReviewDto.Response.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @PostMapping
     public ResponseEntity<PostReviewDto.Response> createReview(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -52,6 +55,10 @@ public class ReviewController {
      * @return
      */
     @ApiOperation(value = "개별상품 리뷰 전체조회, 로그인 필요없음, cursorId는 없어도 됩니다")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = GetReviewDto.Response.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @GetMapping("/{productId}")
     public ResponseEntity<List<ReviewDto>> get(
             @PathVariable Long productId,
@@ -72,6 +79,10 @@ public class ReviewController {
      * @return
      */
     @ApiOperation(value = "리뷰삭제, 로그인 필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = String.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<String> delete(
             @AuthenticationPrincipal UserDetailsImpl userDetails,

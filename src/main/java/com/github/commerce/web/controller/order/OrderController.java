@@ -6,8 +6,11 @@ import com.github.commerce.web.dto.order.GetOrderDto;
 import com.github.commerce.web.dto.order.OrderDto;
 import com.github.commerce.web.dto.order.PostOrderDto;
 import com.github.commerce.web.dto.order.PutOrderDto;
+import com.github.commerce.web.dto.review.PostReviewDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,10 @@ public class OrderController {
      * @return
      */
     @ApiOperation(value = "주문 등록, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = String.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @PostMapping
     public ResponseEntity<String> createOrder(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -47,6 +54,10 @@ public class OrderController {
      * @return
      */
     @ApiOperation(value = "사용자 주문내역 조회, 로그인필요, cursorId는 없어도 됩니다.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = ResponseEntity.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
     @GetMapping
     public ResponseEntity getOrderList(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
