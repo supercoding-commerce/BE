@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    boolean existsByPaymentHistoriesIdAndProductsId(Long paymentHistoryId, Long productId);
 
     @Query(value = "SELECT r.id, r.payment_histories_id, r.products_id, r.author, r.title, r.content, r.star_point, r.created_at " +
             "FROM reviews r " +
@@ -25,4 +24,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             );
 
     Review findByIdAndUsersIdAndIsDeleted(Long reviewId, Long userId, boolean b);
+
+    boolean existsByOrdersIdAndProductsId(Long orderId, Long productId);
 }

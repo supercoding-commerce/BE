@@ -7,6 +7,7 @@ import com.github.commerce.entity.User;
 import com.github.commerce.repository.cart.CartRepository;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.product.ProductRepository;
+import com.github.commerce.repository.user.SellerRepository;
 import com.github.commerce.repository.user.UserRepository;
 import com.github.commerce.service.cart.exception.CartErrorCode;
 import com.github.commerce.service.cart.exception.CartException;
@@ -24,6 +25,7 @@ public class ValidateOrderMethod {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
+    private final SellerRepository sellerRepository;
 
     public User validateUser(Long userId){
         return userRepository.findById(userId)
@@ -65,5 +67,9 @@ public class ValidateOrderMethod {
 
     private boolean existsInCart(Long userId, Long productId){
         return cartRepository.existsByUsersIdAndProductsId(userId, productId);
+    }
+
+    public boolean validateSellerByUserId(Long userId) {
+        return sellerRepository.existsByUsersId(userId);
     }
 }

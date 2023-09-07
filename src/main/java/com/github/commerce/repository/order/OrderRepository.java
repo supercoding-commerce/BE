@@ -22,4 +22,23 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByIdAndUsersId(Long orderId, Long userId);
 
     List<Order> findAllByUsersIdOrderByCreatedAtDesc(Long userId);
+
+    @Query(
+            "SELECT o FROM Order o " +
+                    "WHERE o.users.id = :userId " +
+                    //"SELECT c FROM Cart c " +
+                    "AND o.orderState in (2, 3, 4, 5) " +
+                    "ORDER BY o.createdAt DESC "
+    )
+    List<Order> findSellerOrderByUsersIdOrderByCreatedAtDesc(Long userId);
+
+    Optional<Order> findByUsersId(Long userId);
+
+    @Query(
+            "SELECT o FROM Order o " +
+                    "WHERE o.users.id = :userId AND o.products.id = :productId " +
+                    "AND o.orderState in (2, 3, 4, 5) " +
+                    "ORDER BY o.createdAt DESC "
+    )
+    Optional<Order> validatePaidOrderByUsersIdAndProductsId(Long userId, Long productId);
 }

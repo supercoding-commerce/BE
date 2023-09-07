@@ -1,7 +1,11 @@
 package com.github.commerce.service.review;
 
 import com.github.commerce.entity.*;
+import com.github.commerce.repository.order.OrderRepository;
+import com.github.commerce.repository.payment.PayMoneyRepository;
 import com.github.commerce.repository.payment.PaymentHistoryRepository;
+import com.github.commerce.repository.payment.PaymentRepository;
+import com.github.commerce.repository.payment.PointHistoryRepository;
 import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.repository.review.ReviewRepository;
 import com.github.commerce.repository.user.UserInfoRepository;
@@ -32,27 +36,27 @@ public class ReviewService {
     private final PaymentHistoryRepository paymentHistoryRepository;
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
+    private final PaymentRepository paymentRepository;
+    private final OrderRepository orderRepository;
+    private final PayMoneyRepository payMoneyRepository;
+    private final PointHistoryRepository pointHistoryRepository;
 
     @Transactional
     public ReviewDto createReview(PostReviewDto.Request request, Long userId) {
 
         Long productId = request.getProductId();
-        Long paymentHistoryId = request.getPaymentHistoryId();
         User validatedUser = validateUser(userId);
-        PaymentHistory validatedPayment = validatePayment(paymentHistoryId, productId);
+        Order validatedPaidOrder = validatePaidOrder(userId, productId);
         UsersInfo validatedUsersInfo = validateUserInfo(userId);
         Product validatedProduct = validateProduct(productId);
-        if (existReview(paymentHistoryId, productId)) {
+        PayMoney validatedPay = validatePayMoneyForReviewPoint(userId);
+        if (existReview(validatedPaidOrder.getId(), productId)) {
             throw new ReviewException(ReviewErrorCode.REVIEW_ALREADY_EXISTS);
         }
-        if (validatedPayment.getPoint() == null) {
-            throw new ReviewException(ReviewErrorCode.PAYMENT_POINT_NULL);
-        }
-
         ReviewDto reviewDto = ReviewDto.fromEntity(
                 reviewRepository.save(
                     Review.builder()
-                        .paymentHistories(validatedPayment)
+                        .orders(validatedPaidOrder)
                         .users(validatedUser)
                         .products(validatedProduct)
                         .author(validatedUsersInfo.getNickname())
@@ -66,16 +70,29 @@ public class ReviewService {
         );
 
         //포인트 적립 결제액 2%
-        BigDecimal point = validatedPayment.getPoint();
-        Long paymentAmount = validatedPayment.getPaymentAmount();
-        BigDecimal additionalPoints = new BigDecimal(paymentAmount)
-                .multiply(new BigDecimal("0.02"));
-        BigDecimal modifiedPoint = point.add(additionalPoints);
-        validatedPayment.setPoint(modifiedPoint);
-        paymentHistoryRepository.save(validatedPayment);
+        Long point = validatedPay.getPointBalance();
+        Long paidPrice = validatedPaidOrder.getTotalPrice();
+        Long additionalPoints = Math.round(paidPrice * 0.02);
+        //적립 포인트 기록
+        pointHistoryRepository.save(
+                PointHistory.builder()
+                        .payMoney(validatedPay)
+                        .earnedPoint(additionalPoints)
+                        .createAt(LocalDateTime.now())
+                        .usedPoint(0L)
+                        .status(1)
+                        .build()
+        );
+
+        //
+        Long modifiedPoint = point + additionalPoints;
+        validatedPay.setPointBalance(modifiedPoint);
+        payMoneyRepository.save(validatedPay);
 
         return reviewDto;
     }
+
+
 
     @Transactional(readOnly = true)
     public List<Object[]> getReviews(Long productId, Integer cursorId){
@@ -114,8 +131,8 @@ public class ReviewService {
                 .orElseThrow(() -> new ReviewException(ReviewErrorCode.USER_INFO_NOT_FOUD));
     }
 
-    private PaymentHistory validatePayment(Long paymentHistoryId, Long productId){
-        return paymentHistoryRepository.findByIdAndProductId(paymentHistoryId, productId)
+    private Order validatePaidOrder(Long userId, Long productId){
+        return orderRepository.validatePaidOrderByUsersIdAndProductsId(userId, productId)
                 .orElseThrow(()->new ReviewException(ReviewErrorCode.REVIEW_PERMISSION_DENIED));
     }
 
@@ -125,8 +142,8 @@ public class ReviewService {
                         () -> new ReviewException(ReviewErrorCode.THIS_PRODUCT_DOES_NOT_EXIST));
     }
 
-    private boolean existReview(Long paymentHistoryId, Long productId){
-        return reviewRepository.existsByPaymentHistoriesIdAndProductsId(paymentHistoryId, productId);
+    private boolean existReview(Long orderId, Long productId){
+        return reviewRepository.existsByOrdersIdAndProductsId(orderId, productId);
     }
 
     private Review validateReviewAuthor(Long reviewId, Long userId){
@@ -137,5 +154,7 @@ public class ReviewService {
         return review;
     }
 
-
+    private PayMoney validatePayMoneyForReviewPoint(Long userId) {
+        return payMoneyRepository.findByUsersId(userId).orElseThrow(()->new ReviewException(ReviewErrorCode.PAYMONEY_NOT_FOUD));
+    }
 }

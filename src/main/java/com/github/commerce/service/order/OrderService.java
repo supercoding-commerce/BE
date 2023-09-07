@@ -169,6 +169,22 @@ public class OrderService {
         return validatedOrder.getId() + "번 주문 삭제";
     }
 
+    public List<Map<LocalDate, List<OrderDto>>> getSellerOrderList(Long userId) {
+        boolean isSeller = validateOrderMethod.validateSellerByUserId(userId);
+        if(!isSeller) throw new OrderException(OrderErrorCode.SELLER_NOT_FOUND);
+
+        List<Order> sortedOrders = orderRepository.findSellerOrderByUsersIdOrderByCreatedAtDesc(userId);
+        Map<LocalDate, List<OrderDto>> groupedOrders = sortedOrders.stream()
+                .collect(Collectors.groupingBy(
+                        order -> order.getCreatedAt().toLocalDate(),
+                        Collectors.mapping(OrderDto::fromEntity, Collectors.toList())));
+
+        List<Map<LocalDate, List<OrderDto>>> result = new ArrayList<>();
+        result.add(groupedOrders);
+
+        return result;
+    }
+
 //    // 판매자에게 SSE 이벤트를 발생시키는 메서드
 //    private void sendEventToSeller(Long sellerUserId, String message) {
 //        String eventData = "data: {"

@@ -33,8 +33,8 @@ public class Review {
 
     @NotNull
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "payment_histories_id", nullable = false)
-    private PaymentHistory paymentHistories;
+    @JoinColumn(name = "orders_id", nullable = false)
+    private Order orders;
 
     @Column(name = "author", length = 100)
     private String author;
