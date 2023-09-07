@@ -28,7 +28,6 @@ public class ProductController {
 
     // 상품 등록
     @ApiOperation(value = "상품 등록")
-
     @PostMapping("/test")
     public ResponseEntity<String> createProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,

@@ -18,10 +18,12 @@ public enum ReviewErrorCode {
     USER_NOT_FOUND("존재하지 않는 유저 입니다.", HttpStatus.NOT_FOUND),
     THIS_PRODUCT_DOES_NOT_EXIST("존재하지 않는 상품 입니다.", HttpStatus.NOT_FOUND),
     REVIEW_DOES_NOT_EXIST("리뷰가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    PAYMONEY_NOT_FOUD("지갑 정보가 없습니다", HttpStatus.NOT_FOUND),
 
     //status(HttpStatus.CONFLICT) 409
     REVIEW_ALREADY_EXISTS("이미 리뷰를 작성하셨는데요.", HttpStatus.CONFLICT),
     PAYMENT_POINT_NULL("포인트 적립금 정보가 없습니다.", HttpStatus.CONFLICT);
+
 
 
     private final String description;
