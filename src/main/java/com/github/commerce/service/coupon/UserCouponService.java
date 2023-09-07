@@ -8,7 +8,6 @@ import com.github.commerce.repository.coupon.UsersCouponRepository;
 import com.github.commerce.repository.user.UserRepository;
 import com.github.commerce.service.coupon.exception.CouponErrorCode;
 import com.github.commerce.service.coupon.exception.CouponException;
-import com.github.commerce.web.dto.coupon.UsersCouponIssueRequest;
 import com.github.commerce.web.dto.coupon.UsersCouponResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ public class UserCouponService {
 
     //본인의 쿠폰 목록 조회
     public List<UsersCouponResponseDto> getMyCouponList(String userEmail){
-
+        //String userEmail = userDetails.getUser().getEmail();
         User user = userRepository.findUserByEmail(userEmail);
 
         //등록되지 않은 아이디일 때
@@ -44,13 +43,16 @@ public class UserCouponService {
     //회원이 쿠폰 1개 발급
     //동시성 처리
     @Transactional
-    public UsersCouponResponseDto issueUserCoupon(UsersCouponIssueRequest usersCouponIssueRequest) {
-
-        User user = userRepository.findUserByEmail(usersCouponIssueRequest.getUserEmail());
-        Coupon coupon = couponRepository.findCouponById(usersCouponIssueRequest.getCouponId());
+    public UsersCouponResponseDto issueUserCoupon(String userEmail, Long couponId) {
+//        log.info("email={}", userDetails.getUser().getEmail());
+//        User user = userRepository.findUserByEmail(userDetails.getUser().getEmail());
+//        //log.info("id={}", userDetails.getUser().getId());
+//        //Optional<User> user = userRepository.findById(userDetails.getUser().getId());
+        User user = userRepository.findUserByEmail(userEmail);
+        Coupon coupon = couponRepository.findCouponById(couponId);
 
         //등록되지 않은 아이디일 때
-        if (user == null || user.getIsDelete()) {
+        if (user==null || user.getIsDelete()) {
             throw new CouponException(CouponErrorCode.USER_NOT_FOUND);
         }
 
@@ -90,13 +92,13 @@ public class UserCouponService {
     }
 
     //쿠폰을 사용완료 했을 때
-    public UsersCouponResponseDto usedUserCoupon(UsersCouponIssueRequest usersCouponIssueRequest) {
-
-        User user = userRepository.findUserByEmail(usersCouponIssueRequest.getUserEmail());
-        Coupon coupon = couponRepository.findCouponById(usersCouponIssueRequest.getCouponId());
+    public UsersCouponResponseDto usedUserCoupon(String userEmail, Long couponId) {
+        User user = userRepository.findUserByEmail(userEmail);
+        //User user = userRepository.findUserByEmail(userDetails.getUser().getEmail());
+        Coupon coupon = couponRepository.findCouponById(couponId);
 
         //등록되지 않은 아이디일 때
-        if(user==null || user.getIsDelete()){
+        if (user==null || user.getIsDelete()) {
             throw new CouponException(CouponErrorCode.USER_NOT_FOUND);
         }
 
