@@ -25,8 +25,8 @@ public class UsersInfo {
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
 
-    @Column(name = "balance", precision = 10, scale = 2)
-    private BigDecimal balance;
+//    @Column(name = "balance", precision = 10, scale = 2)
+//    private BigDecimal balance;
 
     @Column(name = "grade")
     @Enumerated(value = EnumType.STRING)
