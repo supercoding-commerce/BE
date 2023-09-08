@@ -1,12 +1,15 @@
 package com.github.commerce.entity;
 
 import com.github.commerce.web.dto.product.ProductRequest;
+import com.google.gson.Gson;
 import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -65,20 +68,28 @@ public class Product {
     @Column(name = "age_category")
     private String ageCategory;
 
+    @Column(name = "options")
+    private String options;
 
     public static Product from(Product originProduct, ProductRequest productRequest) {
+        List<Map<String,String>> options = productRequest.getOptions();
+        Gson gson = new Gson();
+        String inputOptionsJson = gson.toJson(options);
         return Product.builder()
                 .id(originProduct.getId())
+                .options(inputOptionsJson)
                 .name(productRequest.getName())
                 .seller(originProduct.getSeller())
                 .price(productRequest.getPrice())
                 .content(productRequest.getContent())
                 .leftAmount(productRequest.getLeftAmount())
-                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .isDeleted(false)
                 .productCategory("test")
                 .ageCategory("test")
                 .genderCategory("test")
                 .build();
     }
+
+
 }

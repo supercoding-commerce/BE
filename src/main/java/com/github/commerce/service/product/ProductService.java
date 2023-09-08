@@ -11,6 +11,7 @@ import com.github.commerce.service.product.util.ValidateProductMethod;
 import com.github.commerce.service.user.exception.UserErrorCode;
 import com.github.commerce.service.user.exception.UserException;
 import com.github.commerce.web.dto.product.*;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -50,7 +48,12 @@ public class ProductService {
     @Transactional
     public String createProductItem(ProductRequest productRequest,  List<MultipartFile> imageFiles, Long profileId) {
         Seller seller = validateProductMethod.validateSeller(profileId);
+        List<Map<String,String>> options = productRequest.getOptions();
+        Gson gson = new Gson();
+        String inputOptionsJson = gson.toJson(options);
+
         boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
+        System.out.println(imageExists);
 
         if(imageExists && imageFiles.size() > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
 
@@ -67,10 +70,12 @@ public class ProductService {
                             .productCategory(ProductCategoryEnum.switchCategory(productRequest.getProductCategory()))
                             .ageCategory(AgeCategoryEnum.switchCategory(productRequest.getAgeCategory()))
                             .genderCategory(GenderCategoryEnum.switchCategory(productRequest.getGenderCategory()))
+                            .options(inputOptionsJson)
                             .build()
             );
 
             if(product.getId() != null && imageExists){
+
                 List<String>urlList = productImageUploadService.uploadImageFileList(imageFiles);
                 String joinedUrls = String.join(",", urlList);
                 product.setThumbnailUrl(joinedUrls);

@@ -9,7 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -32,6 +33,8 @@ public class ProductRequest {
     private Integer ageCategory;
 
     private Integer genderCategory;
+
+    private List<Map<String,String>> options;
 
 
 }

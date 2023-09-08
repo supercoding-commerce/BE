@@ -39,7 +39,11 @@ public class ProductImageUploadService {
         //return CompletableFuture.completedFuture(null);
     }
 
+<<<<<<< HEAD
 
+=======
+    @Async
+>>>>>>> dev
     public List<String> uploadImageFileList(List<MultipartFile> imgList) {
 //        List<ProductContentImage> productContentImageList =
         List<String> urlList = new ArrayList<>();
@@ -47,6 +51,7 @@ public class ProductImageUploadService {
             String fileName = createFileName(multipartFile.getOriginalFilename());
 
             try {
+<<<<<<< HEAD
                 String url = awsS3Service.memoryUpload(multipartFile,
                         fileName);
                 urlList.add(url);
@@ -55,6 +60,14 @@ public class ProductImageUploadService {
                 throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
             }
 
+=======
+                String url = awsS3Service.memoryUpload(multipartFile,uniqueIdentifier);
+                urlList.add(url);
+                System.out.println(5444444);
+            } catch (IOException e) {
+                throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
+            }
+>>>>>>> dev
         });
         return urlList;
 //                .collect(Collectors.toList());
