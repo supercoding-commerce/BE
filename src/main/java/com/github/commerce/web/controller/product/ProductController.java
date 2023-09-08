@@ -28,8 +28,8 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-
-    @GetMapping //  ?pageNumber=1&searchWord=반바지
+    @ApiOperation(value = "상품 검색")
+    @GetMapping("/search") //  ?pageNumber=1&searchWord=반바지
     public ResponseEntity<List<ProductDto>> searchProduct(
             @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
             @RequestParam(name = "searchWord", required = false) String searchWord,
@@ -37,19 +37,19 @@ public class ProductController {
     ){
         return ResponseEntity.ok(productService.getProducts(pageNumber, searchWord, sortBy));
     }
-
+    @ApiOperation(value = "상품 상세 조회")
     @GetMapping("/{productId}")
     public ResponseEntity<ProductDto> getProduct(
             @PathVariable Long productId
     ){
         return ResponseEntity.ok(productService.getOneProduct(productId));
     }
-
+    @ApiOperation(value = "카테고리 검색")
     @GetMapping("/category")
     public ResponseEntity<List<ProductDto>> getProductsByCategory(
-            @RequestParam(name = "producrCategory", required = false) String productCategory,
-            @RequestParam(name = "ageCategory", required = false) String ageCategory,
-            @RequestParam(name = "genderCategory", required = false) String genderCategory,
+            @RequestParam(name = "productCategory", required = false, defaultValue = "상의") String productCategory,
+            @RequestParam(name = "ageCategory", required = false, defaultValue = "이십대") String ageCategory,
+            @RequestParam(name = "genderCategory", required = false, defaultValue = "female") String genderCategory,
             @RequestParam(name = "sortBy", required = false, defaultValue = "price") String sortBy
             )
     {
@@ -78,25 +78,25 @@ public class ProductController {
 
     // 상품 수정
     @ApiOperation(value = "상품 식별값을 입력하여 단일의 product 레코드를 수정합니다.")
-    @PatchMapping(value = "/{product_id}")
-    public ResponseEntity<?> updateProduct(@PathVariable("product_id") Long productId,
+    @PatchMapping(value = "/{productId}")
+    public ResponseEntity<?> updateProduct(@PathVariable("productId") Long productId,
                                            @ModelAttribute ProductRequest productRequest,
                                            @AuthenticationPrincipal UserDetailsImpl userDetails
                                            ) {
         Long profileId = userDetails.getUser().getId();
         productService.updateProductById(productId,profileId,productRequest);
 
-        return ResponseEntity.ok(productId + "번 상품 수정 성공");
+        return ResponseEntity.ok(profileId + "번 상품 수정 성공");
     }
 
 
 
     // 상품 삭제
     @ApiOperation(value="상품 식별값을 입력하여 단일의 product 레코드를 삭제합니다.")
-    @DeleteMapping("/{product_id}")
+    @DeleteMapping("/{productId}")
     public ResponseEntity<?> deleteProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable("product_id") Long productId){
+            @PathVariable("productId") Long productId){
         Long profileId = userDetails.getUser().getId();
         productService.deleteProductByProductId(productId,profileId);
         return ResponseEntity.ok(profileId + "번 상품 삭제 성공");

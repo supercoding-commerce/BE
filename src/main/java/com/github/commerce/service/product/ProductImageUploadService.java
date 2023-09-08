@@ -40,19 +40,18 @@ public class ProductImageUploadService {
     }
 
     @Async
-    public List<String> uploadImageFileList(List<MultipartFile> imgList, Product product) {
+    public List<String> uploadImageFileList(List<MultipartFile> imgList) {
 //        List<ProductContentImage> productContentImageList =
         List<String> urlList = new ArrayList<>();
         imgList.forEach(multipartFile -> {
             String uniqueIdentifier = UUID.randomUUID().toString();
             try {
-                String url = awsS3Service.memoryUpload(multipartFile,
-                        FilePath.PRODUCT_CONTENT_DIR.getPath() + uniqueIdentifier);
-//                return ProductContentImage.from(product, url);
+                String url = awsS3Service.memoryUpload(multipartFile,uniqueIdentifier);
+                urlList.add(url);
+                System.out.println(5444444);
             } catch (IOException e) {
                 throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
             }
-            urlList.add(FilePath.PRODUCT_CONTENT_DIR.getPath() + uniqueIdentifier);
         });
         return urlList;
 //                .collect(Collectors.toList());
