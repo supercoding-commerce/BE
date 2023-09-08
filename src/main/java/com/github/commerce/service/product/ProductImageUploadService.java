@@ -25,7 +25,7 @@ public class ProductImageUploadService {
     private final AwsS3Service awsS3Service;
     private final ProductContentImageRepository productContentImageRepository;
 
-    @Async
+
     public void uploadThumbNailImage(MultipartFile thumbNailFile, Product product) {
         try {
             if (thumbNailFile != null) {
@@ -39,19 +39,35 @@ public class ProductImageUploadService {
         //return CompletableFuture.completedFuture(null);
     }
 
+<<<<<<< HEAD
+
+=======
     @Async
+>>>>>>> dev
     public List<String> uploadImageFileList(List<MultipartFile> imgList) {
 //        List<ProductContentImage> productContentImageList =
         List<String> urlList = new ArrayList<>();
         imgList.forEach(multipartFile -> {
-            String uniqueIdentifier = UUID.randomUUID().toString();
+            String fileName = createFileName(multipartFile.getOriginalFilename());
+
             try {
+<<<<<<< HEAD
+                String url = awsS3Service.memoryUpload(multipartFile,
+                        fileName);
+                urlList.add(url);
+//                return ProductContentImage.from(product, url);
+            } catch (IOException e) {
+                throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
+            }
+
+=======
                 String url = awsS3Service.memoryUpload(multipartFile,uniqueIdentifier);
                 urlList.add(url);
                 System.out.println(5444444);
             } catch (IOException e) {
                 throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
             }
+>>>>>>> dev
         });
         return urlList;
 //                .collect(Collectors.toList());
@@ -59,5 +75,22 @@ public class ProductImageUploadService {
 
         //return CompletableFuture.completedFuture(null);
     }
+
+    private String createFileName(String fileName) {
+        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
+    }
+
+    private String getFileExtension(String fileName) {
+        try {
+            String extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+            if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg")) {
+                return extension;
+            }
+            throw new ProductException(ProductErrorCode.NOT_IMAGE_EXTENSION);
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new ProductException(ProductErrorCode.INVALID_FORMAT_FILE);
+        }
+    }
+
 
 }

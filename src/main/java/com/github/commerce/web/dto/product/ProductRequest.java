@@ -28,11 +28,11 @@ public class ProductRequest {
 
     private Long leftAmount;
 
-    private String productCategory;
+    private Integer productCategory;
 
-    private String ageCategory;
+    private Integer ageCategory;
 
-    private String genderCategory;
+    private Integer genderCategory;
 
     private List<Map<String,String>> options;
 
