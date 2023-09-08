@@ -37,7 +37,7 @@ public class ProductService {
     @Transactional
     public List<ProductDto> getProducts(Integer pageNumber, String searchWord, String sort) {
 
-        Pageable pageable = PageRequest.of(pageNumber - 1, 10);
+        Pageable pageable = PageRequest.of(pageNumber - 1, 15); //한 페이지 15개
         String searchToken = "%"+searchWord+"%";
         String sortBy = sort;
         List<Product> productList = productRepository.searchProduct(searchToken, sortBy, pageable);
