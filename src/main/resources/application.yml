@@ -1,4 +1,8 @@
 spring:
+  mvc:
+    path_match:
+      matching-strategy: ant_path_matcher
+
   datasource:
     master:
       hikari:
@@ -19,10 +23,37 @@ spring:
         driver-class-name: com.mysql.cj.jdbc.Driver
         jdbc-url: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}
   jpa:
-# ??
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+# local
+#    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
 #    RDS
-#    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
+
+rabbitmq:
+  host: ${RMQ_HOST}
+  port: 5672
+  username: ${RMQ_USER}
+  password: ${RMQ_PASSWORD}
+
+springdoc:
+  swagger-ui:
+    path: /api-doc.html
+
+jwt:
+  secret-key-source: ${SECRET_KEY_SOURCE}
+
+cloud:
+  aws:
+    s3:
+      bucket: ${BUCKET}
+    stack.auto: false
+    region.static: ap-northeast-2
+    credentials:
+      accessKey: ${ACCESSKEY}
+      secretKey: ${SECRETKEY}
