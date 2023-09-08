@@ -53,6 +53,11 @@ public class CouponService {
             throw new CouponException(CouponErrorCode.ONLY_ADMIN_CAN_ACCESS);
         }
 
+        //같은 이름의 쿠폰이 있을 때
+        if(couponRepository.existsByTitleAndIsDeleted(couponRegisterRequest.getTitle(), false)){
+            throw new CouponException(CouponErrorCode.SAME_NAME_COUPON_EXISTS);
+        }
+
         Coupon coupon = new Coupon(couponRegisterRequest);
         return new CouponResponseDto(couponRepository.save(coupon));
     }

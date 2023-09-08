@@ -13,4 +13,6 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
     //비관적 락
     @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     Coupon findCouponById(Long couponId);
+
+    boolean existsByTitleAndIsDeleted(String title, boolean isDeleted);
 }
