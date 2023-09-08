@@ -11,9 +11,29 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query(value="SELECT p FROM Product p " +
-            "WHERE p.name LIKE :searchWord")
+            "WHERE p.name LIKE :searchToken " +
+            "ORDER BY CASE " +
+            " WHEN :sortBy = 'price' THEN p.price " +
+            " WHEN :sortBy = 'createdAt' THEN p.createdAt " +
+            " ELSE p.price END")
     List<Product> searchProduct(
-            @Param("searchWord")String searchWord,
+            @Param("searchToken")String searchToken,
+            @Param("sortBy")String sortBy,
             @Param("pageable")Pageable pageable
+    );
+
+    @Query(value = "SELECT p FROM Product p " +
+            "WHERE p.productCategory = :productCategory " +
+            "AND p.ageCategory =:ageCategory " +
+            "AND p.genderCategory = :genderCategory " +
+            "ORDER BY CASE " +
+            " WHEN :sortBy = 'price' THEN p.price " +
+            " WHEN :sortBy = 'createdAt' THEN p.createdAt " +
+            " ELSE p.price END")
+    List<Product> findByCategoryTab(
+            @Param("inputProductCategory")String productCategory,
+            @Param("inputAgeCategory")String ageCategory,
+            @Param("inputGenderCategory")String genderCategory,
+            @Param("sortBy")String sortBy
     );
 }

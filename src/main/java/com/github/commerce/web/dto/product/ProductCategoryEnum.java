@@ -12,5 +12,15 @@ public enum ProductCategoryEnum {
     기타("기타");
 
     private final String label;
-
+    public static String switchCategory(String code) {
+        switch(code){
+            case "상의": return 상의.label;
+            case "하의": return 하의.label;
+            case "신발": return 신발.label;
+            case "외투": return 외투.label;
+            case "기타": return 기타.label;
+            //case 7: return ETC.name;
+            default: return null;
+        }
+    }
 }

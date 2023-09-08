@@ -10,9 +10,7 @@ import com.github.commerce.service.product.exception.ProductException;
 import com.github.commerce.service.product.util.ValidateProductMethod;
 import com.github.commerce.service.user.exception.UserErrorCode;
 import com.github.commerce.service.user.exception.UserException;
-import com.github.commerce.web.dto.product.ProductCategoryEnum;
-import com.github.commerce.web.dto.product.ProductDto;
-import com.github.commerce.web.dto.product.ProductRequest;
+import com.github.commerce.web.dto.product.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,11 +37,12 @@ public class ProductService {
     private final ValidateProductMethod validateProductMethod;
 
     @Transactional
-    public List<ProductDto> getProducts(Integer pageNumber, String searchWord) {
+    public List<ProductDto> getProducts(Integer pageNumber, String searchWord, String sort) {
 
         Pageable pageable = PageRequest.of(pageNumber - 1, 10);
-        String searchToken = "%"+"searchWord"+"%";
-        List<Product> productList = productRepository.searchProduct(searchToken, pageable);
+        String searchToken = "%"+searchWord+"%";
+        String sortBy = sort;
+        List<Product> productList = productRepository.searchProduct(searchToken, sortBy, pageable);
         return productList.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
     }
 
@@ -66,9 +65,9 @@ public class ProductService {
                             .leftAmount(productRequest.getLeftAmount())
                             .createdAt(LocalDateTime.now())
                             .isDeleted(false)
-                            .productCategory(productRequest.getProductCategory())
-                            .ageCategory(productRequest.getAgeCategory())
-                            .genderCategory(productRequest.getGenderCategory())
+                            .productCategory(ProductCategoryEnum.switchCategory(productRequest.getProductCategory()))
+                            .ageCategory(AgeCategoryEnum.switchCategory(productRequest.getAgeCategory()))
+                            .genderCategory(GenderCategoryEnum.switchCategory(productRequest.getGenderCategory()))
                             .build()
             );
             System.out.println("33333");
@@ -120,7 +119,18 @@ public class ProductService {
     }
 
 
+    public ProductDto getOneProduct(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
+        return ProductDto.fromEntity(product);
+    }
 
+    public List<ProductDto> getProductsByCategory(String productCategory, String ageCategory, String genderCategory, String sortBy) {
+        String inputProductCategory = ProductCategoryEnum.switchCategory(productCategory);
+        String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
+        String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
+        List<Product> products = productRepository.findByCategoryTab(inputProductCategory, inputAgeCategory, inputGenderCategory, sortBy );
+        return products.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+    }
 }
 
 
