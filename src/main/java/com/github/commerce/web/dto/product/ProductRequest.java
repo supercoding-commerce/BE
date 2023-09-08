@@ -27,6 +27,12 @@ public class ProductRequest {
 
     private Long leftAmount;
 
+    private String productCategory;
+
+    private String ageCategory;
+
+    private String genderCategory;
+
 
 }
 

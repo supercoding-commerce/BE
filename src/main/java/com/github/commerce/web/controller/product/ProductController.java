@@ -4,6 +4,7 @@ import com.github.commerce.entity.User;
 import com.github.commerce.entity.collection.ProductOption;
 import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.product.ProductService;
+import com.github.commerce.web.dto.product.ProductDto;
 import com.github.commerce.web.dto.product.ProductRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,18 +28,26 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @GetMapping //  ?pageNumber=1&searchWord=반바지
+    public ResponseEntity<List<ProductDto>> searchProduct(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
+            @RequestParam(name = "searchWord", required = false) String searchWord
+    ){
+        return ResponseEntity.ok(productService.getProducts(pageNumber, searchWord));
+    }
+
     // 판매자가 상품 등록
     @ApiOperation(value = "상품 등록")
     @PostMapping
     public ResponseEntity<String> createProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @ModelAttribute(value="productRequest") ProductRequest productRequest,
-                                           @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
                                            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
         Long profileId = userDetails.getUser().getId();
         System.out.printf("1111111" + productRequest.getName());
-        productService.createProductItem(productRequest,thumbnailImage,imageFiles,profileId);
-        return ResponseEntity.ok("상품 등록 완료");
+
+        return ResponseEntity.ok(productService.createProductItem(productRequest, imageFiles, profileId));
     }
 
     // 판매자가 상품 조회 -> 날짜별 올린 상품과 판매 완료 상품 조회 가능 하도록
