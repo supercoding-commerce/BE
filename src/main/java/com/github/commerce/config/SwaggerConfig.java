@@ -27,12 +27,19 @@ public class SwaggerConfig {
 
         //swagger에서 header 입력할 수 있도록 Authorization 헤더의 내용 입력
         List<Parameter> parameters = new ArrayList<>();
-        Parameter parameterBuilder1 = new ParameterBuilder().name("Authorization").description("Jwt Token")
+        Parameter parameterBuilder1 = new ParameterBuilder().name("ACCESS_TOKEN").description("Jwt Access Token")
                 .modelRef(new ModelRef("string"))
                 .parameterType("header")
                 .required(false)
                 .build();
+        Parameter parameterBuilder2 = new ParameterBuilder().name("REFRESH_TOKEN").description("Jwt Refresh Token")
+                .modelRef(new ModelRef("string"))
+                .parameterType("header")
+                .required(false)
+                .build();
+
         parameters.add(parameterBuilder1);
+        parameters.add(parameterBuilder2);
 
         return new Docket(DocumentationType.SWAGGER_2)
                 .ignoredParameterTypes(AuthenticationPrincipal.class)
@@ -42,7 +49,7 @@ public class SwaggerConfig {
                 .build()
                 .apiInfo(apiInfo())
                 .securityContexts(Arrays.asList(securityContext()))
-                .securitySchemes(Arrays.asList(apiKey()));
+                .securitySchemes(Arrays.asList(apiKey(),apiRefreshKey()));
 //                .globalOperationParameters(parameters);
     }
 
@@ -56,11 +63,14 @@ public class SwaggerConfig {
         AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
-        return Arrays.asList(new SecurityReference("Authorization", authorizationScopes));
+        return Arrays.asList(new SecurityReference("ACCESS_TOKEN", authorizationScopes),new SecurityReference("REFRESH_TOKEN", authorizationScopes));
     }
 
     private ApiKey apiKey() {
-        return new ApiKey("Authorization", "Authorization", "header");
+        return new ApiKey("ACCESS_TOKEN", "ACCESS_TOKEN", "header");
+    }
+    private ApiKey apiRefreshKey() {
+        return new ApiKey("REFRESH_TOKEN", "REFRESH_TOKEN", "header");
     }
 
 
