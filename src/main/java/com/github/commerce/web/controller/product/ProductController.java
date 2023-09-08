@@ -30,12 +30,31 @@ public class ProductController {
 
     @GetMapping //  ?pageNumber=1&searchWord=반바지
     public ResponseEntity<List<ProductDto>> searchProduct(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-            @RequestParam(name = "searchWord", required = false) String searchWord
+            @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
+            @RequestParam(name = "searchWord", required = false) String searchWord,
+            @RequestParam(name = "sortBy", required = false, defaultValue = "price") String sortBy
     ){
-        return ResponseEntity.ok(productService.getProducts(pageNumber, searchWord));
+        return ResponseEntity.ok(productService.getProducts(pageNumber, searchWord, sortBy));
     }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductDto> getProduct(
+            @PathVariable Long productId
+    ){
+        return ResponseEntity.ok(productService.getOneProduct(productId));
+    }
+
+    @GetMapping("/category")
+    public ResponseEntity getProductsByCategory(
+            @RequestParam(name = "producrCategory", required = false) String productCategory,
+            @RequestParam(name = "ageCategory", required = false) String ageCategory,
+            @RequestParam(name = "genderCategory", required = false) String genderCategory,
+            @RequestParam(name = "sortBy", required = false, defaultValue = "price") String sortBy
+            )
+    {
+        return ResponseEntity.ok(productService.getProductsByCategory(productCategory,ageCategory,genderCategory, sortBy));
+    }
+
 
     // 판매자가 상품 등록
     @ApiOperation(value = "상품 등록")
