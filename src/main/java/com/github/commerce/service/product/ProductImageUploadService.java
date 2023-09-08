@@ -40,7 +40,7 @@ public class ProductImageUploadService {
     }
 
     @Async
-    public void uploadImageFileList(List<MultipartFile> imgList, Product product) {
+    public List<String> uploadImageFileList(List<MultipartFile> imgList, Product product) {
 //        List<ProductContentImage> productContentImageList =
         List<String> urlList = new ArrayList<>();
         imgList.forEach(multipartFile -> {
@@ -54,6 +54,7 @@ public class ProductImageUploadService {
             }
             urlList.add(FilePath.PRODUCT_CONTENT_DIR.getPath() + uniqueIdentifier);
         });
+        return urlList;
 //                .collect(Collectors.toList());
 //        productContentImageRepository.saveAll(productContentImageList);
 

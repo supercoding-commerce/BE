@@ -23,8 +23,8 @@ public class Product {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "users_id", nullable = false)
-    private User users;
+    @JoinColumn(name = "sellers_id", nullable = false)
+    private Seller seller;
 
     @Size(max = 255)
     @NotNull
@@ -35,7 +35,7 @@ public class Product {
     private String content;
 
     @Size(max = 255)
-    @Column(name = "thumbnail_url", nullable = false)
+    @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
     @NotNull
@@ -70,7 +70,7 @@ public class Product {
         return Product.builder()
                 .id(originProduct.getId())
                 .name(productRequest.getName())
-                .users(originProduct.getUsers())
+                .seller(originProduct.getSeller())
                 .price(productRequest.getPrice())
                 .content(productRequest.getContent())
                 .leftAmount(productRequest.getLeftAmount())
