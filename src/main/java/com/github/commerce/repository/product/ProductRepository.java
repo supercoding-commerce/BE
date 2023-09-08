@@ -12,11 +12,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query(value="SELECT p FROM Product p " +
             "WHERE p.name LIKE :searchToken " +
-            "ORDER BY " +
-            "CASE " +
-            " WHEN :sortBy = 'price' THEN p.price " +
-            " WHEN :sortBy = 'createdAt' THEN p.createdAt " +
-            " ELSE p.price END")
+            "ORDER BY CASE " +
+            "   WHEN :sortBy = 'price' THEN p.price " +
+            "   WHEN :sortBy = 'createdAt' THEN p.createdAt " +
+            "   ELSE p.price END"
+    )
     List<Product> searchProduct(
             @Param("searchToken")String searchToken,
             @Param("sortBy")String sortBy,
@@ -29,8 +29,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.genderCategory = :inputGenderCategory " +
             "ORDER BY " +
             "CASE " +
-            " WHEN :sortBy = 'price' THEN p.price " +
-            " WHEN :sortBy = 'createdAt' THEN p.createdAt " +
+            " WHEN :sortBy = 'price' THEN p.price" +
+            " WHEN :sortBy = 'createdAt' THEN p.createdAt" +
             " ELSE p.price END")
     List<Product> findByCategoryTab(
             @Param("inputProductCategory")String inputProductCategory,
