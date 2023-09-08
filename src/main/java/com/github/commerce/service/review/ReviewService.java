@@ -33,10 +33,8 @@ import java.util.List;
 public class ReviewService {
     private final UserRepository userRepository;
     private final UserInfoRepository userInfoRepository;
-    private final PaymentHistoryRepository paymentHistoryRepository;
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
-    private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final PayMoneyRepository payMoneyRepository;
     private final PointHistoryRepository pointHistoryRepository;
