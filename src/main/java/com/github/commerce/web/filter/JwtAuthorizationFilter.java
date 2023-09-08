@@ -38,7 +38,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String accessToken = jwtUtil.getHeaderToken(request, "Access");
         String refreshToken = jwtUtil.getHeaderToken(request, "Refresh");
 
-       // try {
             if (StringUtils.hasText(accessToken)) {
                 if (jwtUtil.tokenValidation(accessToken)) {//access토큰값 유효
                     Claims info = jwtUtil.getUserInfoFromToken(accessToken);
