@@ -11,4 +11,5 @@ public class SwaggerRedirector {
     public String api() {
         return "redirect:/swagger-ui.html";
     }
+
 }
