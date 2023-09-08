@@ -15,9 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class ProductImageUploadService {
@@ -36,45 +33,24 @@ public class ProductImageUploadService {
         } catch (IOException e) {
             throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
         }
-        //return CompletableFuture.completedFuture(null);
     }
 
-<<<<<<< HEAD
-
-=======
-    @Async
->>>>>>> dev
     public List<String> uploadImageFileList(List<MultipartFile> imgList) {
-//        List<ProductContentImage> productContentImageList =
         List<String> urlList = new ArrayList<>();
         imgList.forEach(multipartFile -> {
             String fileName = createFileName(multipartFile.getOriginalFilename());
 
             try {
-<<<<<<< HEAD
+
                 String url = awsS3Service.memoryUpload(multipartFile,
                         fileName);
                 urlList.add(url);
-//                return ProductContentImage.from(product, url);
             } catch (IOException e) {
                 throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
             }
-
-=======
-                String url = awsS3Service.memoryUpload(multipartFile,uniqueIdentifier);
-                urlList.add(url);
-                System.out.println(5444444);
-            } catch (IOException e) {
-                throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
-            }
->>>>>>> dev
         });
         return urlList;
-//                .collect(Collectors.toList());
-//        productContentImageRepository.saveAll(productContentImageList);
-
-        //return CompletableFuture.completedFuture(null);
-    }
+}
 
     private String createFileName(String fileName) {
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));
