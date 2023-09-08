@@ -23,7 +23,8 @@ public enum CouponErrorCode {
 
     //status(HttpStatus.CONFLICT) 409
     OUT_OF_STOCK("쿠폰 발급 수량이 소진되었습니다.", HttpStatus.CONFLICT),
-    COUPON_ALREADY_EXISTS("쿠폰이 이미 발급되었습니다.", HttpStatus.CONFLICT);
+    COUPON_ALREADY_EXISTS("쿠폰이 이미 발급되었습니다.", HttpStatus.CONFLICT),
+    SAME_NAME_COUPON_EXISTS("같은 이름의 쿠폰이 있습니다.", HttpStatus.CONFLICT);
 
     private final String description;
     private final HttpStatus httpStatus;
