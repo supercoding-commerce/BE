@@ -57,16 +57,18 @@ public class Coupon {
         this.title = couponRegisterRequest.getTitle();
         this.content = couponRegisterRequest.getContent();
         this.period = couponRegisterRequest.getPeriod();
-        this.couponGrade = Grade.valueOf(couponRegisterRequest.getCouponGrade());
+        this.couponGrade = Grade.valueOf(couponRegisterRequest.getCouponGrade().toUpperCase());
         this.couponAmount = couponRegisterRequest.getCouponAmount();
+        this.isDeleted = false;
     }
 
-    public Integer decreaseCouponAmount(int usedAmount) {
+    //쿠폰 발급 시, 1개 차감
+    public void decreaseCouponAmount(int usedAmount) {
         if (this.couponAmount - usedAmount < 0) {
             throw new CouponException(CouponErrorCode.OUT_OF_STOCK);
         }
         this.couponAmount -= usedAmount;
 
-        return this.couponAmount;
+        //return this.couponAmount;
     }
 }

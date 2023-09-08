@@ -1,5 +1,6 @@
 package com.github.commerce.web.controller.coupon;
 
+import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.coupon.CouponService;
 import com.github.commerce.web.dto.coupon.CouponRegisterRequest;
 import com.github.commerce.web.dto.coupon.CouponResponseDto;
@@ -7,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,8 +39,8 @@ public class CouponController {
     //TODO. Admin 권한 확인 - UserDetails 사용
     @ApiOperation("관리자가 쿠폰 생성")
     @PostMapping("/register")
-    public ResponseEntity<CouponResponseDto> registerCoupon(@RequestBody CouponRegisterRequest couponRegisterRequest){
-        return ResponseEntity.ok(couponService.registerCoupon(couponRegisterRequest));
+    public ResponseEntity<CouponResponseDto> registerCoupon(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CouponRegisterRequest couponRegisterRequest){
+        return ResponseEntity.ok(couponService.registerCoupon(userDetails, couponRegisterRequest));
     }
 
 }
