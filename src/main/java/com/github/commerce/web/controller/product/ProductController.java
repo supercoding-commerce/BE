@@ -1,5 +1,6 @@
 package com.github.commerce.web.controller.product;
 
+import com.github.commerce.entity.Product;
 import com.github.commerce.entity.User;
 import com.github.commerce.entity.collection.ProductOption;
 import com.github.commerce.repository.user.UserDetailsImpl;
@@ -45,7 +46,7 @@ public class ProductController {
     }
 
     @GetMapping("/category")
-    public ResponseEntity getProductsByCategory(
+    public ResponseEntity<List<ProductDto>> getProductsByCategory(
             @RequestParam(name = "producrCategory", required = false) String productCategory,
             @RequestParam(name = "ageCategory", required = false) String ageCategory,
             @RequestParam(name = "genderCategory", required = false) String genderCategory,
