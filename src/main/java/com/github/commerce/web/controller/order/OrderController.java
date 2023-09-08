@@ -6,7 +6,6 @@ import com.github.commerce.web.dto.order.GetOrderDto;
 import com.github.commerce.web.dto.order.OrderDto;
 import com.github.commerce.web.dto.order.PostOrderDto;
 import com.github.commerce.web.dto.order.PutOrderDto;
-import com.github.commerce.web.dto.review.PostReviewDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;

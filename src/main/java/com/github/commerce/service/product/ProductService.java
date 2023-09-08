@@ -55,7 +55,6 @@ public class ProductService {
         if(imageExists && imageFiles.size() > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
 
         try{
-            System.out.println("222222" + productRequest.getName());
             Product product = productRepository.save(
                     Product.builder()
                             .name(productRequest.getName())
@@ -70,22 +69,19 @@ public class ProductService {
                             .genderCategory(GenderCategoryEnum.switchCategory(productRequest.getGenderCategory()))
                             .build()
             );
-            System.out.println("33333");
 
             if(product.getId() != null && imageExists){
-                List<String>urlList = productImageUploadService.uploadImageFileList(imageFiles, product);
+                List<String>urlList = productImageUploadService.uploadImageFileList(imageFiles);
                 String joinedUrls = String.join(",", urlList);
                 product.setThumbnailUrl(joinedUrls);
                 return product.getName() + "상품이 등록되었습니다";
-
-//                String thumbnailUrls = product.getThumbnailUrl();
-//                List<String> urlList = Arrays.asList(thumbnailUrls.split(","));
 
             }
             return product.getName() + "상품이 등록되었습니다";
 
         }catch (Exception e){
-            throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
+            throw new RuntimeException(e);
+            //throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
         }
     }
 
@@ -124,7 +120,7 @@ public class ProductService {
         return ProductDto.fromEntity(product);
     }
 
-    public List<ProductDto> getProductsByCategory(String productCategory, String ageCategory, String genderCategory, String sortBy) {
+    public List<ProductDto> getProductsByCategory(int productCategory, int ageCategory, int genderCategory, String sortBy) {
         String inputProductCategory = ProductCategoryEnum.switchCategory(productCategory);
         String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
@@ -133,15 +129,4 @@ public class ProductService {
     }
 }
 
-
-//    @Transactional(readOnly=true)
-//    public List<ProductResponseDto> getPopularTen(GetRequestDto getRequestDto) {
-//        Integer animalCategory = convertCategory.convertAnimalCategory(getRequestDto.getAnimalCategory());
-//        Integer productCategory = convertCategory.convertProductCategory(getRequestDto.getAnimalCategory(), getRequestDto.getProductCategory());
-//
-//        List<Product> products = productRepository.findTop10ByAnimalCategoryAndProductCategoryOrderByWishCountDesc(animalCategory, productCategory);
-//        List<ProductDto> productList = products.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
-//        List<ProductDto> checkedProducts = searchWishList.setIsLiked(productList);
-//        return checkedProducts.stream().map(ProductResponseDto::fromEntity).sorted(Comparator.comparingInt(ProductResponseDto::getWishCount).reversed()).collect(Collectors.toList());
-//    }
 

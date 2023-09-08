@@ -1,10 +1,8 @@
 package com.github.commerce.web.controller.product;
 
-import com.github.commerce.entity.Product;
-import com.github.commerce.entity.User;
-import com.github.commerce.entity.collection.ProductOption;
 import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.product.ProductService;
+import com.github.commerce.web.dto.product.ProductCategoryEnum;
 import com.github.commerce.web.dto.product.ProductDto;
 import com.github.commerce.web.dto.product.ProductRequest;
 import io.swagger.annotations.Api;
@@ -47,9 +45,9 @@ public class ProductController {
 
     @GetMapping("/category")
     public ResponseEntity<List<ProductDto>> getProductsByCategory(
-            @RequestParam(name = "producrCategory", required = false) String productCategory,
-            @RequestParam(name = "ageCategory", required = false) String ageCategory,
-            @RequestParam(name = "genderCategory", required = false) String genderCategory,
+            @RequestParam(name = "producrCategory", required = false, defaultValue="1") int productCategory,
+            @RequestParam(name = "ageCategory", required = false, defaultValue = "2") int ageCategory,
+            @RequestParam(name = "genderCategory", required = false, defaultValue = "2") int genderCategory,
             @RequestParam(name = "sortBy", required = false, defaultValue = "price") String sortBy
             )
     {
@@ -62,11 +60,10 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<String> createProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @ModelAttribute(value="productRequest") ProductRequest productRequest,
-                                           @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
+            @RequestPart ProductRequest productRequest,
+            @RequestPart(required = false) List<MultipartFile> imageFiles) {
         Long profileId = userDetails.getUser().getId();
-        System.out.printf("1111111" + productRequest.getName());
-
+        System.out.println(ProductCategoryEnum.switchCategory(productRequest.getProductCategory()));
         return ResponseEntity.ok(productService.createProductItem(productRequest, imageFiles, profileId));
     }
 
