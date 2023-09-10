@@ -11,7 +11,20 @@ public class PostOrderDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class Request {
+    public static class PostOrderRequest {
+
+        private Long productId;
+        private Long cartId;
+        private Integer quantity;
+        private List<Map<String, String>> options;
+    }
+
+    @Setter
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class PutOrderRequest {
 
         private Long productId;
         private Long cartId;

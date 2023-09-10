@@ -32,7 +32,7 @@ public class OrderService {
     private final RabbitTemplate rabbitTemplate;
 
     @Transactional
-    public String createOrder(PostOrderDto.Request request, Long userId) {
+    public String createOrder(PostOrderDto.PostOrderRequest request, Long userId) {
         Long inputProductId = request.getProductId();
         Integer inputQuantity = request.getQuantity();
         Long inputCartId = request.getCartId();
@@ -126,7 +126,7 @@ public class OrderService {
     }
 
     @Transactional
-    public String modifyOrder(PutOrderDto.Request request, Long userId) {
+    public String modifyOrder(PutOrderDto.PutOrderRequest request, Long userId) {
         Long orderId = request.getOrderId();
         Long productId = request.getProductId();
         Integer inputQuantity = request.getQuantity();
