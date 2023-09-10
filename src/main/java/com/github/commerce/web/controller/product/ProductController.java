@@ -70,7 +70,7 @@ public class ProductController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long productId
     ){
-        Long userId = userDetails.getUser().getId();
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
         return ResponseEntity.ok(productService.getOneProduct(productId, userId));
     }
 
