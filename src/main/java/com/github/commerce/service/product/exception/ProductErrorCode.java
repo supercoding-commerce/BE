@@ -11,18 +11,24 @@ public enum  ProductErrorCode {
     TOO_MANY_FILES("본문에 삽입하 이미지 파일은 최대 5까지 가능합니다.",HttpStatus.BAD_REQUEST),
     NOT_IMAGE_EXTENSION("파일 확장자가 없습니다.",HttpStatus.BAD_REQUEST ),
     INVALID_FORMAT_FILE("올바른 파일 형식이 아닙니다", HttpStatus.BAD_REQUEST),
+    INVALID_CATEGORY("카테고리 값이 잘못 입력되었습니다",HttpStatus.BAD_REQUEST  ),
+
+
     //403
     NOT_REGISTERED_SELLER("판매자로 등록된 유저가 아닙니다.", HttpStatus.FORBIDDEN),
+    NOT_AUTHORIZED_SELLER("너가 등록한 상품이 아닙니다.", HttpStatus.FORBIDDEN),
 
     //404
     NOTFOUND_PRODUCT("상품을 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
 
     NOT_FOUND_FILE("파일이 존재하지 않습니다.",HttpStatus.NOT_FOUND),
 
-    //500
-    INTERNAL_SERVER_ERROR( "Internal Server Error",HttpStatus.INTERNAL_SERVER_ERROR),
+    //422 요청은 유효하지만 서버에서 처리할 수 없는 상태에 있는 경우에 사용됩니다. 예를 들어, 요청이 유효하지만 업데이트를 수행할 수 없는 데이터를 포함하고 있는 경우에 이 코드를 반환할 수 있습니다.
+    UNPROCESSABLE_ENTITY("요청이 유효하지만 업데이트를 수행할 수 없습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
 
-    FAIL_TO_SAVE( "서버 측의 문제로 데이터의 저장에 실패했습니다. 다시 한 번 시도해주세요.",HttpStatus.INTERNAL_SERVER_ERROR);
+    //409
+    FAIL_TO_SAVE( "서버 측의 문제로 데이터의 저장에 실패했습니다. 다시 한 번 시도해주세요.",HttpStatus.CONFLICT);
+
 
 
 

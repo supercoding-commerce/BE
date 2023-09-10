@@ -18,23 +18,23 @@ import java.util.Map;
 @AllArgsConstructor
 public class ProductRequest {
     @NotBlank
-    @Size(max = 255)
+    @Size(max = 20)
     private String name;
 
     private String content;
 
     @NotNull
-    private Long price;
+    private Integer price;
 
-    private Long leftAmount;
+    private Integer leftAmount;
 
-    private Integer productCategory;
+    private String productCategory;
 
-    private Integer ageCategory;
+    private String ageCategory;
 
-    private Integer genderCategory;
+    private String genderCategory;
 
-    private List<Map<String,String>> options;
+    private List<String> options;
 
 
 }

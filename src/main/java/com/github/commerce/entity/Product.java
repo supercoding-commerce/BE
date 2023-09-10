@@ -29,11 +29,11 @@ public class Product {
     @JoinColumn(name = "sellers_id", nullable = false)
     private Seller seller;
 
-    @Size(max = 255)
     @NotNull
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 20)
     private String name;
 
+    @Size(max = 255)
     @Column(name = "content")
     private String content;
 
@@ -43,10 +43,10 @@ public class Product {
 
     @NotNull
     @Column(name = "price", nullable = false)
-    private Long price;
+    private Integer price;
 
     @Column(name = "left_amount")
-    private Long leftAmount;
+    private Integer leftAmount;
 
     @NotNull
     @Column(name = "created_at", nullable = false)
@@ -59,20 +59,20 @@ public class Product {
     @Column(name = "is_deleted", nullable = false, columnDefinition = "tinyint default 0")
     private Boolean isDeleted ;
 
-    @Column(name = "product_category")
+    @Column(name = "product_category", length = 20)
     private String productCategory;
 
-    @Column(name = "gender_category")
+    @Column(name = "gender_category", length = 10)
     private String genderCategory;
 
-    @Column(name = "age_category")
+    @Column(name = "age_category", length = 10)
     private String ageCategory;
 
     @Column(name = "options")
     private String options;
 
     public static Product from(Product originProduct, ProductRequest productRequest) {
-        List<Map<String,String>> options = productRequest.getOptions();
+        List<String> options = productRequest.getOptions();
         Gson gson = new Gson();
         String inputOptionsJson = gson.toJson(options);
         return Product.builder()
@@ -85,9 +85,9 @@ public class Product {
                 .leftAmount(productRequest.getLeftAmount())
                 .updatedAt(LocalDateTime.now())
                 .isDeleted(false)
-                .productCategory("test")
-                .ageCategory("test")
-                .genderCategory("test")
+                .productCategory(productRequest.getProductCategory())
+                .ageCategory(productRequest.getAgeCategory())
+                .genderCategory(productRequest.getGenderCategory())
                 .build();
     }
 

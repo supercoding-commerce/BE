@@ -41,7 +41,7 @@ public class ValidateOrderMethod {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new OrderException(OrderErrorCode.THIS_PRODUCT_DOES_NOT_EXIST));
 
-        Long stock = product.getLeftAmount();
+        Integer stock = product.getLeftAmount();
         if (stock == null || stock <= 0) {
             throw new OrderException(OrderErrorCode.OUT_OF_STOCK);
         }

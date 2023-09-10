@@ -1,8 +1,8 @@
 package com.github.commerce.web.dto.product;
 
 public enum GenderCategoryEnum {
-    female(1,"female"),
-    male(1,"male");
+    FEMALE(1,"FEMALE"),
+    MALE(1,"MALE");
 
     private final int value;
     private final String label;
@@ -12,11 +12,11 @@ public enum GenderCategoryEnum {
         this.label = label;
     }
 
-    public static String switchCategory(int code) {
+    public static String switchCategory(String code) {
         switch(code){
-            case 1: return female.label;
-            case 2: return male.label;
-            default : return female.label;
+            case "FEMALE": return FEMALE.label;
+            case "MALE": return MALE.label;
+            default : return null;
         }
     }
 }
