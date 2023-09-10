@@ -15,6 +15,6 @@ public class PutOrderDto {
         private Long orderId;
         private Long productId;
         private Integer quantity;
-        private List<Map<String, String>> options;
+        private List<String> options;
     }
 }

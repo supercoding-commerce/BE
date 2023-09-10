@@ -16,7 +16,7 @@ public class PostOrderDto {
         private Long productId;
         private Long cartId;
         private Integer quantity;
-        private List<Map<String, String>> options;
+        private List<String> options;
     }
 
     @Setter
@@ -29,6 +29,6 @@ public class PostOrderDto {
         private Long productId;
         private Long cartId;
         private Integer quantity;
-        private List<Map<String, String>> options;
+        private List<String> options;
     }
 }

@@ -66,10 +66,10 @@ public class CartService {
     }
 
     @Transactional
-    public String addToCart(PostCartDto.Request request, Long userId) {
+    public String addToCart(PostCartDto.PostCartRequest request, Long userId) {
         Long inputProductId = request.getProductId();
         Integer inputQuantity = request.getQuantity();
-        List<Map<String, String>> inputOptions = request.getOptions();
+        List<String> inputOptions = request.getOptions();
 
         // Gson 인스턴스 생성
         Gson gson = new Gson();
@@ -97,11 +97,11 @@ public class CartService {
     }
 
     @Transactional
-    public String modifyCart(PutCartDto.Request request, Long userId) {
+    public String modifyCart(PutCartDto.PutCartRequest request, Long userId) {
         Long cartId = request.getCartId();
         Long productId = request.getProductId();
         Integer inputQuantity = request.getQuantity();
-        List<Map<String, String>> options = request.getOptions();
+        List<String> options = request.getOptions();
 
         // Gson 인스턴스 생성
         Gson gson = new Gson();
