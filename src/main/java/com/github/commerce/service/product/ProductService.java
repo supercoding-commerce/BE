@@ -35,20 +35,28 @@ public class ProductService {
     private final ValidateProductMethod validateProductMethod;
 
     @Transactional
-    public List<ProductDto> getProducts(Integer pageNumber, String searchWord, String sort) {
-
+    public List<GetProductDto> searchProducts(Integer pageNumber, String searchWord, String ageCategory, String genderCategory, String sortBy) {
+        String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
+        String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
         Pageable pageable = PageRequest.of(pageNumber - 1, 15); //한 페이지 15개
         String searchToken = "%"+searchWord+"%";
-        String sortBy = sort;
-        List<Product> productList = productRepository.searchProduct(searchToken, sortBy, pageable);
-        return productList.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+
+        if (Objects.equals(sortBy, "price")) {
+            return productRepository.searchProductSortByPrice(searchToken, inputAgeCategory,inputGenderCategory, pageable);
+           // return productList.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+        }else if(Objects.equals(sortBy, "createdAt")) {
+            return productRepository.searchProductSortByCreatedAt(searchToken,inputAgeCategory,inputGenderCategory, pageable);
+           // return productList.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+        }else {
+            return productRepository.searchProductSortById(searchToken,inputAgeCategory,inputGenderCategory, pageable);
+        }
     }
 
     //상품 등록
     @Transactional
     public String createProductItem(ProductRequest productRequest,  List<MultipartFile> imageFiles, Long profileId) {
         Seller seller = validateProductMethod.validateSeller(profileId);
-        List<Map<String,String>> options = productRequest.getOptions();
+        List<String> options = productRequest.getOptions();
         Gson gson = new Gson();
         String inputOptionsJson = gson.toJson(options);
 
@@ -85,17 +93,18 @@ public class ProductService {
             return product.getName() + "상품이 등록되었습니다";
 
         }catch (Exception e){
-            throw new RuntimeException(e);
-            //throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
+            throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
         }
     }
 
+    @Transactional
     // 상품 삭제
     public void deleteProductByProductId(Long productId, Long profileId) {
         Product valiProduct = validProfileAndProduct(productId,profileId);
         productRepository.deleteById(valiProduct.getId());
     }
 
+    @Transactional
     // 상품 수정
     public void updateProductById(Long productId, Long profileId, ProductRequest productRequest) {
         Product originProduct = validProfileAndProduct(productId,profileId);
@@ -104,33 +113,64 @@ public class ProductService {
             Product updateProduct = Product.from(originProduct,productRequest);
             productRepository.save(updateProduct);
         } catch (Exception e){
-            throw new ProductException(ProductErrorCode.INTERNAL_SERVER_ERROR);
+            throw new ProductException(ProductErrorCode.UNPROCESSABLE_ENTITY);
         }
     }
 
     private Product validProfileAndProduct(Long productId, Long profileId) {
-        Long validProfileId = Optional.ofNullable(profileId)
-                .orElseThrow(()-> new UserException(UserErrorCode.UER_NOT_FOUND));
+//        Long validProfileId = Optional.ofNullable(profileId)
+//                .orElseThrow(()-> new UserException(UserErrorCode.UER_NOT_FOUND));
+        Seller seller = validateProductMethod.validateSeller(productId);
         Product product = productRepository.findById(productId)
                 .orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
-        if(!Objects.equals(product.getSeller().getId(),validProfileId)){
-            throw new UserException(UserErrorCode.AUTHENTICATION_FAIL);
+        if(!Objects.equals(product.getSeller().getId(), seller.getId())){
+            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
         }
         return product;
     }
 
 
+    @Transactional(readOnly = true)
     public ProductDto getOneProduct(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
-        return ProductDto.fromEntity(product);
+        return ProductDto.fromEntityDetail(product);
     }
 
-    public List<ProductDto> getProductsByCategory(int productCategory, int ageCategory, int genderCategory, String sortBy) {
+    @Transactional(readOnly = true)
+    public List<GetProductDto> getProductsByCategory(Integer pageNumber, String productCategory, String ageCategory, String genderCategory, String sortBy) {
         String inputProductCategory = ProductCategoryEnum.switchCategory(productCategory);
+        if(inputProductCategory == null) throw new ProductException(ProductErrorCode.INVALID_CATEGORY);
+
+        Pageable pageable = PageRequest.of(pageNumber - 1, 15); //한 페이지 15개
         String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
-        List<Product> products = productRepository.findByCategoryTab(inputProductCategory, inputAgeCategory, inputGenderCategory, sortBy );
-        return products.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+
+        if (Objects.equals(sortBy, "createdAt")) {
+            return productRepository.findByProductCategorySortByCreatedAt(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
+           // return products.stream().map(ProductDto::fromObjectResult).collect(Collectors.toList());
+        }else if(Objects.equals(sortBy, "price")){
+            return productRepository.findByProductCategorySortByPrice(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
+           // return products.stream().map(ProductDto::fromObjectResult).collect(Collectors.toList());
+        } else {
+            return productRepository.findByProductCategorySortById(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetProductDto> getProductList(Integer pageNumber, String ageCategory, String genderCategory, String sortBy) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, 15); //한 페이지 15개
+        String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
+        String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
+
+        if (Objects.equals(sortBy, "price")) {
+           return productRepository.findAllSortByPrice(inputAgeCategory, inputGenderCategory, pageable);
+            //return products.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+        } else if(Objects.equals(sortBy, "createdAt")) {
+           return productRepository.findAllSortByCreatedAt(inputAgeCategory, inputGenderCategory, pageable);
+            //return products.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+        } else {
+            return productRepository.findAllSortById(inputAgeCategory, inputGenderCategory, pageable);
+        }
     }
 }
 
