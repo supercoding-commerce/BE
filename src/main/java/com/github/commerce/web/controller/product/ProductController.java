@@ -67,9 +67,11 @@ public class ProductController {
     @ApiOperation(value = "상품 상세 조회")
     @GetMapping("/detail/{productId}")
     public ResponseEntity<ProductDto> getProduct(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long productId
     ){
-        return ResponseEntity.ok(productService.getOneProduct(productId));
+        Long userId = userDetails.getUser().getId();
+        return ResponseEntity.ok(productService.getOneProduct(productId, userId));
     }
 
     // 판매자가 상품 등록
@@ -77,7 +79,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<String> createProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @ModelAttribute ProductRequest productRequest,
+            @RequestPart ProductRequest productRequest,
             @RequestPart(required = false) List<MultipartFile> imageFiles) {
         Long profileId = userDetails.getUser().getId();
         System.out.println(productRequest.getProductCategory());

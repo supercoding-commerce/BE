@@ -24,8 +24,6 @@ public class ProductDto {
 
     private Long sellerId;
 
-    private Seller seller;
-
     private String shopName;
 
     private String name;
@@ -48,6 +46,8 @@ public class ProductDto {
 
     private String options;
 
+    private boolean isSeller;
+
 
     public static ProductDto fromEntity(Product product){
 
@@ -68,11 +68,12 @@ public class ProductDto {
     }
 
 
-    public static ProductDto fromEntityDetail(Product product){
-
+    public static ProductDto fromEntityDetail(Product product, boolean isSeller){
+        Seller seller = product.getSeller();
         return ProductDto.builder()
                 .productId(product.getId())
-                .seller(product.getSeller())
+                .sellerId(seller.getId())
+                .shopName(seller.getShopName())
                 .name(product.getName())
                 .content(product.getContent())
                 .price(product.getPrice())
@@ -83,6 +84,7 @@ public class ProductDto {
                 .createdAt(product.getCreatedAt())
                 .imageUrl(convertUrlList(product.getThumbnailUrl()))
                 .options(product.getOptions())
+                .isSeller(isSeller)
                 .build();
     }
 
