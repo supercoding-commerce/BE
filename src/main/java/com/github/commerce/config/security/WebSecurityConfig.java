@@ -55,6 +55,7 @@ public class WebSecurityConfig {
                                 PathRequest.toStaticResources().atCommonLocations(), // resources 접근 허용 설정
                                 new AntPathRequestMatcher("/"),
                                 new AntPathRequestMatcher("/v1/api/user/**"),
+                                new AntPathRequestMatcher("/v1/api/product/**"),
                                 new AntPathRequestMatcher("/GuerrillaCommerce")
                         ).permitAll()
                         .antMatchers("/api/v2/**", "/swagger-ui.html", "/swagger/**",
