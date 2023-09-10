@@ -1,9 +1,6 @@
 package com.github.commerce.service.order.util;
 
-import com.github.commerce.entity.Cart;
-import com.github.commerce.entity.Order;
-import com.github.commerce.entity.Product;
-import com.github.commerce.entity.User;
+import com.github.commerce.entity.*;
 import com.github.commerce.repository.cart.CartRepository;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.product.ProductRepository;
@@ -69,7 +66,7 @@ public class ValidateOrderMethod {
         return cartRepository.existsByUsersIdAndProductsId(userId, productId);
     }
 
-    public boolean validateSellerByUserId(Long userId) {
-        return sellerRepository.existsByUsersId(userId);
+    public Seller validateSellerByUserId(Long userId) {
+        return sellerRepository.findByUsersId(userId).orElseThrow(()->new OrderException(OrderErrorCode.SELLER_NOT_FOUND));
     }
 }

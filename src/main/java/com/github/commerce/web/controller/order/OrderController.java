@@ -75,6 +75,19 @@ public class  OrderController {
         }
     }
 
+    @ApiOperation(value = "구매자의 구매내역 조회, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = List.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
+    @GetMapping("/user")
+    public ResponseEntity<List<Map<LocalDate, List<OrderDto>>>> getPurchasedOrder(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ){
+        Long userId = userDetails.getUser().getId();
+        return ResponseEntity.ok(orderService.getPurchasedOrderList(userId));
+    }
+
     @ApiOperation(value = "판매자의 판매내역 조회, 로그인필요")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = List.class),

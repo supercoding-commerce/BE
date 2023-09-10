@@ -71,7 +71,7 @@ public class CartController {
     @PostMapping
     public ResponseEntity<String> add(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PostCartDto.Request request
+            @RequestBody PostCartDto.PostCartRequest request
             ){
         Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(
@@ -93,7 +93,7 @@ public class CartController {
     @PutMapping
     public ResponseEntity<String> modify(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PutCartDto.Request request
+            @RequestBody PutCartDto.PutCartRequest request
             ){
         Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(cartService.modifyCart(request, userId));
