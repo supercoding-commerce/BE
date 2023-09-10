@@ -55,7 +55,7 @@ public class ChatController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable String customRoomId
     ){
-        Long userId = userDetails.getUser().getId();
+
         return ResponseEntity.ok(chatService.getChatRoom(customRoomId));
     }
 }

@@ -131,9 +131,11 @@ public class ProductService {
 
 
     @Transactional(readOnly = true)
-    public ProductDto getOneProduct(Long productId) {
+    public ProductDto getOneProduct(Long productId, Long userId) {
+
         Product product = productRepository.findById(productId).orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
-        return ProductDto.fromEntityDetail(product);
+        boolean isSeller = validateProductMethod.isThisProductSeller(product.getSeller().getId(), userId);
+        return ProductDto.fromEntityDetail(product, isSeller);
     }
 
     @Transactional(readOnly = true)

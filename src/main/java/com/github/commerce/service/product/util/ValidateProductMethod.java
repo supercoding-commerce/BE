@@ -14,6 +14,7 @@ import com.github.commerce.service.product.exception.ProductException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -35,4 +36,8 @@ public class ValidateProductMethod {
                 .orElseThrow(() -> new ProductException(ProductErrorCode.NOT_REGISTERED_SELLER));
     }
 
+    public boolean isThisProductSeller(Long sellerId, Long userId) {
+        Optional<Seller> sellerOptional = sellerRepository.findByUsersId(userId);
+        return sellerOptional.isPresent() && sellerOptional.get().getId().equals(sellerId);
+    }
 }
