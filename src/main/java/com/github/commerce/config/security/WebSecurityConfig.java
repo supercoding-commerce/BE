@@ -63,7 +63,6 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/"),
                                 new AntPathRequestMatcher("/v1/api/user/**"),
                                 new AntPathRequestMatcher("/v1/api/product/**"),
-                                new AntPathRequestMatcher("/v1/api/chat/**"),
                                 new AntPathRequestMatcher("/GuerrillaCommerce")
                         ).permitAll()
                         .antMatchers("/api/v2/**", "/swagger-ui.html", "/swagger/**",
@@ -80,11 +79,15 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("*"); // 여기에 허용하려는 Origin을 추가
+        configuration.setAllowCredentials(true);
+        configuration.addAllowedOriginPattern("*"); // 여기에 허용하려는 Origin을 추가
+        configuration.addAllowedMethod(HttpMethod.OPTIONS);
         configuration.addAllowedMethod(HttpMethod.GET);
         configuration.addAllowedMethod(HttpMethod.POST);
         configuration.addAllowedMethod(HttpMethod.PUT);
         configuration.addAllowedMethod(HttpMethod.DELETE);
+        configuration.addAllowedHeader("ACCESS_TOKEN");
+        configuration.addAllowedHeader("REFRESH_TOKEN");
         configuration.addAllowedHeader("Authorization");
         configuration.addAllowedHeader("Content-Type");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
