@@ -15,9 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class ProductImageUploadService {
@@ -25,7 +22,7 @@ public class ProductImageUploadService {
     private final AwsS3Service awsS3Service;
     private final ProductContentImageRepository productContentImageRepository;
 
-    @Async
+
     public void uploadThumbNailImage(MultipartFile thumbNailFile, Product product) {
         try {
             if (thumbNailFile != null) {
@@ -36,29 +33,40 @@ public class ProductImageUploadService {
         } catch (IOException e) {
             throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
         }
-        //return CompletableFuture.completedFuture(null);
     }
 
-    @Async
-    public List<String> uploadImageFileList(List<MultipartFile> imgList, Product product) {
-//        List<ProductContentImage> productContentImageList =
+    public List<String> uploadImageFileList(List<MultipartFile> imgList) {
         List<String> urlList = new ArrayList<>();
         imgList.forEach(multipartFile -> {
-            String uniqueIdentifier = UUID.randomUUID().toString();
+            String fileName = createFileName(multipartFile.getOriginalFilename());
+
             try {
+
                 String url = awsS3Service.memoryUpload(multipartFile,
-                        FilePath.PRODUCT_CONTENT_DIR.getPath() + uniqueIdentifier);
-//                return ProductContentImage.from(product, url);
+                        fileName);
+                urlList.add(url);
             } catch (IOException e) {
                 throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
             }
-            urlList.add(FilePath.PRODUCT_CONTENT_DIR.getPath() + uniqueIdentifier);
         });
         return urlList;
-//                .collect(Collectors.toList());
-//        productContentImageRepository.saveAll(productContentImageList);
+}
 
-        //return CompletableFuture.completedFuture(null);
+    private String createFileName(String fileName) {
+        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
+
+    private String getFileExtension(String fileName) {
+        try {
+            String extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+            if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg")) {
+                return extension;
+            }
+            throw new ProductException(ProductErrorCode.NOT_IMAGE_EXTENSION);
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new ProductException(ProductErrorCode.INVALID_FORMAT_FILE);
+        }
+    }
+
 
 }

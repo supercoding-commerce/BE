@@ -6,7 +6,6 @@ import com.github.commerce.web.dto.order.GetOrderDto;
 import com.github.commerce.web.dto.order.OrderDto;
 import com.github.commerce.web.dto.order.PostOrderDto;
 import com.github.commerce.web.dto.order.PutOrderDto;
-import com.github.commerce.web.dto.review.PostReviewDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -26,12 +25,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/v1/api/order")
 @RestController
-public class OrderController {
+public class  OrderController {
     private final OrderService orderService;
 
     /**
      * 주문 생성
-     * @param request
+     * @param
      * @return
      */
     @ApiOperation(value = "주문 등록, 로그인필요")
@@ -42,10 +41,10 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<String> createOrder(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PostOrderDto.Request request
+            @RequestBody PostOrderDto.PostOrderRequest postOrderRequest
             ){
         Long userId = userDetails.getUser().getId();
-        return ResponseEntity.ok(orderService.createOrder(request, userId));
+        return ResponseEntity.ok(orderService.createOrder(postOrderRequest, userId));
     }
 
     /**
@@ -74,6 +73,19 @@ public class OrderController {
                     orderService.getOrderListByCursor(userId, cursorId))
             );
         }
+    }
+
+    @ApiOperation(value = "구매자의 구매내역 조회, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = List.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
+    @GetMapping("/user")
+    public ResponseEntity<List<Map<LocalDate, List<OrderDto>>>> getPurchasedOrder(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ){
+        Long userId = userDetails.getUser().getId();
+        return ResponseEntity.ok(orderService.getPurchasedOrderList(userId));
     }
 
     @ApiOperation(value = "판매자의 판매내역 조회, 로그인필요")
@@ -108,7 +120,7 @@ public class OrderController {
 
     /**
      * 주문 수정
-     * @param request
+     * @param
      * @return
      */
     @ApiOperation(value = "개별주문 수정, 로그인필요")
@@ -119,10 +131,10 @@ public class OrderController {
     @PutMapping
     public ResponseEntity<String> modify(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PutOrderDto.Request request
+            @RequestBody PutOrderDto.PutOrderRequest putOrderRequest
     ){
         Long userId = userDetails.getUser().getId();
-        return ResponseEntity.ok(orderService.modifyOrder(request, userId));
+        return ResponseEntity.ok(orderService.modifyOrder(putOrderRequest, userId));
     }
 
     /**

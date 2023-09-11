@@ -1,9 +1,6 @@
 package com.github.commerce.service.order;
 
-import com.github.commerce.entity.Cart;
-import com.github.commerce.entity.Order;
-import com.github.commerce.entity.Product;
-import com.github.commerce.entity.User;
+import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.service.order.exception.OrderErrorCode;
 import com.github.commerce.service.order.exception.OrderException;
@@ -32,11 +29,11 @@ public class OrderService {
     private final RabbitTemplate rabbitTemplate;
 
     @Transactional
-    public String createOrder(PostOrderDto.Request request, Long userId) {
+    public String createOrder(PostOrderDto.PostOrderRequest request, Long userId) {
         Long inputProductId = request.getProductId();
         Integer inputQuantity = request.getQuantity();
         Long inputCartId = request.getCartId();
-        List<Map<String, String>> inputOptions = request.getOptions();
+        List<String> inputOptions = request.getOptions();
 
         // Gson 인스턴스 생성
         Gson gson = new Gson();
@@ -92,6 +89,37 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    public List<Map<LocalDate, List<OrderDto>>> getPurchasedOrderList(Long userId){
+        List<Order> sortedOrders = orderRepository.findPaidOrderByUserIdSortByCreatedAtDesc(userId);
+        // 카트 레코드를 날짜별로 그룹화
+        Map<LocalDate, List<OrderDto>> groupedOrders = sortedOrders.stream()
+                .collect(Collectors.groupingBy(
+                        order -> order.getCreatedAt().toLocalDate(),
+                        Collectors.mapping(OrderDto::fromEntity, Collectors.toList())));
+
+        List<Map<LocalDate, List<OrderDto>>> result = new ArrayList<>();
+        result.add(groupedOrders);
+
+        return result;
+    }
+
+    public List<Map<LocalDate, List<OrderDto>>> getSellerOrderList(Long userId) {
+        Seller seller = validateOrderMethod.validateSellerByUserId(userId);
+
+        List<Order> sortedOrders = orderRepository.findPaidOrderBySellerIdSortByCreatedAtDesc(seller.getId());
+        Map<LocalDate, List<OrderDto>> groupedOrders = sortedOrders.stream()
+                .collect(Collectors.groupingBy(
+                        order -> order.getCreatedAt().toLocalDate(),
+                        Collectors.mapping(OrderDto::fromEntity, Collectors.toList())));
+
+        List<Map<LocalDate, List<OrderDto>>> result = new ArrayList<>();
+        result.add(groupedOrders);
+
+        return result;
+    }
+
+
+    @Transactional(readOnly = true)
     public List<Map<LocalDate, List<OrderDto>>> getOrderList(Long userId){
         List<Order> sortedOrders = orderRepository.findAllByUsersIdOrderByCreatedAtDesc(userId);
         // 카트 레코드를 날짜별로 그룹화
@@ -126,11 +154,11 @@ public class OrderService {
     }
 
     @Transactional
-    public String modifyOrder(PutOrderDto.Request request, Long userId) {
+    public String modifyOrder(PutOrderDto.PutOrderRequest request, Long userId) {
         Long orderId = request.getOrderId();
         Long productId = request.getProductId();
         Integer inputQuantity = request.getQuantity();
-        List<Map<String, String>> options = request.getOptions();
+        List<String> options = request.getOptions();
         // Gson 인스턴스 생성
         Gson gson = new Gson();
         // inputOptions를 JSON 문자열로 변환
@@ -169,21 +197,6 @@ public class OrderService {
         return validatedOrder.getId() + "번 주문 삭제";
     }
 
-    public List<Map<LocalDate, List<OrderDto>>> getSellerOrderList(Long userId) {
-        boolean isSeller = validateOrderMethod.validateSellerByUserId(userId);
-        if(!isSeller) throw new OrderException(OrderErrorCode.SELLER_NOT_FOUND);
-
-        List<Order> sortedOrders = orderRepository.findSellerOrderByUsersIdOrderByCreatedAtDesc(userId);
-        Map<LocalDate, List<OrderDto>> groupedOrders = sortedOrders.stream()
-                .collect(Collectors.groupingBy(
-                        order -> order.getCreatedAt().toLocalDate(),
-                        Collectors.mapping(OrderDto::fromEntity, Collectors.toList())));
-
-        List<Map<LocalDate, List<OrderDto>>> result = new ArrayList<>();
-        result.add(groupedOrders);
-
-        return result;
-    }
 
 //    // 판매자에게 SSE 이벤트를 발생시키는 메서드
 //    private void sendEventToSeller(Long sellerUserId, String message) {

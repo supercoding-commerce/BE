@@ -5,6 +5,7 @@ import com.github.commerce.service.user.UserService;
 import com.github.commerce.web.dto.user.LoginRequestDto;
 import com.github.commerce.web.dto.user.RegisterUserInfoDto;
 import com.github.commerce.web.dto.user.ReigsterSellerDto;
+import com.github.commerce.web.dto.user.TokenDto;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,10 +39,12 @@ public class UserController {
     }
 
     @PostMapping(value = "/login")
-    public String login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse httpServletResponse) {
-        String token=userService.login(loginRequestDto);
-        httpServletResponse.setHeader(JwtUtil.AUTHORIZATION_HEADER,token);
-        return "로그인 성공!";
+    public ResponseEntity<TokenDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse httpServletResponse) {
+        TokenDto tokenDto = userService.login(loginRequestDto);
+        httpServletResponse.setHeader(JwtUtil.ACCESS_TOKEN,tokenDto.getAccessToken());
+        httpServletResponse.setHeader(JwtUtil.REFRESH_TOKEN,tokenDto.getRefreshToken());
+
+        return ResponseEntity.ok(tokenDto);
     }
 
 }

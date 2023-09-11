@@ -17,7 +17,7 @@ public class CartDto {
     private Long cartId;
     private Long productId;
     private String productName;
-    private Long price;
+    private Integer price;
     private String imageUrl;
     private Integer quantity;
     private Boolean isOrdered;

@@ -14,10 +14,10 @@ public class PutCartDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class Request {
+    public static class PutCartRequest {
         private Long cartId;
         private Long productId;
         private Integer quantity;
-        private List<Map<String, String>> options;
+        private List<String> options;
     }
 }

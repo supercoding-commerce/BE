@@ -13,11 +13,11 @@ public class PostCartDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class Request {
+    public static class PostCartRequest {
 
         private Long productId;
         private Integer quantity;
-        private List<Map<String, String>> options;
+        private List<String> options;
     }
 
     @Setter

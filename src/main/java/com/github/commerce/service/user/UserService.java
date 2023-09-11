@@ -2,6 +2,7 @@ package com.github.commerce.service.user;
 
 import com.github.commerce.config.security.JwtUtil;
 import com.github.commerce.entity.*;
+import com.github.commerce.repository.user.RefreshTokenRepository;
 import com.github.commerce.repository.user.SellerRepository;
 import com.github.commerce.repository.user.UserInfoRepository;
 import com.github.commerce.repository.user.UserRepository;
@@ -10,6 +11,7 @@ import com.github.commerce.service.user.exception.UserException;
 import com.github.commerce.web.dto.user.LoginRequestDto;
 import com.github.commerce.web.dto.user.RegisterUserInfoDto;
 import com.github.commerce.web.dto.user.ReigsterSellerDto;
+import com.github.commerce.web.dto.user.TokenDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
     public boolean registerSeller(ReigsterSellerDto reigsterSellerDto) {
@@ -104,8 +108,9 @@ public class UserService {
         return true;
     }
 
+    @Transactional
+    public TokenDto login(LoginRequestDto loginRequestDto) {
 
-    public String login(LoginRequestDto loginRequestDto) {
         String email=loginRequestDto.getEmail();
         String password=loginRequestDto.getPassword();
 
@@ -120,11 +125,27 @@ public class UserService {
                 throw new UserException(UserErrorCode.UER_NOT_FOUND);
             }
 
-            return jwtUtil.createToken(user.getEmail(),user.getRole());
+            // 아이디 정보로 Token생성
+            TokenDto tokenDto = jwtUtil.createAllToken(user.getEmail(), user.getRole());
+
+            // Refresh토큰 있는지 확인
+            Optional<RefreshToken> refreshToken = refreshTokenRepository.findByEmail(loginRequestDto.getEmail());
+
+            // 있다면 새토큰 발급후 업데이트
+            // 없다면 새로 만들고 디비 저장
+            if(refreshToken.isPresent()) {
+                refreshTokenRepository.save(refreshToken.get().updateToken(tokenDto.getRefreshToken()));
+            }else {
+                RefreshToken newToken = new RefreshToken(tokenDto.getRefreshToken(), loginRequestDto.getEmail());
+                refreshTokenRepository.save(newToken);
+            }
+
+            return tokenDto;
+
         }catch (Exception e) {
             log.error(e.getMessage());
             throw new UserException(UserErrorCode.LOGIN_FAIL);
         }
-
     }
+
 }
