@@ -63,6 +63,7 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/"),
                                 new AntPathRequestMatcher("/v1/api/user/**"),
                                 new AntPathRequestMatcher("/v1/api/product/**"),
+                                new AntPathRequestMatcher("/v1/api/chat/**"),
                                 new AntPathRequestMatcher("/GuerrillaCommerce")
                         ).permitAll()
                         .antMatchers("/api/v2/**", "/swagger-ui.html", "/swagger/**",
