@@ -8,10 +8,7 @@ import com.github.commerce.repository.user.UserInfoRepository;
 import com.github.commerce.repository.user.UserRepository;
 import com.github.commerce.service.user.exception.UserErrorCode;
 import com.github.commerce.service.user.exception.UserException;
-import com.github.commerce.web.dto.user.LoginRequestDto;
-import com.github.commerce.web.dto.user.RegisterUserInfoDto;
-import com.github.commerce.web.dto.user.ReigsterSellerDto;
-import com.github.commerce.web.dto.user.TokenDto;
+import com.github.commerce.web.dto.user.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -148,4 +145,41 @@ public class UserService {
         }
     }
 
+    public UserInfoResponseDto getUserInfo(Long userId, String role) {
+
+        if(role.equals("SELLER"))
+        {
+            Seller seller = sellerRepository.findByUsersId(userId).orElseThrow(()->new UserException(UserErrorCode.UER_NOT_FOUND));
+            return UserInfoResponseDto.builder()
+                    .role(seller.getUsers().getRole().name())
+                    //.address(seller.getAddress())
+                    .build();
+        } else {
+            UsersInfo usersInfo = userInfoRepository.findByUsersId(userId).orElseThrow(()->new UserException(UserErrorCode.UER_NOT_FOUND));
+            return UserInfoResponseDto.builder()
+                    .role(usersInfo.getUsers().getRole().name())
+                    .grade(usersInfo.getGrade().name())
+                    .nickname(usersInfo.getNickname())
+                    .address(usersInfo.getAddress())
+                    .build();
+        }
+    }
+
+    public String checkEmail(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new UserException(UserErrorCode.USER_EMAIL_ALREADY_EXIST);
+        } else return "사용 가능한 이메일입니다.";
+    }
+
+    public String checkNickName(String nickName) {
+        if(userInfoRepository.existsByNickname(nickName)) {
+            throw new UserException(UserErrorCode.USER_NICKNAME_ALREADY_EXIST);
+        } else return "사용 가능한 닉네임입니다.";
+    }
+
+    public String checkShopName(String shopName) {
+        if(sellerRepository.existsByShopName(shopName)) {
+            throw new UserException(UserErrorCode.SHOP_NAME_ALREADY_EXIST);
+        } else return "사용 가능한 쇼핑몰 이름입니다.";
+    }
 }
