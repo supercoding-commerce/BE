@@ -29,65 +29,50 @@ public class OrderService {
     private final RabbitTemplate rabbitTemplate;
 
     @Transactional
-    public String createOrder(PostOrderDto.PostOrderRequest request, Long userId) {
-        Long inputProductId = request.getProductId();
-        Integer inputQuantity = request.getQuantity();
-        Long inputCartId = request.getCartId();
-        List<String> inputOptions = request.getOptions();
+    public List<String> createOrder(List<PostOrderDto.PostOrderRequest> requestList, Long userId) {
+        List<String >nameList = new ArrayList<>();
+        for(PostOrderDto.PostOrderRequest request : requestList) {
+            Long inputProductId = request.getProductId();
+            Integer inputQuantity = request.getQuantity();
+            Long inputCartId = request.getCartId();
+            List<String> inputOptions = request.getOptions();
 
-        // Gson 인스턴스 생성
-        Gson gson = new Gson();
-        // inputOptions를 JSON 문자열로 변환
-        String inputOptionsJson = gson.toJson(inputOptions);
+            // Gson 인스턴스 생성
+            Gson gson = new Gson();
+            // inputOptions를 JSON 문자열로 변환
+            String inputOptionsJson = gson.toJson(inputOptions);
 
-        Cart validatedCart = null;
+            Cart validatedCart = null;
 
-        if (inputCartId != null) {
-            validatedCart = validateOrderMethod.validateCart(inputCartId, userId);
+            if (inputCartId != null) {
+                validatedCart = validateOrderMethod.validateCart(inputCartId, userId);
+            }
+
+            User validatedUser = validateOrderMethod.validateUser(userId);
+            //TODO: 재고 소진 기능마련
+            Product validatedProduct = validateOrderMethod.validateProduct(inputProductId);
+            Seller validatedSeller = validatedProduct.getSeller();
+            //TODO: 재고 부족 기능마련
+            validateOrderMethod.validateStock(inputQuantity, validatedProduct);
+
+            OrderRmqDto newOrder = OrderRmqDto.fromEntity(
+                    Order.builder()
+                            .users(validatedUser)
+                            .sellers(validatedSeller)
+                            .products(validatedProduct)
+                            .createdAt(LocalDateTime.now())
+                            .quantity(inputQuantity)
+                            .orderState(1)
+                            .carts(validatedCart)
+                            .totalPrice((long) (validatedProduct.getPrice() * inputQuantity))
+                            .options(inputOptionsJson)
+                            .build()
+            );
+
+            rabbitTemplate.convertAndSend("exchange", "postOrder", newOrder);
+            nameList.add(validatedProduct.getName()+ "상품 주문요청");
         }
-
-        User validatedUser = validateOrderMethod.validateUser(userId);
-        //TODO: 재고 소진 기능마련
-        Product validatedProduct = validateOrderMethod.validateProduct(inputProductId);
-        Seller validatedSeller = validatedProduct.getSeller();
-        //TODO: 재고 부족 기능마련
-        validateOrderMethod.validateStock(inputQuantity, validatedProduct);
-//        try {
-//            validateOrderMethod.validateStock(inputQuantity, validatedProduct);
-//        }catch(OrderException e){
-//            // 상품 재고 부족 에러가 발생한 경우
-//            // 에러 메시지를 그대로 던지지 않고 메시지 큐에 정보를 전달
-//            DelayedOrderDto delayedOrder = DelayedOrderDto.builder()
-//                    .userId(userId)
-//                    .productId(inputProductId)
-//                    .quantity(inputQuantity)
-//                    .options(inputOptions)
-//                    .build();
-//            //messageQueueService.enqueueOrderRequest(delayedOrder);
-//
-//            //판매자에게 알람
-//            //sendEventToSeller(validatedProduct.getUsers().getId(), "상품 재고 부족 알림");
-//
-//            throw e;
-//        }
-
-        OrderRmqDto newOrder = OrderRmqDto.fromEntity(
-                Order.builder()
-                .users(validatedUser)
-                .sellers(validatedSeller)
-                .products(validatedProduct)
-                .createdAt(LocalDateTime.now())
-                .quantity(inputQuantity)
-                .orderState(1)
-                .carts(validatedCart)
-                .totalPrice((long) (validatedProduct.getPrice() * inputQuantity))
-                .options(inputOptionsJson)
-                .build()
-        );
-
-        rabbitTemplate.convertAndSend("exchange", "postOrder", newOrder);
-        return validatedProduct.getName() + "상품 주문요청";
-
+        return nameList;
     }
 
     @Transactional(readOnly = true)
@@ -122,18 +107,18 @@ public class OrderService {
 
 
     @Transactional(readOnly = true)
-    public List<Map<LocalDate, List<OrderDto>>> getOrderList(Long userId){
+    public List<OrderDto> getOrderList(Long userId){
         List<Order> sortedOrders = orderRepository.findAllByUsersIdOrderByCreatedAtDesc(userId);
         // 카트 레코드를 날짜별로 그룹화
-        Map<LocalDate, List<OrderDto>> groupedOrders = sortedOrders.stream()
-                .collect(Collectors.groupingBy(
-                        order -> order.getCreatedAt().toLocalDate(),
-                        Collectors.mapping(OrderDto::fromEntity, Collectors.toList())));
+//        Map<LocalDate, List<OrderDto>> groupedOrders = sortedOrders.stream()
+//                .collect(Collectors.groupingBy(
+//                        order -> order.getCreatedAt().toLocalDate(),
+//                        Collectors.mapping(OrderDto::fromEntity, Collectors.toList())));
+//
+//        List<Map<LocalDate, List<OrderDto>>> result = new ArrayList<>();
+//        result.add(groupedOrders);
 
-        List<Map<LocalDate, List<OrderDto>>> result = new ArrayList<>();
-        result.add(groupedOrders);
-
-        return result;
+        return sortedOrders.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -171,13 +156,11 @@ public class OrderService {
         Product validatedProduct = validateOrderMethod.validateProduct(productId);
         validateOrderMethod.validateStock(inputQuantity, validatedProduct);
 
-//        validatedOrder.setQuantity(inputQuantity);
-//        validatedOrder.setOptions(inputOptionsJson);
-
         OrderRmqDto newOrder = OrderRmqDto.fromEntityForModify(
                 Order.builder()
                         .id(validatedOrder.getId())
                         .users(validatedUser)
+                        .sellers(validatedProduct.getSeller())
                         .products(validatedProduct)
                         .createdAt(validatedOrder.getCreatedAt())
                         .quantity(inputQuantity)
