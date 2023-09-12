@@ -23,12 +23,6 @@ import java.util.List;
 public class ChatController {
     private final ChatService chatService;
 
-//    @GetMapping("/seller/{sellerId}")
-//    public ResponseEntity<List<Chat>> getSellerChats(
-//            @PathVariable Long sellerId
-//    ){
-//        return ResponseEntity.ok(chatService.getSellerChats(sellerId));
-//    }
     @ApiOperation(value = "채팅방 목록 조회, 로그인필요")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = String.class),

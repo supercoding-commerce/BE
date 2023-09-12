@@ -6,6 +6,8 @@ import com.github.commerce.entity.collection.Chat;
 import com.github.commerce.web.dto.cart.CartDto;
 import lombok.*;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -42,5 +44,24 @@ public class ChatDto {
                 .userName(chat.getUserName())
                 .chats(chat.getChats())
                 .build();
+    }
+
+    public static ChatDto fromEntityList(Chat chat){
+        return ChatDto.builder()
+                .chatId(chat.getChatId())
+                .customRoomId(chat.getCustomRoomId())
+                .productId(chat.getProductId())
+                .userId(chat.getUserId())
+                .sellerId(chat.getSellerId())
+                .shopName(chat.getShopName())
+                .userName(chat.getUserName())
+                .chats(getLastChat(chat.getChats()))
+                .build();
+    }
+
+    private static Map<Integer, Map<String, String>> getLastChat(Map<Integer, Map<String, String>> chat){
+        int lastKey = Collections.max(chat.keySet());
+        Map<String, String> lastKeyMap = chat.get(lastKey);
+        return Collections.singletonMap(lastKey, lastKeyMap);
     }
 }
