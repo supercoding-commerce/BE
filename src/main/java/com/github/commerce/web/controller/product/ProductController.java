@@ -81,9 +81,8 @@ public class ProductController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestPart ProductRequest productRequest,
             @RequestPart(required = false) List<MultipartFile> imageFiles) {
-        Long profileId = userDetails.getUser().getId();
-        System.out.println(productRequest.getProductCategory());
-        System.out.println(ProductCategoryEnum.switchCategory(productRequest.getProductCategory()));
+        Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
+
         return ResponseEntity.ok(productService.createProductItem(productRequest, imageFiles, profileId));
     }
 
@@ -94,7 +93,7 @@ public class ProductController {
                                            @ModelAttribute ProductRequest productRequest,
                                            @AuthenticationPrincipal UserDetailsImpl userDetails
                                            ) {
-        Long profileId = userDetails.getUser().getId();
+        Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
         productService.updateProductById(productId,profileId,productRequest);
 
         return ResponseEntity.ok(profileId + "번 상품 수정 성공");
@@ -108,7 +107,7 @@ public class ProductController {
     public ResponseEntity<?> deleteProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("productId") Long productId){
-        Long profileId = userDetails.getUser().getId();
+        Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
         productService.deleteProductByProductId(productId,profileId);
         return ResponseEntity.ok(profileId + "번 상품 삭제 성공");
     }

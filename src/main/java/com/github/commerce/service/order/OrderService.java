@@ -49,6 +49,7 @@ public class OrderService {
         User validatedUser = validateOrderMethod.validateUser(userId);
         //TODO: 재고 소진 기능마련
         Product validatedProduct = validateOrderMethod.validateProduct(inputProductId);
+        Seller validatedSeller = validatedProduct.getSeller();
         //TODO: 재고 부족 기능마련
         validateOrderMethod.validateStock(inputQuantity, validatedProduct);
 //        try {
@@ -73,6 +74,7 @@ public class OrderService {
         OrderRmqDto newOrder = OrderRmqDto.fromEntity(
                 Order.builder()
                 .users(validatedUser)
+                .sellers(validatedSeller)
                 .products(validatedProduct)
                 .createdAt(LocalDateTime.now())
                 .quantity(inputQuantity)

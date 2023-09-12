@@ -5,22 +5,25 @@ import com.github.commerce.repository.chat.ChatRepository;
 import com.github.commerce.repository.chat.ChatRepositoryCustomImpl;
 import com.github.commerce.service.chat.exception.ChatErrorCode;
 import com.github.commerce.service.chat.exception.ChatException;
+import com.github.commerce.web.dto.chat.ChatDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
     private final ChatRepository chatRepository;
     private final ChatRepositoryCustomImpl chatRepositoryCustom;
-    public Chat getChatRoom(String customRoomId){
-        return chatRepository.findByCustomRoomId(customRoomId).orElseThrow(()->new ChatException(ChatErrorCode.DEPRECATED_CHAT));
+    public ChatDto getChatRoom(String customRoomId){
+        return ChatDto.fromEntity(chatRepository.findByCustomRoomId(customRoomId).orElseThrow(()->new ChatException(ChatErrorCode.DEPRECATED_CHAT)));
     };
 
 
-    public List<Chat> getUserChatList(Long userId) {
-        return chatRepositoryCustom.getUserChatsWithKey1(userId);
+    public List<ChatDto> getUserChatList(Long userId) {
+        List<Chat> chatList = chatRepositoryCustom.getUserChatsWithKey1(userId);
+        return chatList.stream().map(ChatDto::fromEntity).collect(Collectors.toList());
     }
 }

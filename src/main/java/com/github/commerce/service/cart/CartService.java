@@ -79,13 +79,12 @@ public class CartService {
 
         User validatedUser = validatCartMethod.validateUser(userId);
         Product validatedProduct = validatCartMethod.validateProduct(inputProductId);
-        validatCartMethod.validateStock(inputQuantity, validatedProduct);
+        //validatCartMethod.validateStock(inputQuantity, validatedProduct);
 
-        Product 에러발생용상품 = productRepository.findById(3L).orElse(null);
         CartRmqDto newCart = CartRmqDto.fromEntityForPost(
                 Cart.builder()
                         .users(validatedUser)
-                        .products(에러발생용상품)
+                        .products(validatedProduct)
                         .options(inputOptionsJson)
                         .quantity(inputQuantity)
                         .isOrdered(false)

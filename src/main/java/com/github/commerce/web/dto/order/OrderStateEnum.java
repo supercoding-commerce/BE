@@ -5,7 +5,9 @@ public enum OrderStateEnum {
     결제완료(2, "결제완료"),
     배송대기(3, "배송대기"),
     배송중(4, "배송중"),
-    배송완료(5, "배송완료");
+    배송완료(5, "배송완료"),
+
+    주문실패(6, "주문실패");
 
     private final int value;
     private final String label;
@@ -22,7 +24,7 @@ public enum OrderStateEnum {
             case 3: return 배송대기.label;
             case 4: return 배송중.label;
             case 5: return 배송완료.label;
-            //case 7: return ETC.name;
+            case 6: return 주문실패.label;
             default: return 결제대기.label;
         }
     }
