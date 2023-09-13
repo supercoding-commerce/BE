@@ -23,8 +23,8 @@ public class ChatRepositoryCustomImpl implements ChatRepository {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public List<Chat> getUserChatList(Long userId) {
-        Query query = new Query(Criteria.where("userId").is(userId));
+    public List<Chat> getUserChatList(Long userId, Long sellerId) {
+        Query query = new Query(Criteria.where("userId").is(userId).and("sellerId").is(sellerId));
         query.fields().include("customRoomId", "userId", "productId","sellerId","shopName","userName", "chats");
 
         return mongoTemplate.find(query, Chat.class);
