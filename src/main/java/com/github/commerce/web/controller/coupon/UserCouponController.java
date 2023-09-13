@@ -24,27 +24,21 @@ public class UserCouponController {
     @ApiOperation("구매자가 본인이 갖고 있는 쿠폰 목록 조회")
     @GetMapping
     public ResponseEntity<List<UsersCouponResponseDto>> getMyCouponList(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        return ResponseEntity.ok(userCouponService.getMyCouponList(userDetails.getUser().getEmail()));
+        return ResponseEntity.ok(userCouponService.getMyCouponList(userDetails.getUser().getId()));
     }
 
     //쿠폰 발급
-//    @PostMapping("/issue")
-//    public ResponseEntity<UsersCouponResponseDto> issueCoupon(@RequestBody UsersCouponIssueRequest usersCouponIssueRequest){
-//        return ResponseEntity.ok(userCouponService.issueUserCoupon(usersCouponIssueRequest));
-//    }
     @ApiOperation("구매자가 본인이 쓸 쿠폰 발급")
     @PostMapping("/issue")
     public ResponseEntity<UsersCouponResponseDto> issueCoupon(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam("couponId") Long couponId){
-        return ResponseEntity.ok(userCouponService.issueUserCoupon(userDetails.getUser().getEmail(), couponId));
+        return ResponseEntity.ok(userCouponService.issueUserCoupon(userDetails.getUser().getId(), couponId));
     }
 
     //쿠폰 사용 완료
     @ApiOperation("구매자가 본인이 갖고 있는 쿠폰 사용 완료")
     @PatchMapping("/used")
     public ResponseEntity<UsersCouponResponseDto> usedCoupon(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam("couponId") Long couponId){
-        return ResponseEntity.ok(userCouponService.usedUserCoupon(userDetails.getUser().getEmail(), couponId));
+        return ResponseEntity.ok(userCouponService.usedUserCoupon(userDetails.getUser().getId(), couponId));
     }
 
-
-    //TODO. 쿠폰 사용 기한 만료 - 서비스단? - @Schedule
 }
