@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,28 +32,28 @@ public class UserCouponService {
     private final UserInfoRepository userInfoRepository;
 
     //본인의 쿠폰 목록 조회
-    public List<UsersCouponResponseDto> getMyCouponList(String userEmail){
-        //String userEmail = userDetails.getUser().getEmail();
-        User user = userRepository.findUserByEmail(userEmail);
+    public List<UsersCouponResponseDto> getMyCouponList(Long userId){
+
+        Optional<User> user = userRepository.findById(userId);
 
         //등록되지 않은 아이디일 때
-        if(user==null || user.getIsDelete()){
+        if(user.isEmpty() || user.get().getIsDelete()){
             throw new CouponException(CouponErrorCode.USER_NOT_FOUND);
         }
 
-        return usersCouponRepository.findUsersCouponByUsersIdAndExpiredAtAfterOrderByExpiredAt(user.getId(), LocalDateTime.now()).stream().map(UsersCouponResponseDto::new).collect(Collectors.toList());
+        return usersCouponRepository.findUsersCouponByUsersIdAndExpiredAtAfterOrderByExpiredAt(user.get().getId(), LocalDateTime.now()).stream().map(UsersCouponResponseDto::new).collect(Collectors.toList());
     }
 
     //회원이 쿠폰 1개 발급
     //동시성 처리
     @Transactional
-    public UsersCouponResponseDto issueUserCoupon(String userEmail, Long couponId) {
+    public UsersCouponResponseDto issueUserCoupon(Long userId, Long couponId) {
 
-        User user = userRepository.findUserByEmail(userEmail);
+        Optional<User> user = userRepository.findById(userId);
         Coupon coupon = couponRepository.findCouponById(couponId);
 
         //등록되지 않은 아이디일 때
-        if (user==null || user.getIsDelete()) {
+        if (user.isEmpty() || user.get().getIsDelete()) {
             throw new CouponException(CouponErrorCode.USER_NOT_FOUND);
         }
 
@@ -62,17 +63,17 @@ public class UserCouponService {
         }
 
         //해당 유저가 동일한 쿠폰을 발급받은 적이 있을 때
-        if(usersCouponRepository.existsByUsersIdAndCouponsId(user.getId(), couponId)){
+        if(usersCouponRepository.existsByUsersIdAndCouponsId(user.get().getId(), couponId)){
             throw new CouponException(CouponErrorCode.COUPON_ALREADY_EXISTS);
         }
 
         //회원 정보가 없을 때
-        if(userInfoRepository.findByUsersId(user.getId()).isEmpty()){
+        if(userInfoRepository.findByUsersId(user.get().getId()).isEmpty()){
             throw new CouponException(CouponErrorCode.USER_INFO_NOT_FOUND);
         }
 
         //현재 회원의 등급이 쿠폰 발급 가능 회원 등급에 해당하지 않을 때
-        Grade grade = userInfoRepository.findByUsersId(user.getId()).get().getGrade();
+        Grade grade = userInfoRepository.findByUsersId(user.get().getId()).get().getGrade();
         if( grade != Grade.ALL && grade != coupon.getCouponGrade()){
             if(coupon.getCouponGrade()==Grade.GREEN){
                 throw new CouponException(CouponErrorCode.ONLY_GREEN_CAN_ISSUE);
@@ -109,18 +110,18 @@ public class UserCouponService {
          **/
         coupon.decreaseCouponAmount(1);
 
-        return new UsersCouponResponseDto(usersCouponRepository.save(new UsersCoupon(coupon, user, LocalDateTime.now().plusDays(coupon.getPeriod()))));
+        return new UsersCouponResponseDto(usersCouponRepository.save(new UsersCoupon(coupon, user.get(), LocalDateTime.now().plusDays(coupon.getPeriod()))));
     }
 
     //쿠폰을 사용완료 했을 때
     @Transactional //update이므로 @Transactional 사용
-    public UsersCouponResponseDto usedUserCoupon(String userEmail, Long couponId) {
-        User user = userRepository.findUserByEmail(userEmail);
-        //User user = userRepository.findUserByEmail(userDetails.getUser().getEmail());
+    public UsersCouponResponseDto usedUserCoupon(Long userId, Long couponId) {
+
+        Optional<User> user = userRepository.findById(userId);
         Coupon coupon = couponRepository.findCouponById(couponId);
 
         //등록되지 않은 아이디일 때
-        if (user==null || user.getIsDelete()) {
+        if (user.isEmpty() || user.get().getIsDelete()) {
             throw new CouponException(CouponErrorCode.USER_NOT_FOUND);
         }
 
@@ -129,7 +130,7 @@ public class UserCouponService {
             throw new CouponException(CouponErrorCode.THIS_COUPON_DOES_NOT_EXIST);
         }
 
-        UsersCoupon usersCoupon = usersCouponRepository.findUsersCouponByUsersIdAndCouponsIdAndExpiredAtAfterAndIsUsed(user.getId(), coupon.getId(), LocalDateTime.now(), false);
+        UsersCoupon usersCoupon = usersCouponRepository.findUsersCouponByUsersIdAndCouponsIdAndExpiredAtAfterAndIsUsed(user.get().getId(), coupon.getId(), LocalDateTime.now(), false);
 
         //회원이 갖고 있는 쿠폰이 아닐 때
         if(usersCoupon == null){
