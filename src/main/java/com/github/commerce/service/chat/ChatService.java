@@ -23,7 +23,7 @@ public class ChatService {
 
 
     public List<ChatDto> getUserChatList(Long userId) {
-        List<Chat> chatList = chatRepositoryCustom.getUserChatsWithKey1(userId);
-        return chatList.stream().map(ChatDto::fromEntity).collect(Collectors.toList());
+        List<Chat> chatList = chatRepositoryCustom.getUserChatList(userId);
+        return chatList.stream().map(ChatDto::fromEntityList).collect(Collectors.toList());
     }
 }

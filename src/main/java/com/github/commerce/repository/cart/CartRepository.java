@@ -31,5 +31,11 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     List<Cart> findAllByUsersId(Long userId);
 
+    @Query(
+            "SELECT c, c.products.price, c.products.name, c.products.thumbnailUrl, c.products.leftAmount FROM Cart c " +
+                    "WHERE c.users.id = :userId " +
+                    //"SELECT c FROM Cart c " +
+                    "ORDER BY c.createdAt DESC "
+    )
     List<Cart> findAllByUsersIdOrderByCreatedAtDesc(Long userId);
 }

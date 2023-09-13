@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 public class OrderDto {
     private Long orderId;
     private Long productId;
+    private Integer price;
+    private String productName;
+    private String imageUrl;
     private Long cartId;
     private String orderState;
     private Integer quantity;
@@ -27,7 +30,9 @@ public class OrderDto {
         return OrderDto.builder()
                 .orderId(order.getId())
                 //.cartId(cart.getId())
-                .productId(product.getId())
+                .productName(product.getName())
+                .imageUrl(product.getThumbnailUrl())
+                .price(product.getPrice())
                 .quantity(order.getQuantity())
                 .totalPrice(order.getTotalPrice())
                 .orderState(OrderStateEnum.getByCode(order.getOrderState()))
@@ -35,4 +40,6 @@ public class OrderDto {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
+
+
 }

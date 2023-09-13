@@ -11,8 +11,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.mongodb.core.query.Query;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.function.Function;
 
 @Repository
@@ -23,11 +23,12 @@ public class ChatRepositoryCustomImpl implements ChatRepository {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public List<Chat> getUserChatsWithKey1(Long userId) {
+    public List<Chat> getUserChatList(Long userId) {
         Query query = new Query(Criteria.where("userId").is(userId));
-        query.fields().include("chats.1"); // "chats" 필드에서 key가 1에 해당하는 값만 가져오도록 설정
+        query.fields().include("customRoomId", "userId", "productId","sellerId","shopName","userName", "chats");
 
         return mongoTemplate.find(query, Chat.class);
+
     }
 
     @Override

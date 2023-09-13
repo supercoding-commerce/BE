@@ -3,29 +3,26 @@ package com.github.commerce.service.review;
 import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.payment.PayMoneyRepository;
-import com.github.commerce.repository.payment.PaymentHistoryRepository;
-import com.github.commerce.repository.payment.PaymentRepository;
 import com.github.commerce.repository.payment.PointHistoryRepository;
 import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.repository.review.ReviewRepository;
 import com.github.commerce.repository.user.UserInfoRepository;
 import com.github.commerce.repository.user.UserRepository;
+import com.github.commerce.service.product.AwsS3Service;
+import com.github.commerce.service.product.ProductImageUploadService;
 import com.github.commerce.service.review.exception.ReviewErrorCode;
 import com.github.commerce.service.review.exception.ReviewException;
-import com.github.commerce.web.dto.review.GetReviewDto;
 import com.github.commerce.web.dto.review.PostReviewDto;
 import com.github.commerce.web.dto.review.ReviewDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,21 +35,23 @@ public class ReviewService {
     private final OrderRepository orderRepository;
     private final PayMoneyRepository payMoneyRepository;
     private final PointHistoryRepository pointHistoryRepository;
+    private final ProductImageUploadService productImageUploadService;
+    private final AwsS3Service awsS3Service;
 
     @Transactional
-    public ReviewDto createReview(PostReviewDto.ReviewRequest request, Long userId) {
-
+    public ReviewDto createReview(PostReviewDto.ReviewRequest request, Long userId, MultipartFile multipartFile) {
+        Long orderId = request.getOrderId();
         Long productId = request.getProductId();
         User validatedUser = validateUser(userId);
-        Order validatedPaidOrder = validatePaidOrder(userId, productId);
+        Order validatedPaidOrder = validatePaidOrder(orderId);
         UsersInfo validatedUsersInfo = validateUserInfo(userId);
         Product validatedProduct = validateProduct(productId);
         PayMoney validatedPay = validatePayMoneyForReviewPoint(userId);
         if (existReview(validatedPaidOrder.getId(), productId)) {
             throw new ReviewException(ReviewErrorCode.REVIEW_ALREADY_EXISTS);
         }
-        ReviewDto reviewDto = ReviewDto.fromEntity(
-                reviewRepository.save(
+
+        Review review = reviewRepository.save(
                     Review.builder()
                         .orders(validatedPaidOrder)
                         .users(validatedUser)
@@ -64,42 +63,35 @@ public class ReviewService {
                         .isDeleted(false)
                         .createdAt(LocalDateTime.now())
                         .build()
-                )
-        );
+                );
+
+        String imageUrl = productImageUploadService.uploadReviewImage(multipartFile);
+        Review savedReview = saveReviewImage(review, imageUrl);
 
         //포인트 적립 결제액 2%
         Long point = validatedPay.getPointBalance();
         Long paidPrice = validatedPaidOrder.getTotalPrice();
         Long additionalPoints = Math.round(paidPrice * 0.02);
-        //적립 포인트 기록
-        pointHistoryRepository.save(
-                PointHistory.builder()
-                        .payMoney(validatedPay)
-                        .earnedPoint(additionalPoints)
-                        .createAt(LocalDateTime.now())
-                        .usedPoint(0L)
-                        .status(1)
-                        .build()
-        );
-
-        //
         Long modifiedPoint = point + additionalPoints;
         validatedPay.setPointBalance(modifiedPoint);
+
+        //포인트 증가 내역
+        savePointHistory(validatedPay, additionalPoints);
+        //포인트 총액 업데이트
         payMoneyRepository.save(validatedPay);
 
-        return reviewDto;
+        return ReviewDto.fromEntity(savedReview);
     }
 
 
-
     @Transactional(readOnly = true)
-    public List<Object[]> getReviews(Long productId, Integer cursorId){
+    public List<ReviewDto> getReviews(Long productId, Long cursorId){
 
         validateProduct(productId);
 
-        return reviewRepository.findReviewsByProductId(
-                productId, false, cursorId, PageRequest.of(0, 10));
-
+        List<Review> reviewList = reviewRepository.findReviewsByProductId(
+                productId, false, cursorId);
+        return reviewList.stream().map(ReviewDto::fromEntity).collect(Collectors.toList());
     }
 
 
@@ -113,6 +105,8 @@ public class ReviewService {
         reviewRepository.save(
                 validatedReview
         );
+
+        awsS3Service.removeFile(validatedReview.getImageUrl());
 
         return validatedReview.getProducts().getName() + "에 대한 리뷰가 삭제되었습니다.";
     }
@@ -129,8 +123,8 @@ public class ReviewService {
                 .orElseThrow(() -> new ReviewException(ReviewErrorCode.USER_INFO_NOT_FOUD));
     }
 
-    private Order validatePaidOrder(Long userId, Long productId){
-        return orderRepository.validatePaidOrderByUsersIdAndProductsId(userId, productId)
+    private Order validatePaidOrder(Long orderId){
+        return orderRepository.validatePaidOrderByOrderId(orderId)
                 .orElseThrow(()->new ReviewException(ReviewErrorCode.REVIEW_PERMISSION_DENIED));
     }
 
@@ -154,5 +148,25 @@ public class ReviewService {
 
     private PayMoney validatePayMoneyForReviewPoint(Long userId) {
         return payMoneyRepository.findByUsersId(userId).orElseThrow(()->new ReviewException(ReviewErrorCode.PAYMONEY_NOT_FOUD));
+    }
+
+    private Review saveReviewImage(Review review, String imageURl) {
+
+        review.setImageUrl(imageURl);
+        return reviewRepository.save(review);
+    }
+
+    private void savePointHistory(PayMoney validatedPay, Long additionalPoints) {
+
+        //적립 포인트 기록
+        pointHistoryRepository.save(
+                PointHistory.builder()
+                        .payMoney(validatedPay)
+                        .earnedPoint(additionalPoints)
+                        .createAt(LocalDateTime.now())
+                        .usedPoint(0L)
+                        .status(1)
+                        .build()
+        );
     }
 }

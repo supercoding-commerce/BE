@@ -14,11 +14,14 @@ import java.util.ArrayList;
 @Builder
 public class ReviewDto {
     private Long productId;
+    private String productName;
+    private String options;
     private Long reviewId;
     private String author;
     private String title;
     private String content;
     private Integer starPoint;
+    private String imageUrl;
     private LocalDateTime createdAt;
 
 
@@ -29,9 +32,12 @@ public class ReviewDto {
                 .reviewId(review.getId())
                 .author(review.getAuthor())
                 .productId(product.getId())
+                .productName(product.getName())
+                .options(product.getOptions())
                 .starPoint(Integer.valueOf(review.getStarPoint()))
                 .title(review.getTitle())
                 .content(review.getContent())
+                .imageUrl(review.getImageUrl())
                 .createdAt(review.getCreatedAt())
                 .build();
     }

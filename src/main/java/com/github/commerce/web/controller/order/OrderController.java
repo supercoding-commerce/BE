@@ -39,12 +39,12 @@ public class  OrderController {
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @PostMapping
-    public ResponseEntity<String> createOrder(
+    public ResponseEntity<List<String>> createOrder(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PostOrderDto.PostOrderRequest postOrderRequest
+            @RequestBody List<PostOrderDto.PostOrderRequest> postOrderRequestList
             ){
         Long userId = userDetails.getUser().getId();
-        return ResponseEntity.ok(orderService.createOrder(postOrderRequest, userId));
+        return ResponseEntity.ok(orderService.createOrder(postOrderRequestList, userId));
     }
 
     /**
@@ -58,7 +58,7 @@ public class  OrderController {
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @GetMapping
-    public ResponseEntity getOrderList(
+    public ResponseEntity<List<OrderDto>> getOrderList(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam(required = false) Long cursorId
     ){
@@ -101,7 +101,7 @@ public class  OrderController {
         return ResponseEntity.ok(orderService.getSellerOrderList(userId));
     }
 
-    @ApiOperation(value = "개별주문 상세조회, 로그인필요")
+    @ApiOperation(value = "Deprecated: 개별주문 상세조회, 로그인필요")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = OrderDto.class),
             @ApiResponse(code = 400, message = "Bad Request")
@@ -123,7 +123,7 @@ public class  OrderController {
      * @param
      * @return
      */
-    @ApiOperation(value = "개별주문 수정, 로그인필요")
+    @ApiOperation(value = "Deprecated: 개별주문 수정, 로그인필요")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 400, message = "Bad Request")

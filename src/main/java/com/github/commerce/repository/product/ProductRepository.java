@@ -16,24 +16,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "WHERE (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
             "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory) " +
-            "AND p.name LIKE :searchToken " +
-            "ORDER BY CASE " +
-            "   WHEN :sortBy = 'price' THEN p.price " +
-            "   WHEN :sortBy = 'createdAt' THEN p.createdAt " +
-            "   ELSE p.price END"
-    )
-    List<GetProductDto> searchProduct(
-            @Param("searchToken")String searchToken,
-            @Param("inputAgeCategory")String inputAgeCategory,
-            @Param("inputGenderCategory")String inputGenderCategory,
-            @Param("sortBy")String sortBy,
-            @Param("pageable")Pageable pageable
-    );
-
-    @Query(value="SELECT NEW com.github.commerce.web.dto.product.GetProductDto(p.id, p.name, p.price,p.createdAt, p.productCategory, p.ageCategory, p.genderCategory, p.leftAmount, p.thumbnailUrl, p.seller.shopName) " +
-            "FROM Product p " +
-            "WHERE (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
-            "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory) " +
+            "AND p.isDeleted = false " +
             "AND p.name LIKE :searchToken " +
             "ORDER BY p.price ASC"
     )
@@ -48,6 +31,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "WHERE (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
             "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory) " +
+            "AND p.isDeleted = false " +
             "AND p.name LIKE :searchToken " +
             "ORDER BY p.createdAt DESC"
     )
@@ -62,6 +46,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "WHERE (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
             "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory) " +
+            "AND p.isDeleted = false " +
             "AND p.name LIKE :searchToken " +
             "ORDER BY p.id ASC"
     )
@@ -77,6 +62,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "WHERE (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
             "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory) " +
+            "AND p.isDeleted = false " +
             "AND p.name LIKE :searchToken "
     )
     List<GetProductDto> searchProductWithoutSort(
@@ -91,6 +77,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.productCategory = :inputProductCategory " +
             "AND (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
             "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory) " +
+            "AND p.isDeleted = false " +
             "ORDER BY p.createdAt DESC"
     )
     List<GetProductDto> findByProductCategorySortByCreatedAt(
@@ -105,6 +92,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.productCategory = :inputProductCategory " +
             "AND (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
             "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory) " +
+            "AND p.isDeleted = false " +
             "ORDER BY p.price ASC"
     )
     List<GetProductDto> findByProductCategorySortByPrice(
@@ -119,6 +107,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.productCategory = :inputProductCategory " +
             "AND (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
             "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory)" +
+            "AND p.isDeleted = false " +
             "ORDER BY p.id ASC"
     )
     List<GetProductDto> findByProductCategorySortById(
@@ -133,6 +122,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "WHERE (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
             "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory) " +
+            "AND p.isDeleted = false " +
             "ORDER BY p.price ASC"
     )
     List<GetProductDto> findAllSortByPrice(
@@ -145,6 +135,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "WHERE (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
             "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory) " +
+            "AND p.isDeleted = false " +
             "ORDER BY p.createdAt DESC"
     )
     List<GetProductDto> findAllSortByCreatedAt(
@@ -157,6 +148,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "WHERE (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
             "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory) " +
+            "AND p.isDeleted = false " +
             "ORDER BY p.id ASC"
     )
     List<GetProductDto> findAllSortById(
@@ -165,15 +157,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("pageable")Pageable pageable
     );
 
-
-    @Query(value = "SELECT NEW com.github.commerce.web.dto.product.GetProductDto(p.id, p.name, p.price,p.createdAt, p.productCategory, p.ageCategory, p.genderCategory, p.leftAmount, p.thumbnailUrl, p.seller.shopName) " +
-            "FROM Product p " +
-            "WHERE (:inputAgeCategory IS NULL OR p.ageCategory = :inputAgeCategory) " +
-            "AND (:inputGenderCategory IS NULL OR p.genderCategory = :inputGenderCategory)"
-    )
-    List<GetProductDto> findAllWithoutSort(
-            @Param("inputAgeCategory")String inputAgeCategory,
-            @Param("inputGenderCategory")String inputGenderCategory,
-            @Param("pageable")Pageable pageable
-    );
 }

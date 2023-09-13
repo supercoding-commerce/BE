@@ -3,7 +3,6 @@ package com.github.commerce.web.dto.order;
 import lombok.*;
 
 import java.util.List;
-import java.util.Map;
 
 public class PostOrderDto {
     @Setter

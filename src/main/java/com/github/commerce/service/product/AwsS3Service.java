@@ -30,6 +30,7 @@ public class AwsS3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+
     public String memoryUpload(MultipartFile uploadFile, String fileName) throws IOException {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(uploadFile.getSize());
@@ -68,7 +69,7 @@ public class AwsS3Service {
      * AWS 파일을 삭제함
      * @param imageUrl 저장된 ImageUrl 경로
      */
-    private void removeFile(String imageUrl) {
+    public void removeFile(String imageUrl) {
         String filePath = FilePathUtils.convertImageUrlToFilePath(imageUrl);
         if(!amazonS3Client.doesObjectExist(bucket, filePath)){
             throw new ProductException(ProductErrorCode.NOT_FOUND_FILE);
