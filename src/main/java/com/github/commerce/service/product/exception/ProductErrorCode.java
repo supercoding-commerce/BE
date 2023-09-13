@@ -20,7 +20,7 @@ public enum  ProductErrorCode {
 
     //404
     NOTFOUND_PRODUCT("상품을 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
-
+    NOT_FOUND_PRODUCT("존재하지 않는 상품입니다.",HttpStatus.NOT_FOUND),
     NOT_FOUND_FILE("파일이 존재하지 않습니다.",HttpStatus.NOT_FOUND),
 
     //422 요청은 유효하지만 서버에서 처리할 수 없는 상태에 있는 경우에 사용됩니다. 예를 들어, 요청이 유효하지만 업데이트를 수행할 수 없는 데이터를 포함하고 있는 경우에 이 코드를 반환할 수 있습니다.
