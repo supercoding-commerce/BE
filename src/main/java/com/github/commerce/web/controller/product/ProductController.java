@@ -96,7 +96,7 @@ public class ProductController {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
         productService.updateProductById(productId,profileId,productRequest);
 
-        return ResponseEntity.ok(profileId + "번 상품 수정 성공");
+        return ResponseEntity.ok(productId + "번 상품 수정 성공");
     }
 
 
@@ -109,7 +109,7 @@ public class ProductController {
             @PathVariable("productId") Long productId){
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
         productService.deleteProductByProductId(productId,profileId);
-        return ResponseEntity.ok(profileId + "번 상품 삭제 성공");
+        return ResponseEntity.ok(productId + "번 상품 삭제 성공");
     }
 
 }

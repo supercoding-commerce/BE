@@ -61,7 +61,6 @@ public class ProductService {
         String inputOptionsJson = gson.toJson(options);
 
         boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
-        System.out.println(imageExists);
 
         if(imageExists && imageFiles.size() > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
 

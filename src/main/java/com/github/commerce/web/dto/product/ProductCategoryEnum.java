@@ -34,8 +34,8 @@ public enum ProductCategoryEnum {
             case "SHORTS": return SHORTS.label;
             case "TRAINING": return TRAINING.label;
             case "LEGGINGS": return LEGGINGS.label;
-            case "SHORTDRESS": return SHORTDRESS.label;
-            case "LONGDRESS": return LONGDRESS.label;
+            case "SHORT_DRESS": return SHORTDRESS.label;
+            case "LONG_DRESS": return LONGDRESS.label;
             case "SHOES": return SHOES.label;
             case "MUFFLER": return MUFFLER.label;
             case "GLOVES": return GLOVES.label;
