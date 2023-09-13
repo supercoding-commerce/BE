@@ -64,7 +64,7 @@ public class ProductImageUploadService {
     private String getFileExtension(String fileName) {
         try {
             String extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
-            if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg")) {
+            if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg") || extension.equals(".webp")) {
                 return extension;
             }
             throw new ProductException(ProductErrorCode.NOT_IMAGE_EXTENSION);
