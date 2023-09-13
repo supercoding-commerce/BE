@@ -2,7 +2,6 @@ package com.github.commerce.web.controller.user;
 
 import com.github.commerce.config.security.JwtUtil;
 import com.github.commerce.entity.User;
-import com.github.commerce.entity.UserRoleEnum;
 import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.user.UserService;
 import com.github.commerce.service.user.exception.UserErrorCode;
@@ -12,10 +11,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,17 +30,15 @@ public class UserController {
     private final UserService userService;
 
     @ApiOperation("판매자 회원가입")
-    @PostMapping("/register-seller")
-    public String registerSeller(@RequestBody ReigsterSellerDto reigsterSellerDto) {
-        boolean isSuccess = userService.registerSeller(reigsterSellerDto);
-        return isSuccess ? "회원가입 성공!" : "회원가입 실패!";
+    @PostMapping(value = "/register-seller")
+    public ResponseEntity<String> registerSeller(@RequestPart RegisterSellerDto registerSellerDto, @RequestPart(required = false) MultipartFile multipartFile) {
+        return ResponseEntity.ok(userService.registerSeller(registerSellerDto,multipartFile));
     }
 
     @ApiOperation("구매자 회원가입")
     @PostMapping("/register")
-    public String register(@RequestBody RegisterUserInfoDto registerUserInfoDto) {
-        boolean isSuccess = userService.registerUser(registerUserInfoDto);
-        return isSuccess ? "회원가입 성공!" : "회원가입 실패!";
+    public ResponseEntity<String> register(@RequestBody RegisterUserInfoDto registerUserInfoDto) {
+        return ResponseEntity.ok(userService.registerUser(registerUserInfoDto));
     }
 
     @ApiOperation("로그인")

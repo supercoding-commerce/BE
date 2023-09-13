@@ -37,7 +37,7 @@ public class AwsS3Service {
         objectMetadata.setContentType(uploadFile.getContentType());
 
         try (InputStream inputStream = uploadFile.getInputStream()) {
-            System.out.println("3333" + fileName);
+            //log.info("fileName :{}",fileName);
             amazonS3Client.putObject(
                     new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                             .withCannedAcl(CannedAccessControlList.PublicRead)	// PublicRead 권한으로 업로드 됨
