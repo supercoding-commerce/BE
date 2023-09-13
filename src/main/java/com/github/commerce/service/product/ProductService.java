@@ -1,8 +1,10 @@
 package com.github.commerce.service.product;
 
+import com.github.commerce.entity.Order;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.Seller;
 import com.github.commerce.entity.User;
+import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.repository.user.UserRepository;
 import com.github.commerce.service.product.exception.ProductErrorCode;
@@ -10,6 +12,8 @@ import com.github.commerce.service.product.exception.ProductException;
 import com.github.commerce.service.product.util.ValidateProductMethod;
 import com.github.commerce.service.user.exception.UserErrorCode;
 import com.github.commerce.service.user.exception.UserException;
+import com.github.commerce.web.dto.order.DetailPageOrderDto;
+import com.github.commerce.web.dto.order.OrderDto;
 import com.github.commerce.web.dto.product.*;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +34,9 @@ import java.util.stream.Collectors;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;
     private final ProductImageUploadService productImageUploadService;
     private final ValidateProductMethod validateProductMethod;
+    private final OrderRepository orderRepository;
 
     @Transactional
     public List<GetProductDto> searchProducts(Integer pageNumber, String searchWord, String ageCategory, String genderCategory, String sortBy) {
@@ -134,7 +138,9 @@ public class ProductService {
 
         Product product = productRepository.findById(productId).orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
         boolean isSeller = validateProductMethod.isThisProductSeller(product.getSeller().getId(), userId);
-        return ProductDto.fromEntityDetail(product, isSeller);
+        List<Order> orderList = orderRepository.findAllByUsersIdForDetailPage(userId);
+        List<DetailPageOrderDto> orderDtoList = orderList.stream().map(DetailPageOrderDto::fromEntity).collect(Collectors.toList());
+        return ProductDto.fromEntityDetail(product, isSeller, orderDtoList);
     }
 
     @Transactional(readOnly = true)

@@ -48,7 +48,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     )
     List<Order> findPaidOrderByUserIdSortByCreatedAtDesc(Long userId);
 
-    Optional<Order> findByUsersId(Long userId);
+    @Query(
+            "SELECT o FROM Order o " +
+                    "WHERE o.users.id = :userId " +
+                    //"SELECT c FROM Cart c " +
+                    "AND o.orderState in (2, 3, 4, 5) " +
+                    "ORDER BY o.createdAt DESC "
+    )
+    List<Order> findAllByUsersIdForDetailPage(Long userId);
 
     @Query(
             "SELECT o FROM Order o " +
