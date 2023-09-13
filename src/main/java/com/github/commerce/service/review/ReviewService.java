@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -83,16 +84,14 @@ public class ReviewService {
     }
 
 
-
-
     @Transactional(readOnly = true)
-    public List<Object[]> getReviews(Long productId, Integer cursorId){
+    public List<ReviewDto> getReviews(Long productId, Long cursorId){
 
         validateProduct(productId);
 
-        return reviewRepository.findReviewsByProductId(
-                productId, false, cursorId, PageRequest.of(0, 10));
-
+        List<Review> reviewList = reviewRepository.findReviewsByProductId(
+                productId, false, cursorId);
+        return reviewList.stream().map(ReviewDto::fromEntity).collect(Collectors.toList());
     }
 
 

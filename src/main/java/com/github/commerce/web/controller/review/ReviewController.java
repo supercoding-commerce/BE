@@ -46,30 +46,7 @@ public class ReviewController {
         );
     }
 
-    /**
-     * 로그인 필요 없음
-     * 상품 리뷰 조회
-     * @param productId
-     * @param cursorId
-     * @return
-     */
-    @ApiOperation(value = "개별상품 리뷰 전체조회, 로그인 필요없음, cursorId는 없어도 됩니다")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = GetReviewDto.Response.class),
-            @ApiResponse(code = 400, message = "Bad Request")
-    })
-    @GetMapping("/{productId}")
-    public ResponseEntity<List<ReviewDto>> get(
-            @PathVariable Long productId,
-            @RequestParam(defaultValue = "0") Integer cursorId
-    ){
-        return ResponseEntity.ok(
-                GetReviewDto.Response.fromRawResult(
-                        reviewService.getReviews(productId, cursorId)
-                )
-                //reviewService.getReviews(productId, cursorId)
-        );
-    }
+
 
     /**
      *

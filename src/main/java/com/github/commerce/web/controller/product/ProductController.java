@@ -2,12 +2,17 @@ package com.github.commerce.web.controller.product;
 
 import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.product.ProductService;
+import com.github.commerce.service.review.ReviewService;
 import com.github.commerce.web.dto.product.GetProductDto;
 import com.github.commerce.web.dto.product.ProductCategoryEnum;
 import com.github.commerce.web.dto.product.ProductDto;
 import com.github.commerce.web.dto.product.ProductRequest;
+import com.github.commerce.web.dto.review.GetReviewDto;
+import com.github.commerce.web.dto.review.ReviewDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +31,8 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final ReviewService reviewService;
+
     @ApiOperation(value = "상품 검색")
     @GetMapping("/search") //  ?pageNumber=1&searchWord=반바지
     public ResponseEntity<List<GetProductDto>> searchProduct(
@@ -110,6 +117,27 @@ public class ProductController {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
         productService.deleteProductByProductId(productId,profileId);
         return ResponseEntity.ok(productId + "번 상품 삭제 성공");
+    }
+
+
+    /**
+     * 로그인 필요 없음
+     * 상품 리뷰 조회
+     * @param productId
+     * @param cursorId
+     * @return
+     */
+    @ApiOperation(value = "개별상품 리뷰 전체조회, 로그인 필요없음, cursorId는 없어도 됩니다")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = GetReviewDto.Response.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
+    @GetMapping("/review/{productId}")
+    public ResponseEntity<List<ReviewDto>> get(
+            @PathVariable Long productId,
+            @RequestParam(defaultValue = "0") Long cursorId
+    ){
+        return ResponseEntity.ok(reviewService.getReviews(productId, cursorId));
     }
 
 }
