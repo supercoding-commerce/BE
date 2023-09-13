@@ -41,7 +41,6 @@ public class ProductImageUploadService {
             String fileName = createFileName(multipartFile.getOriginalFilename());
 
             try {
-
                 String url = awsS3Service.memoryUpload(multipartFile,
                         fileName);
                 urlList.add(url);
