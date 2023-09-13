@@ -8,6 +8,7 @@ import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.repository.review.ReviewRepository;
 import com.github.commerce.repository.user.UserInfoRepository;
 import com.github.commerce.repository.user.UserRepository;
+import com.github.commerce.service.product.AwsS3Service;
 import com.github.commerce.service.product.ProductImageUploadService;
 import com.github.commerce.service.review.exception.ReviewErrorCode;
 import com.github.commerce.service.review.exception.ReviewException;
@@ -34,6 +35,7 @@ public class ReviewService {
     private final PayMoneyRepository payMoneyRepository;
     private final PointHistoryRepository pointHistoryRepository;
     private final ProductImageUploadService productImageUploadService;
+    private final AwsS3Service awsS3Service;
 
     @Transactional
     public ReviewDto createReview(PostReviewDto.ReviewRequest request, Long userId, MultipartFile multipartFile) {
@@ -105,7 +107,7 @@ public class ReviewService {
                 validatedReview
         );
 
-        productImageUploadService.deleteReviewImage(validatedReview.getImageUrl());
+        awsS3Service.removeFile(validatedReview.getImageUrl());
 
         return validatedReview.getProducts().getName() + "에 대한 리뷰가 삭제되었습니다.";
     }

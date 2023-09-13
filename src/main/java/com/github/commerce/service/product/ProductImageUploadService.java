@@ -1,5 +1,6 @@
 package com.github.commerce.service.product;
 
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.ProductContentImage;
 import com.github.commerce.repository.product.ProductContentImageRepository;
@@ -55,10 +56,6 @@ public class ProductImageUploadService {
         });
         return urlList;
 }
-
-    public void deleteReviewImage(String url) {
-        
-    }
 
     private String createFileName(String fileName) {
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));
