@@ -3,6 +3,7 @@ package com.github.commerce.web.dto.product;
 import com.github.commerce.entity.Order;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.Seller;
+import com.github.commerce.web.dto.order.DetailPageOrderDto;
 import com.github.commerce.web.dto.order.OrderDto;
 import com.github.commerce.web.dto.order.OrderStateEnum;
 import io.swagger.models.auth.In;
@@ -48,6 +49,8 @@ public class ProductDto {
 
     private boolean isSeller;
 
+    private List<DetailPageOrderDto> orderList;
+
 
     public static ProductDto fromEntity(Product product){
 
@@ -68,7 +71,7 @@ public class ProductDto {
     }
 
 
-    public static ProductDto fromEntityDetail(Product product, boolean isSeller){
+    public static ProductDto fromEntityDetail(Product product, boolean isSeller, List<DetailPageOrderDto> orderList){
         Seller seller = product.getSeller();
         return ProductDto.builder()
                 .productId(product.getId())
@@ -85,6 +88,7 @@ public class ProductDto {
                 .imageUrl(convertUrlList(product.getThumbnailUrl()))
                 .options(product.getOptions())
                 .isSeller(isSeller)
+                .orderList(orderList)
                 .build();
     }
 

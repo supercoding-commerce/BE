@@ -25,7 +25,7 @@ public class ChatRepositoryCustomImpl implements ChatRepository {
 
     public List<Chat> getUserChatList(Long userId) {
         Query query = new Query(Criteria.where("userId").is(userId));
-        query.fields().include("chats");
+        query.fields().include("customRoomId", "userId", "productId","sellerId","shopName","userName", "chats");
 
         return mongoTemplate.find(query, Chat.class);
 

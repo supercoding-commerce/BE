@@ -82,7 +82,7 @@ public class CartController {
 
     /**
      * 장바구니 상품수정
-     * @param request
+     * @param
      * @return
      */
     @ApiOperation(value = "장바구니 수정, 로그인필요")
@@ -91,12 +91,12 @@ public class CartController {
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @PutMapping
-    public ResponseEntity<String> modify(
+    public ResponseEntity<List<String>> modify(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PutCartDto.PutCartRequest request
+            @RequestBody List<PutCartDto.PutCartRequest> requestList
             ){
         Long userId = userDetails.getUser().getId();
-        return ResponseEntity.ok(cartService.modifyCart(request, userId));
+        return ResponseEntity.ok(cartService.modifyCart(requestList, userId));
     }
 
     /**
