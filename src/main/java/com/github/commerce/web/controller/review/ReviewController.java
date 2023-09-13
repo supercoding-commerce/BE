@@ -34,16 +34,15 @@ public class ReviewController {
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @PostMapping
-    public ResponseEntity<PostReviewDto.Response> createReview(
+    public ResponseEntity<ReviewDto> createReview(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PostReviewDto.ReviewRequest request
-            //@RequestPart List<MultipartFile> multipartFile
+            @RequestPart PostReviewDto.ReviewRequest request,
+            @RequestPart MultipartFile multipartFile
     ){
         Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(
-                PostReviewDto.Response.from(
-                        reviewService.createReview(request, userId)
-                )
+                reviewService.createReview(request, userId, multipartFile)
+
         );
     }
 

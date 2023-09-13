@@ -6,6 +6,8 @@ import com.github.commerce.repository.product.ProductContentImageRepository;
 import com.github.commerce.service.product.exception.ProductErrorCode;
 import com.github.commerce.service.product.exception.ProductException;
 import com.github.commerce.service.product.util.FilePath;
+import com.github.commerce.service.review.exception.ReviewErrorCode;
+import com.github.commerce.service.review.exception.ReviewException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -23,15 +25,18 @@ public class ProductImageUploadService {
     private final ProductContentImageRepository productContentImageRepository;
 
 
-    public void uploadThumbNailImage(MultipartFile thumbNailFile, Product product) {
+    public String uploadReviewImage(MultipartFile multipartFile) {
+        String fileName = createFileName(multipartFile.getOriginalFilename());
         try {
-            if (thumbNailFile != null) {
-                String url = awsS3Service.memoryUpload(thumbNailFile,
-                        FilePath.PRODUCT_THUMB_NAIL_DIR.getPath() + product.getId() + "/" + thumbNailFile.getOriginalFilename());
-                product.setThumbnailUrl(url);
+            if (multipartFile.isEmpty()) {
+                throw new ReviewException(ReviewErrorCode.IMAGE_EMPTY);
             }
+
+            return awsS3Service.memoryUpload(multipartFile,
+                    FilePath.REVIEW_IMG_DIR.getPath() + fileName);
+
         } catch (IOException e) {
-            throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
+            throw new ReviewException(ReviewErrorCode.FAILED_UPLOAD);
         }
     }
 
@@ -52,6 +57,10 @@ public class ProductImageUploadService {
         return urlList;
 }
 
+    public void deleteReviewImage(String url) {
+        
+    }
+
     private String createFileName(String fileName) {
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
@@ -67,6 +76,7 @@ public class ProductImageUploadService {
             throw new ProductException(ProductErrorCode.INVALID_FORMAT_FILE);
         }
     }
+
 
 
 }

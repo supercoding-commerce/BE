@@ -51,6 +51,9 @@ public class Review {
     @Column(name = "is_deleted", columnDefinition = "tinyint default 0")
     private Boolean isDeleted;
 
+    @Column(name = "image_url", length = 200)
+    private String imageUrl;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

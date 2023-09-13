@@ -52,9 +52,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query(
             "SELECT o FROM Order o " +
-                    "WHERE o.users.id = :userId AND o.products.id = :productId " +
-                    "AND o.orderState in (2, 3, 4, 5) " +
-                    "ORDER BY o.createdAt DESC "
+                    "WHERE o.id = :orderId " +
+                    "AND o.orderState in (2, 3, 4, 5) "
     )
-    Optional<Order> validatePaidOrderByUsersIdAndProductsId(Long userId, Long productId);
+    Optional<Order> validatePaidOrderByOrderId(Long orderId);
 }
