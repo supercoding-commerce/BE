@@ -2,7 +2,6 @@ package com.github.commerce.web.controller.review;
 
 import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.review.ReviewService;
-import com.github.commerce.web.dto.review.GetReviewDto;
 import com.github.commerce.web.dto.review.PostReviewDto;
 import com.github.commerce.web.dto.review.ReviewDto;
 import io.swagger.annotations.*;

@@ -4,10 +4,8 @@ import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.product.ProductService;
 import com.github.commerce.service.review.ReviewService;
 import com.github.commerce.web.dto.product.GetProductDto;
-import com.github.commerce.web.dto.product.ProductCategoryEnum;
 import com.github.commerce.web.dto.product.ProductDto;
 import com.github.commerce.web.dto.product.ProductRequest;
-import com.github.commerce.web.dto.review.GetReviewDto;
 import com.github.commerce.web.dto.review.ReviewDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -129,7 +127,7 @@ public class ProductController {
      */
     @ApiOperation(value = "개별상품 리뷰 전체조회, 로그인 필요없음, cursorId는 없어도 됩니다")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = GetReviewDto.Response.class),
+            @ApiResponse(code = 200, message = "Success", response = ReviewDto.class),
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @GetMapping("/review/{productId}")
