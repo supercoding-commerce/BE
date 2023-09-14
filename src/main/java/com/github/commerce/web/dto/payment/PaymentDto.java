@@ -1,10 +1,7 @@
 package com.github.commerce.web.dto.payment;
 
-import com.github.commerce.entity.Order;
 import com.github.commerce.entity.Payment;
-import com.github.commerce.entity.User;
 import com.github.commerce.entity.UsersCoupon;
-import com.github.commerce.repository.coupon.UsersCouponRepository;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -28,8 +25,8 @@ public class PaymentDto {
     @ApiModelProperty(value = "주문 금액")
     private Long orderPrice;
 
-//    @ApiModelProperty(value = "쿠폰 번호")
-//    private Long couponId;
+    @ApiModelProperty(value = "쿠폰 번호")
+    private Long couponId;
 
     @ApiModelProperty(value = "보유 포인트")
     private Long point;
@@ -56,7 +53,7 @@ public class PaymentDto {
                 .orderId(payment.getOrder().getId())
                 .orderPrice(payment.getOrder().getTotalPrice())
 //                .couponId(usersCoupon.getId())
-                .point(payment.getPayMoney().getPointBalance())
+                .point(payment.getPayMoney().getPointBalance() != null ? payment.getPayMoney().getPointBalance() : 0L)
                 .payMoney(payment.getPayMoney().getPayMoneyBalance())
                 .totalPrice(payment.getPayMoney().getUsedChargePayMoney())
                 .paymentMethod(PaymentMethodEnum.getByCode(payment.getPaymentMethod()))

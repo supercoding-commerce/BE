@@ -14,23 +14,19 @@ public class PurchaseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Request2{
-        // 상품 주문 요청
+    public static class PurchaseRequest {
 
         @ApiModelProperty(value = "주문 번호")
         private Long orderId;
 
-        @ApiModelProperty(value = "주문 금액")
-        private Long orderPrice;
-
         @ApiModelProperty(value = "쿠폰 번호")
         private Long couponId;
 
-        @ApiModelProperty(value = "포인트 사용여부")
-        private Boolean isUsePoint;
+        @ApiModelProperty(value = "포인트 사용여부", example = "false")
+        private Boolean isUsePoint = false;
 
         @Enumerated(EnumType.STRING)
-        @ApiModelProperty(value = "결제 수단")
+        @ApiModelProperty(value = "결제 수단", example = "1")
         private String paymentMethod;
 
     }
@@ -40,10 +36,10 @@ public class PurchaseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Response{
-        // 상품 주문 응답
-        @ApiModelProperty(value = "페이머니 번호")
-        private Long payMoneyId;
+    public static class PurchaseResponse {
+
+        @ApiModelProperty(value = "주문 번호")
+        private Long orderId;
 
         @ApiModelProperty(value = "총 결제 금액")
         private Long totalPrice;
@@ -54,11 +50,16 @@ public class PurchaseDto {
         @ApiModelProperty(value = "결제 시간")
         private LocalDateTime createdAt;
 
-        public static Response from(PaymentDto paymentDto){
-            return Response.builder()
-                    .payMoneyId(paymentDto.getPayMoneyId())
+        @Enumerated(EnumType.STRING)
+        @ApiModelProperty(value = "결제 수단", example = "1")
+        private String paymentMethod;
+
+        public static PurchaseResponse from(PaymentDto paymentDto){
+            return PurchaseDto.PurchaseResponse.builder()
+                    .orderId(paymentDto.getOrderId())
                     .totalPrice(paymentDto.getTotalPrice())
                     .payMoneyBalance(paymentDto.getPayMoneyBalance())
+                    .paymentMethod(paymentDto.getPaymentMethod())
                     .createdAt(paymentDto.getCreatedAt())
                     .build();
         }
