@@ -2,18 +2,15 @@ package com.github.commerce.service.product;
 
 import com.github.commerce.entity.Order;
 import com.github.commerce.entity.Product;
+import com.github.commerce.entity.ProductContentImage;
 import com.github.commerce.entity.Seller;
-import com.github.commerce.entity.User;
 import com.github.commerce.repository.order.OrderRepository;
+import com.github.commerce.repository.product.ProductContentImageRepository;
 import com.github.commerce.repository.product.ProductRepository;
-import com.github.commerce.repository.user.UserRepository;
 import com.github.commerce.service.product.exception.ProductErrorCode;
 import com.github.commerce.service.product.exception.ProductException;
 import com.github.commerce.service.product.util.ValidateProductMethod;
-import com.github.commerce.service.user.exception.UserErrorCode;
-import com.github.commerce.service.user.exception.UserException;
 import com.github.commerce.web.dto.order.DetailPageOrderDto;
-import com.github.commerce.web.dto.order.OrderDto;
 import com.github.commerce.web.dto.product.*;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -37,6 +30,7 @@ public class ProductService {
     private final ProductImageUploadService productImageUploadService;
     private final ValidateProductMethod validateProductMethod;
     private final OrderRepository orderRepository;
+    private final ProductContentImageRepository productContentImageRepository;
 
     @Transactional
     public List<GetProductDto> searchProducts(Integer pageNumber, String searchWord, String ageCategory, String genderCategory, String sortBy) {
@@ -58,10 +52,11 @@ public class ProductService {
 
     //상품 등록
     @Transactional
-    public String createProductItem(ProductRequest productRequest,  List<MultipartFile> imageFiles, Long profileId) {
+    public ProductDto createProductItem(String productRequest,  List<MultipartFile> imageFiles, Long profileId) {
         Seller seller = validateProductMethod.validateSeller(profileId);
-        List<String> options = productRequest.getOptions();
         Gson gson = new Gson();
+        ProductRequest convertedRequest = gson.fromJson(productRequest, ProductRequest.class);
+        List<String> options = convertedRequest.getOptions();
         String inputOptionsJson = gson.toJson(options);
 
         boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
@@ -71,16 +66,16 @@ public class ProductService {
         try{
             Product product = productRepository.save(
                     Product.builder()
-                            .name(productRequest.getName())
+                            .name(convertedRequest.getName())
                             .seller(seller)
-                            .price(productRequest.getPrice())
-                            .content(productRequest.getContent())
-                            .leftAmount(productRequest.getLeftAmount())
+                            .price(convertedRequest.getPrice())
+                            .content(convertedRequest.getContent())
+                            .leftAmount(convertedRequest.getLeftAmount())
                             .createdAt(LocalDateTime.now())
                             .isDeleted(false)
-                            .productCategory(ProductCategoryEnum.switchCategory(productRequest.getProductCategory()))
-                            .ageCategory(AgeCategoryEnum.switchCategory(productRequest.getAgeCategory()))
-                            .genderCategory(GenderCategoryEnum.switchCategory(productRequest.getGenderCategory()))
+                            .productCategory(ProductCategoryEnum.switchCategory(convertedRequest.getProductCategory()))
+                            .ageCategory(AgeCategoryEnum.switchCategory(convertedRequest.getAgeCategory()))
+                            .genderCategory(GenderCategoryEnum.switchCategory(convertedRequest.getGenderCategory()))
                             .options(inputOptionsJson)
                             .build()
             );
@@ -88,12 +83,16 @@ public class ProductService {
             if(product.getId() != null && imageExists){
 
                 List<String>urlList = productImageUploadService.uploadImageFileList(imageFiles);
-                String joinedUrls = String.join(",", urlList);
-                product.setThumbnailUrl(joinedUrls);
-                return product.getName() + "상품이 등록되었습니다";
+                for (String url : urlList) {
+                        productContentImageRepository.save(ProductContentImage.from(product, url));
+                    }
+
+                    String firstUrl = urlList.get(0);
+                    product.setThumbnailUrl(firstUrl);
+                    return ProductDto.fromEntity(product);
 
             }
-            return product.getName() + "상품이 등록되었습니다";
+            return ProductDto.fromEntity(product);
 
         }catch (Exception e){
             throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);

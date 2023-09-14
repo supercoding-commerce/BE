@@ -9,8 +9,10 @@ import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.repository.user.SellerRepository;
 import com.github.commerce.service.chat.exception.ChatErrorCode;
 import com.github.commerce.service.chat.exception.ChatException;
-import com.github.commerce.service.product.exception.ProductErrorCode;
-import com.github.commerce.service.product.exception.ProductException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import com.github.commerce.web.dto.chat.ChatDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,24 @@ public class ChatService {
     private final ProductRepository productRepository;
     private final SellerRepository sellerRepository;
     public ChatDto getChatRoom(String customRoomId){
-        return ChatDto.fromEntity(chatRepository.findByCustomRoomId(customRoomId).orElseThrow(()->new ChatException(ChatErrorCode.DEPRECATED_CHAT)));
+          Chat chatEntity = chatRepository.findByCustomRoomId(customRoomId).orElseThrow(()->new ChatException(ChatErrorCode.DEPRECATED_CHAT));
+          Map<String, Map<String, String>> chats = chatEntity.getChats();
+
+          Map<String, Map<String, String>> sortedChats = chats.entrySet()
+                .stream()
+                .sorted((entry1, entry2) -> {
+                    String key1DateTimeStr = entry1.getKey().substring(0, 19);
+                    String key2DateTimeStr = entry2.getKey().substring(0, 19);
+                    LocalDateTime date1 = LocalDateTime.parse(key1DateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                    LocalDateTime date2 = LocalDateTime.parse(key2DateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                    return date1.compareTo(date2);
+
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+        chatEntity.setChats(sortedChats);
+        return ChatDto.fromEntity(chatEntity);
+
     };
 
     public List<ChatDto> getSellerChatList(Long sellerId, Long productId) {

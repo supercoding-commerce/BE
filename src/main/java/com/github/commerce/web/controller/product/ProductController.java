@@ -82,9 +82,9 @@ public class ProductController {
     // 판매자가 상품 등록
     @ApiOperation(value = "상품 등록")
     @PostMapping
-    public ResponseEntity<String> createProduct(
+    public ResponseEntity<ProductDto> createProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart ProductRequest productRequest,
+            @RequestPart String productRequest,//JSON.stringify()
             @RequestPart(required = false) List<MultipartFile> imageFiles) {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
 
