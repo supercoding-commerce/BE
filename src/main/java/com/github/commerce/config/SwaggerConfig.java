@@ -2,6 +2,8 @@ package com.github.commerce.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
@@ -53,6 +55,13 @@ public class SwaggerConfig {
 //                .globalOperationParameters(parameters);
     }
 
+    @Bean
+    public MappingJackson2HttpMessageConverter octetStreamJsonConverter() {
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setSupportedMediaTypes(Arrays.asList(new MediaType("application", "octet-stream")));
+        return converter;
+    }
+
     private SecurityContext securityContext() {
         return SecurityContext.builder()
                 .securityReferences(defaultAuth())
@@ -81,4 +90,5 @@ public class SwaggerConfig {
                 .version("0.1")
                 .build();
     }
+
 }
