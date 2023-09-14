@@ -1,5 +1,7 @@
 package com.github.commerce.entity;
 
+import com.github.commerce.service.payment.exception.PaymentErrorCode;
+import com.github.commerce.service.payment.exception.PaymentException;
 import lombok.*;
 
 import javax.persistence.*;
@@ -63,13 +65,22 @@ public class User {
     }
 
 
-    // 찾고있는 번호가 없는경우 에러 "쿠폰을 찾을 수 없습니다."
+
     public UsersCoupon setUserCouponIsUsedTrue(Long couponId){
-        UsersCoupon usersCoupon = userCoupons.stream()
-                .filter(usersCoupon1 -> usersCoupon1.getId().equals(couponId))
-                .findFirst().orElseThrow();
-        usersCoupon.setIsUsed(true);
-        return usersCoupon;
+        if(couponId != null && couponId >0){
+            UsersCoupon usersCoupon = userCoupons.stream()
+                    .filter(usersCoupon1 -> usersCoupon1.getId().equals(couponId))
+                    .findFirst()
+                    .orElse(null);
+            if(usersCoupon != null){
+                usersCoupon.setIsUsed(true);
+                return usersCoupon;
+            }else{
+                return null;
+            }
+        }else {
+            return null;
+        }
     }
 
 
