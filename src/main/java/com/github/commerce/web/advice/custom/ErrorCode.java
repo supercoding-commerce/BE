@@ -25,7 +25,10 @@ public enum ErrorCode {
     // 상품
 //    CART_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 물품이 존재하지 않습니다."),
 //    SHOP_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 물품이 존재하지 않습니다.")
-    ;
+
+    // 찜
+    //404
+    NOT_FOUND_WISHLIST(HttpStatus.NOT_FOUND,"찜 등록된 상품이 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorMsg;

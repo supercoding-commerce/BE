@@ -156,5 +156,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("inputGenderCategory")String inputGenderCategory,
             @Param("pageable")Pageable pageable
     );
-
+    @Query("SELECT p FROM Product p WHERE p.id IN :productIds")
+    List<Product> findProductsByProductIds(@Param("productIds") List<Long> productIds);
 }
