@@ -15,4 +15,6 @@ public interface UsersCouponRepository extends JpaRepository<UsersCoupon, Long> 
     List<UsersCoupon> findUsersCouponByUsersIdAndExpiredAtAfterOrderByExpiredAt(Long id, LocalDateTime now);
 
     UsersCoupon findUsersCouponByUsersIdAndCouponsIdAndExpiredAtAfterAndIsUsed(Long id, Long id1, LocalDateTime now, boolean isUsed);
+
+    void deleteUsersCouponByExpiredAtBefore(LocalDateTime now);
 }
