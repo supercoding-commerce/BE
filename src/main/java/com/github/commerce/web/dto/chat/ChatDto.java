@@ -27,6 +27,10 @@ public class ChatDto {
 
     private String userName;
 
+    private String imageUrl;
+
+    private String produdctName;
+
     private Map<Integer, Map<String, String>> chats;
 
     private Map<String, String> lastChat;
@@ -44,7 +48,7 @@ public class ChatDto {
                 .build();
     }
 
-    public static ChatDto fromEntityList(Chat chat){
+    public static ChatDto fromEntityList(Chat chat, String productImage, String produdctName){
         return ChatDto.builder()
                 .chatId(chat.getChatId())
                 .customRoomId(chat.getCustomRoomId())
@@ -53,6 +57,8 @@ public class ChatDto {
                 .sellerId(chat.getSellerId())
                 .shopName(chat.getShopName())
                 .userName(chat.getUserName())
+                .imageUrl(productImage)
+                .produdctName(produdctName)
                 .lastChat(getLastChat(chat.getChats()))
                 .build();
     }
