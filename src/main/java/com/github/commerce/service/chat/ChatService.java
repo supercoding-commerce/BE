@@ -22,8 +22,8 @@ public class ChatService {
     };
 
 
-    public List<ChatDto> getUserChatList(Long userId) {
-        List<Chat> chatList = chatRepositoryCustom.getUserChatList(userId);
+    public List<ChatDto> getUserChatList(Long userId, Long sellerId) {
+        List<Chat> chatList = chatRepositoryCustom.getUserChatList(userId, sellerId);
         return chatList.stream().map(ChatDto::fromEntityList).collect(Collectors.toList());
     }
 }

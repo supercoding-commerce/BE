@@ -10,7 +10,7 @@ public enum  ProductErrorCode {
     //status(HttpStatus.BAD_REQUEST) 400
     TOO_MANY_FILES("본문에 삽입하 이미지 파일은 최대 5까지 가능합니다.",HttpStatus.BAD_REQUEST),
     NOT_IMAGE_EXTENSION("파일 확장자가 없습니다.",HttpStatus.BAD_REQUEST ),
-    INVALID_FORMAT_FILE("올바른 파일 형식이 아닙니다", HttpStatus.BAD_REQUEST),
+    INVALID_FORMAT_FILE("올바른 파일 이름이 아닙니다", HttpStatus.BAD_REQUEST),
     INVALID_CATEGORY("카테고리 값이 잘못 입력되었습니다",HttpStatus.BAD_REQUEST  ),
 
 
