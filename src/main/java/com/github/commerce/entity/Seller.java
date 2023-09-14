@@ -32,4 +32,7 @@ public class Seller {
     @Column(name = "address")
     private String address;
 
+    @Column(name = "shop_image_url",length = 255)
+    private String shopImageUrl;
+
 }

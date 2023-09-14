@@ -41,6 +41,21 @@ public class ProductImageUploadService {
         }
     }
 
+    public String uploadShopImage(MultipartFile shopImgFile) {
+        String fileName = createFileName(shopImgFile.getOriginalFilename());
+        try {
+            if (shopImgFile.isEmpty()) {
+                throw new ReviewException(ReviewErrorCode.IMAGE_EMPTY);
+            }
+
+            return awsS3Service.memoryUpload(shopImgFile,
+                    FilePath.SHOP_IMG_DIR.getPath() + fileName);
+
+        } catch (IOException e) {
+            throw new ReviewException(ReviewErrorCode.FAILED_UPLOAD);
+        }
+    }
+
     public List<String> uploadImageFileList(List<MultipartFile> imgList) {
         List<String> urlList = new ArrayList<>();
         imgList.forEach(multipartFile -> {
