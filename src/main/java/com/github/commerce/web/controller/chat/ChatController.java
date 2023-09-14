@@ -29,7 +29,7 @@ public class ChatController {
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @CrossOrigin(origins = "*")
-    @GetMapping("/{sellerId}")
+    @GetMapping("/user/{sellerId}")
     public ResponseEntity<List<ChatDto>> getUserChats(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("sellerId") Long sellerId
@@ -37,6 +37,22 @@ public class ChatController {
     ){
         Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(chatService.getUserChatList(userId, sellerId));
+    }
+
+    @ApiOperation(value = "판매자가 대화했던 채팅방 목록 조회, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = String.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
+    @CrossOrigin(origins = "*")
+    @GetMapping("/seller/{sellerId}/{productId}")
+    public ResponseEntity<List<ChatDto>> getSellerChats(
+            //@AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("sellerId") Long sellerId,
+            @PathVariable("productId") Long productId
+
+    ){
+        return ResponseEntity.ok(chatService.getSellerChatList(sellerId, productId));
     }
 
     @ApiOperation(value = "채팅방 채팅내역 상세조회, 로그인필요")

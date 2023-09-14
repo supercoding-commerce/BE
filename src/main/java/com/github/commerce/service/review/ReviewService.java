@@ -14,9 +14,9 @@ import com.github.commerce.service.review.exception.ReviewErrorCode;
 import com.github.commerce.service.review.exception.ReviewException;
 import com.github.commerce.web.dto.review.PostReviewDto;
 import com.github.commerce.web.dto.review.ReviewDto;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,9 +39,11 @@ public class ReviewService {
     private final AwsS3Service awsS3Service;
 
     @Transactional
-    public ReviewDto createReview(PostReviewDto.ReviewRequest request, Long userId, MultipartFile multipartFile) {
-        Long orderId = request.getOrderId();
-        Long productId = request.getProductId();
+    public ReviewDto createReview(String request, Long userId, MultipartFile multipartFile) {
+        Gson gson = new Gson();
+        PostReviewDto.ReviewRequest reviewRequest = gson.fromJson(request, PostReviewDto.ReviewRequest.class);
+        Long orderId = reviewRequest.getOrderId();
+        Long productId = reviewRequest.getProductId();
         User validatedUser = validateUser(userId);
         Order validatedPaidOrder = validatePaidOrder(orderId);
         UsersInfo validatedUsersInfo = validateUserInfo(userId);
@@ -57,9 +59,9 @@ public class ReviewService {
                         .users(validatedUser)
                         .products(validatedProduct)
                         .author(validatedUsersInfo.getNickname())
-                        .title(request.getTitle())
-                        .content(request.getContent())
-                        .starPoint(request.getStarPoint())
+                        .title(reviewRequest.getTitle())
+                        .content(reviewRequest.getContent())
+                        .starPoint(reviewRequest.getStarPoint())
                         .isDeleted(false)
                         .createdAt(LocalDateTime.now())
                         .build()

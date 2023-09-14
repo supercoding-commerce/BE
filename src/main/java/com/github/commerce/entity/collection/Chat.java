@@ -27,7 +27,7 @@ public class Chat {
 
     private String userName;
 
-    private Map<Integer, Map<String, String>> chats;
+    private Map<String, Map<String, String>> chats;
 
 
 }
