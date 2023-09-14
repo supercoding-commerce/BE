@@ -29,6 +29,17 @@ public class ChatService {
         return ChatDto.fromEntity(chatRepository.findByCustomRoomId(customRoomId).orElseThrow(()->new ChatException(ChatErrorCode.DEPRECATED_CHAT)));
     };
 
+    public List<ChatDto> getSellerChatList(Long sellerId, Long productId) {
+        List<Chat> chatList = chatRepositoryCustom.getSellerChatList(sellerId, productId);
+        List<ChatDto> resultList = new ArrayList<>();
+        chatList.forEach(chat -> {
+            Map<String,String> productInfo = getProductImageAndName(chat.getProductId());
+            String productName = productInfo.get("name");
+            String productImage = productInfo.get("url");
+            resultList.add(ChatDto.fromEntityList(chat, productImage, productName));
+        });
+        return resultList;
+    }
 
     public List<ChatDto> getUserChatList(Long userId, Long sellerId) {
         //Seller seller = sellerRepository.findById(sellerId).orElseThrow(null);
@@ -62,4 +73,6 @@ public class ChatService {
 
         return result.isEmpty() ? null : result;
     }
+
+
 }
