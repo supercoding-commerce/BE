@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -49,6 +50,10 @@ public class GetProductDto {
 
 
     private static List<String> convertUrlList(String urlList){
-        return Arrays.asList(urlList.split(","));
+        if (urlList != null && !urlList.isEmpty()) {
+            return Arrays.asList(urlList.split(","));
+        } else {
+            return Collections.emptyList(); // 빈 리스트 반환
+        }
     }
 }
