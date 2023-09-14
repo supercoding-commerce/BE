@@ -7,8 +7,7 @@ import lombok.Getter;
 public enum PaymentMethodEnum {
 
     PAY_MONEY(1, "페이머니"),
-    POINTS_ONLY(2, "포인트만사용"),
-    CREDIT_CARD(3, "신용카드");
+    CREDIT_CARD(2, "신용카드");
 
     private final int value;
     private final String label;
@@ -19,12 +18,12 @@ public enum PaymentMethodEnum {
     }
 
     public static String getByCode(int code){
-        switch (code){
+        switch(code){
 
-            case 1: return POINTS_ONLY.label;
+            case 1: return PAY_MONEY.label;
             case 2: return CREDIT_CARD.label;
 
-            default:return PAY_MONEY.label;
+            default: return PAY_MONEY.label;
         }
     }
 }
