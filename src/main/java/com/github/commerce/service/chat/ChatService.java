@@ -13,9 +13,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import com.github.commerce.service.user.exception.UserException;
 import com.github.commerce.web.dto.chat.ChatDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,8 +30,10 @@ public class ChatService {
     private final ChatRepositoryCustomImpl chatRepositoryCustom;
     private final ProductRepository productRepository;
     private final SellerRepository sellerRepository;
+
+    @Transactional
     public ChatDto getChatRoom(String customRoomId){
-          Chat chatEntity = chatRepository.findByCustomRoomId(customRoomId).orElseThrow(()->new ChatException(ChatErrorCode.DEPRECATED_CHAT));
+          Chat chatEntity = chatRepository.findByCustomRoomId(customRoomId).orElseThrow(()->new ChatException(ChatErrorCode.ROOM_NOT_FOUND));
           Map<String, Map<String, String>> chats = chatEntity.getChats();
 
           Map<String, Map<String, String>> sortedChats = chats.entrySet()
@@ -48,7 +53,12 @@ public class ChatService {
 
     };
 
-    public List<ChatDto> getSellerChatList(Long sellerId, Long productId) {
+
+    @Transactional
+    public Map<String, Object> getSellerChatList(Long sellerId, Long productId) {
+
+        String shopImageUrl = getSellerImage(sellerId);
+
         List<Chat> chatList = chatRepositoryCustom.getSellerChatList(sellerId, productId);
         List<ChatDto> resultList = new ArrayList<>();
         chatList.forEach(chat -> {
@@ -57,11 +67,16 @@ public class ChatService {
             String productImage = productInfo.get("url");
             resultList.add(ChatDto.fromEntityList(chat, productImage, productName));
         });
-        return resultList;
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("chatList", resultList);
+        resultMap.put("shopImage", shopImageUrl);
+        return resultMap;
     }
 
-    public List<ChatDto> getUserChatList(Long userId, Long sellerId) {
-        //Seller seller = sellerRepository.findById(sellerId).orElseThrow(null);
+    @Transactional
+    public Map<String, Object> getUserChatList(Long userId, Long sellerId) {
+        String shopImageUrl = getSellerImage(sellerId);
 
         List<Chat> chatList = chatRepositoryCustom.getUserChatList(userId, sellerId);
         List<ChatDto> resultList = new ArrayList<>();
@@ -71,7 +86,11 @@ public class ChatService {
            String productImage = productInfo.get("url");
             resultList.add(ChatDto.fromEntityList(chat, productImage, productName));
         });
-        return resultList;
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("chatList", resultList);
+        resultMap.put("shopImage", shopImageUrl);
+        return resultMap;
     }
 
     private Map<String, String> getProductImageAndName(Long productId){
@@ -91,6 +110,11 @@ public class ChatService {
         }
 
         return result.isEmpty() ? null : result;
+    }
+
+    private String getSellerImage(Long sellerId){
+        Seller seller = sellerRepository.findById(sellerId).orElseThrow(()-> new ChatException(ChatErrorCode.SELLER_NOT_FOUND));
+        return seller.getShopImageUrl();
     }
 
 

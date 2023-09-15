@@ -10,11 +10,10 @@ public enum ChatErrorCode {
     //status(HttpStatus.badRequest) 400
     INVALID_QUANTITY("수량을 확인해주세요.", HttpStatus.BAD_REQUEST),
 
-    //status(HttpStatus.NOT_FOUND) 403
-    SELLER_NOT_FOUND("판매자로 등록되지 않았습니다..", HttpStatus.FORBIDDEN),
-
     //status(HttpStatus.NOT_FOUND) 404
     USER_NOT_FOUND("존재하지 않는 유저 입니다.", HttpStatus.NOT_FOUND),
+    SELLER_NOT_FOUND("존재하지 않는 판매자 입니다.", HttpStatus.NOT_FOUND),
+    ROOM_NOT_FOUND("존재하지 않는 채팅방 입니다.", HttpStatus.NOT_FOUND),
     THIS_PRODUCT_DOES_NOT_EXIST("존재하지 않는 상품 입니다.", HttpStatus.NOT_FOUND),
     THIS_ORDER_DOES_NOT_EXIST("존재하지 않는 주문 입니다.", HttpStatus.NOT_FOUND),
 

@@ -1,5 +1,6 @@
 package com.github.commerce.web.dto.product;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.commerce.entity.Order;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.Seller;
@@ -41,6 +42,7 @@ public class ProductDto {
 
     private String genderCategory;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     private String thumbnailUrl;
