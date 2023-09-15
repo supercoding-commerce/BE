@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,8 +54,15 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "users",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UsersCoupon> userCoupons;
+
+    @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UsersInfo usersInfo;
+
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<PayMoney> payMoney;
+
 
     // is_used = false 가져오기
     // 반환타입이 List인 이유는 목록을 가져와야 하기 때문에
@@ -62,6 +70,10 @@ public class User {
         return userCoupons.stream()
                 .filter(usersCoupon -> usersCoupon.getIsUsed().equals(false))
                 .collect(Collectors.toList());
+    }
+
+    public PayMoney getPayMoneyByUserId(){
+        return payMoney.stream().max(Comparator.comparing(PayMoney::getId)).orElse(null);
     }
 
 
