@@ -1,5 +1,6 @@
 package com.github.commerce.web.dto.review;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.Review;
 import lombok.*;
@@ -22,6 +23,8 @@ public class ReviewDto {
     private String content;
     private Integer starPoint;
     private String imageUrl;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
 

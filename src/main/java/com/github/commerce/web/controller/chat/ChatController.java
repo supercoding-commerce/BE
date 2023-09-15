@@ -15,6 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+
 @Api(tags = "채팅 API")
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class ChatController {
     })
     @CrossOrigin(origins = "*")
     @GetMapping("/user/{sellerId}")
-    public ResponseEntity<List<ChatDto>> getUserChats(
+    public ResponseEntity<Map<String, Object>> getUserChats(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("sellerId") Long sellerId
 
@@ -46,7 +48,7 @@ public class ChatController {
     })
     @CrossOrigin(origins = "*")
     @GetMapping("/seller/{sellerId}/{productId}")
-    public ResponseEntity<List<ChatDto>> getSellerChats(
+    public ResponseEntity<Map<String, Object>> getSellerChats(
             //@AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("sellerId") Long sellerId,
             @PathVariable("productId") Long productId

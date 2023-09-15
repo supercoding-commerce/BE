@@ -1,5 +1,6 @@
 package com.github.commerce.web.dto.cart;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.commerce.entity.Cart;
 import com.github.commerce.entity.Product;
 import lombok.*;
@@ -24,6 +25,7 @@ public class CartDto {
     private Boolean isOrdered;
     private Integer totalPrice;
     private String options;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
     //private Map<String, String> options;
 
