@@ -31,6 +31,7 @@ public class OrderDto {
         Product product = order.getProducts();
         return OrderDto.builder()
                 .orderId(order.getId())
+                .productId(product.getId())
                 .productName(product.getName())
                 .imageUrl(product.getThumbnailUrl())
                 .price(product.getPrice())
