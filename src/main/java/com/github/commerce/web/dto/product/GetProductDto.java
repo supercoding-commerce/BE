@@ -1,5 +1,6 @@
 package com.github.commerce.web.dto.product;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.commerce.entity.Seller;
 import lombok.*;
 
@@ -30,6 +31,7 @@ public class GetProductDto {
 
     private String genderCategory;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     private List<String> imageUrl;
