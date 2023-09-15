@@ -23,13 +23,13 @@ public class RabbitMQConfig {
     public static final List<String> QUEUE_NAMES = Arrays.asList("postCart", "putCart", "postOrder", "putOrder", "postPayment", "putPayment");
     public static final List<String> ROUTING_KEYS = Arrays.asList("postCart", "putCart", "postOrder", "putOrder", "postPayment", "putPayment");
 
-    @Value("${rabbitmq.host}")
+    @Value("${spring.rabbitmq.host}")
     private String rmqHost;
 
-    @Value("${rabbitmq.username}")
+    @Value("${spring.rabbitmq.username}")
     private String rmqUsername;
 
-    @Value("${rabbitmq.password}")
+    @Value("${spring.rabbitmq.password}")
     private String rmqPassword;
 
 

@@ -66,10 +66,10 @@ public class CartService {
     }
 
     @Transactional
-    public String addToCart(PostCartDto.Request request, Long userId) {
+    public String addToCart(PostCartDto.PostCartRequest request, Long userId) {
         Long inputProductId = request.getProductId();
         Integer inputQuantity = request.getQuantity();
-        List<Map<String, String>> inputOptions = request.getOptions();
+        List<String> inputOptions = request.getOptions();
 
         // Gson 인스턴스 생성
         Gson gson = new Gson();
@@ -81,11 +81,10 @@ public class CartService {
         Product validatedProduct = validatCartMethod.validateProduct(inputProductId);
         validatCartMethod.validateStock(inputQuantity, validatedProduct);
 
-        Product 에러발생용상품 = productRepository.findById(3L).orElse(null);
         CartRmqDto newCart = CartRmqDto.fromEntityForPost(
                 Cart.builder()
                         .users(validatedUser)
-                        .products(에러발생용상품)
+                        .products(validatedProduct)
                         .options(inputOptionsJson)
                         .quantity(inputQuantity)
                         .isOrdered(false)
@@ -97,36 +96,41 @@ public class CartService {
     }
 
     @Transactional
-    public String modifyCart(PutCartDto.Request request, Long userId) {
-        Long cartId = request.getCartId();
-        Long productId = request.getProductId();
-        Integer inputQuantity = request.getQuantity();
-        List<Map<String, String>> options = request.getOptions();
+    public List<String> modifyCart(List<PutCartDto.PutCartRequest> requestList, Long userId) {
+        List<String >nameList = new ArrayList<>();
+        for(PutCartDto.PutCartRequest request : requestList) {
+            Long cartId = request.getCartId();
+            Long productId = request.getProductId();
+            Integer inputQuantity = request.getQuantity();
+            List<String> options = request.getOptions();
 
-        // Gson 인스턴스 생성
-        Gson gson = new Gson();
+            // Gson 인스턴스 생성
+            Gson gson = new Gson();
 
-        // inputOptions를 JSON 문자열로 변환
-        String inputOptionsJson = gson.toJson(options);
+            // inputOptions를 JSON 문자열로 변환
+            String inputOptionsJson = gson.toJson(options);
 
-        User validatedUser = validatCartMethod.validateUser(userId);
-        Cart validatedCart = validatCartMethod.validateCart(cartId, userId);
-        Product validatedProduct = validatCartMethod.validateProduct(productId);
-        validatCartMethod.validateStock(inputQuantity, validatedProduct);
+            User validatedUser = validatCartMethod.validateUser(userId);
+            Cart validatedCart = validatCartMethod.validateCart(cartId, userId);
+            Product validatedProduct = validatCartMethod.validateProduct(productId);
+            validatCartMethod.validateStock(inputQuantity, validatedProduct);
 
-        CartRmqDto newCart = CartRmqDto.fromEntityForModify(
-                Cart.builder()
-                        .id(validatedCart.getId())
-                        .users(validatedUser)
-                        .products(validatedProduct)
-                        .options(inputOptionsJson)
-                        .quantity(inputQuantity)
-                        .isOrdered(false)
-                        .createdAt(validatedCart.getCreatedAt())
-                        .build()
-        );
-        rabbitTemplate.convertAndSend("exchange", "putCart", newCart);
-        return validatedProduct.getName() + "상품을 장바구니서 수정합니다.";
+            CartRmqDto newCart = CartRmqDto.fromEntityForModify(
+                    Cart.builder()
+                            .id(validatedCart.getId())
+                            .users(validatedUser)
+                            .products(validatedProduct)
+                            .options(inputOptionsJson)
+                            .quantity(inputQuantity)
+                            .isOrdered(false)
+                            .createdAt(validatedCart.getCreatedAt())
+                            .build()
+            );
+            rabbitTemplate.convertAndSend("exchange", "putCart", newCart);
+            nameList.add(validatedProduct.getName() + "상품을 장바구니서 수정합니다.");
+
+        }
+        return nameList;
 
     }
 

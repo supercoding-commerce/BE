@@ -31,6 +31,9 @@ public class PayMoney {
     @JoinColumn(name = "charge_histories_id")
     private ChargeHistory chargeHistories;
 
+    @OneToOne(mappedBy = "payMoney")
+    private Payment payment;
+
     @Column(name = "charge_pay_money_total")
     private Long chargePayMoneyTotal;
 

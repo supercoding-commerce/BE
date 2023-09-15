@@ -9,7 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -17,21 +18,23 @@ import java.time.Instant;
 @AllArgsConstructor
 public class ProductRequest {
     @NotBlank
-    @Size(max = 255)
+    @Size(max = 20)
     private String name;
 
     private String content;
 
     @NotNull
-    private Long price;
+    private Integer price;
 
-    private Long leftAmount;
+    private Integer leftAmount;
 
     private String productCategory;
 
     private String ageCategory;
 
     private String genderCategory;
+
+    private List<String> options;
 
 
 }

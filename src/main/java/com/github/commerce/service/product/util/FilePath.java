@@ -1,6 +1,8 @@
 package com.github.commerce.service.product.util;
 
 public enum FilePath {
+    REVIEW_IMG_DIR("review/"),
+    SHOP_IMG_DIR("seller/"),
     PRODUCT_THUMB_NAIL_DIR("product/thumbnails/"),
     PRODUCT_CONTENT_DIR("product/content/"),
     SEPARATE_POINT(".com/");

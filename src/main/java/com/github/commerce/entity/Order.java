@@ -26,6 +26,11 @@ public class Order {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sellers_id", nullable = false)
+    private Seller sellers;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "products_id", nullable = false)
     private Product products;
 
@@ -51,4 +56,7 @@ public class Order {
 
     @Column(name = "options")
     private String options;
+
+    @Column(name = "failed_causes")
+    private String failed_causes;
 }

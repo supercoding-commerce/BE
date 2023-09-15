@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class ValidatCartMethod {
-    private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
@@ -38,7 +37,7 @@ public class ValidatCartMethod {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CartException(CartErrorCode.THIS_PRODUCT_DOES_NOT_EXIST));
 
-        Long stock = product.getLeftAmount();
+        Integer stock = product.getLeftAmount();
         if (stock == null || stock <= 0) {
             throw new CartException(CartErrorCode.OUT_OF_STOCK);
         }

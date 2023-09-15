@@ -3,7 +3,6 @@ package com.github.commerce.web.dto.order;
 import lombok.*;
 
 import java.util.List;
-import java.util.Map;
 
 public class PostOrderDto {
     @Setter
@@ -11,11 +10,24 @@ public class PostOrderDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class Request {
+    public static class PostOrderRequest {
 
         private Long productId;
         private Long cartId;
         private Integer quantity;
-        private List<Map<String, String>> options;
+        private List<String> options;
+    }
+
+    @Setter
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class PutOrderRequest {
+
+        private Long productId;
+        private Long cartId;
+        private Integer quantity;
+        private List<String> options;
     }
 }

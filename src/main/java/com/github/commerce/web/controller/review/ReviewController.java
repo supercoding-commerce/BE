@@ -2,7 +2,6 @@ package com.github.commerce.web.controller.review;
 
 import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.review.ReviewService;
-import com.github.commerce.web.dto.review.GetReviewDto;
 import com.github.commerce.web.dto.review.PostReviewDto;
 import com.github.commerce.web.dto.review.ReviewDto;
 import io.swagger.annotations.*;
@@ -34,43 +33,19 @@ public class ReviewController {
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @PostMapping
-    public ResponseEntity<PostReviewDto.Response> createReview(
+    public ResponseEntity<ReviewDto> createReview(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PostReviewDto.ReviewRequest request
-            //@RequestPart List<MultipartFile> multipartFile
+            @RequestPart String request,
+            @RequestPart MultipartFile multipartFile
     ){
         Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(
-                PostReviewDto.Response.from(
-                        reviewService.createReview(request, userId)
-                )
+                reviewService.createReview(request, userId, multipartFile)
+
         );
     }
 
-    /**
-     * 로그인 필요 없음
-     * 상품 리뷰 조회
-     * @param productId
-     * @param cursorId
-     * @return
-     */
-    @ApiOperation(value = "개별상품 리뷰 전체조회, 로그인 필요없음, cursorId는 없어도 됩니다")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = GetReviewDto.Response.class),
-            @ApiResponse(code = 400, message = "Bad Request")
-    })
-    @GetMapping("/{productId}")
-    public ResponseEntity<List<ReviewDto>> get(
-            @PathVariable Long productId,
-            @RequestParam(defaultValue = "0") Integer cursorId
-    ){
-        return ResponseEntity.ok(
-                GetReviewDto.Response.fromRawResult(
-                        reviewService.getReviews(productId, cursorId)
-                )
-                //reviewService.getReviews(productId, cursorId)
-        );
-    }
+
 
     /**
      *

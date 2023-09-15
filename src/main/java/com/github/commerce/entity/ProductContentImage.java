@@ -24,8 +24,7 @@ public class ProductContentImage {
     private Product product;
 
     @NotNull
-    @Lob
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", nullable = false, length = 255)
     private String imageUrl;
 
     public static ProductContentImage from(Product product, String imageUrl) {
