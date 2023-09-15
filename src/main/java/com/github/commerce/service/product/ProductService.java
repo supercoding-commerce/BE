@@ -1,9 +1,6 @@
 package com.github.commerce.service.product;
 
-import com.github.commerce.entity.Order;
-import com.github.commerce.entity.Product;
-import com.github.commerce.entity.ProductContentImage;
-import com.github.commerce.entity.Seller;
+import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.product.ProductContentImageRepository;
 import com.github.commerce.repository.product.ProductRepository;
@@ -178,6 +175,13 @@ public class ProductService {
             return productRepository.findAllSortById(inputAgeCategory, inputGenderCategory, pageable);
         }
     }
+
+//    public Object getProductsBySeller(Long userId) {
+//        // 유저 정보가 있는지 확인
+//        User validUserId = validateProductMethod.validateUser(userId);
+//        // 판매자가 아닌지 확인
+//
+//    }
 }
 
 
