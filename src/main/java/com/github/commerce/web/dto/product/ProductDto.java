@@ -43,7 +43,7 @@ public class ProductDto {
 
     private LocalDateTime createdAt;
 
-    private List<String> imageUrl;
+    private String thumbnailUrl;
 
     private String options;
 
@@ -65,7 +65,7 @@ public class ProductDto {
                 .ageCategory(product.getAgeCategory())
                 .genderCategory(product.getGenderCategory())
                 .createdAt(product.getCreatedAt())
-                .imageUrl(convertUrlList(product.getThumbnailUrl()))
+                .thumbnailUrl(product.getThumbnailUrl())
                 .options(product.getOptions())
                 .build();
     }
@@ -85,7 +85,7 @@ public class ProductDto {
                 .ageCategory(product.getAgeCategory())
                 .genderCategory(product.getGenderCategory())
                 .createdAt(product.getCreatedAt())
-                .imageUrl(convertUrlList(product.getThumbnailUrl()))
+                .thumbnailUrl(product.getThumbnailUrl())
                 .options(product.getOptions())
                 .isSeller(isSeller)
                 .orderList(orderList)

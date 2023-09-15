@@ -23,12 +23,19 @@ public class ChatRepositoryCustomImpl implements ChatRepository {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public List<Chat> getUserChatList(Long userId) {
-        Query query = new Query(Criteria.where("userId").is(userId));
+    public List<Chat> getUserChatList(Long userId, Long sellerId) {
+        Query query = new Query(Criteria.where("userId").is(userId).and("sellerId").is(sellerId));
         query.fields().include("customRoomId", "userId", "productId","sellerId","shopName","userName", "chats");
 
         return mongoTemplate.find(query, Chat.class);
 
+    }
+
+    public List<Chat> getSellerChatList(Long sellerId, Long productId) {
+        Query query = new Query(Criteria.where("sellerId").is(sellerId).and("productId").is(productId));
+        query.fields().include("customRoomId", "userId", "productId","sellerId","shopName","userName", "chats");
+
+        return mongoTemplate.find(query, Chat.class);
     }
 
     @Override
@@ -160,4 +167,6 @@ public class ChatRepositoryCustomImpl implements ChatRepository {
     public <S extends Chat, R> R findBy(Example<S> example, Function<FluentQuery.FetchableFluentQuery<S>, R> queryFunction) {
         return null;
     }
+
+
 }

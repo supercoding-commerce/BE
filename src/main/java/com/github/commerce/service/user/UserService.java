@@ -6,6 +6,8 @@ import com.github.commerce.repository.user.RefreshTokenRepository;
 import com.github.commerce.repository.user.SellerRepository;
 import com.github.commerce.repository.user.UserInfoRepository;
 import com.github.commerce.repository.user.UserRepository;
+import com.github.commerce.service.product.AwsS3Service;
+import com.github.commerce.service.product.ProductImageUploadService;
 import com.github.commerce.service.user.exception.UserErrorCode;
 import com.github.commerce.service.user.exception.UserException;
 import com.github.commerce.web.dto.user.*;
@@ -18,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -34,42 +37,51 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ProductImageUploadService productImageUploadService;
 
     @Transactional
-    public boolean registerSeller(ReigsterSellerDto reigsterSellerDto) {
+    public String registerSeller(RegisterSellerDto registerSellerDto, MultipartFile shopImgFile) {
 
         //이메일 중복확인
-        if (userRepository.existsByEmail(reigsterSellerDto.getEmail())) {
+        if (userRepository.existsByEmail(registerSellerDto.getEmail())) {
             throw new UserException(UserErrorCode.USER_EMAIL_ALREADY_EXIST);
         }
 
         //쇼핑몰 이름 중복확인
-        if(sellerRepository.existsByShopName(reigsterSellerDto.getShopName())) {
+        if(sellerRepository.existsByShopName(registerSellerDto.getShopName())) {
             throw new UserException(UserErrorCode.SHOP_NAME_ALREADY_EXIST);
         }
 
-        User user = User.builder()
-                .email(reigsterSellerDto.getEmail())
-                .password(passwordEncoder.encode(reigsterSellerDto.getPassword()))
-                .userName(reigsterSellerDto.getUserName())
-                .telephone(reigsterSellerDto.getTelephone())
+        User user =userRepository.save(
+                User.builder()
+                .email(registerSellerDto.getEmail())
+                .password(passwordEncoder.encode(registerSellerDto.getPassword()))
+                .userName(registerSellerDto.getUserName())
+                .telephone(registerSellerDto.getTelephone())
                 .role(UserRoleEnum.SELLER)
                 .isDelete(false)
                 .createdAt(LocalDateTime.now())
-                .build();
-        userRepository.save(user);
-        sellerRepository.save(
+                .build());
+
+        Seller seller=
                 Seller.builder()
                         .users(user)
-                        .shopName(reigsterSellerDto.getShopName())
-                        .address(reigsterSellerDto.getAddress())
-                        .build());
+                        .shopName(registerSellerDto.getShopName())
+                        .address(registerSellerDto.getAddress())
+                        .build();
 
-        return true;
+        if(shopImgFile!=null) {//이미지 파일 있으면 저장
+            String imageUrl=productImageUploadService.uploadShopImage(shopImgFile);
+            seller.setShopImageUrl(imageUrl);
+        }
+        sellerRepository.save(seller);
+
+
+        return "회원가입 완료 !";
     }
 
     @Transactional
-    public boolean registerUser(RegisterUserInfoDto registerUserInfoDto) {
+    public String registerUser(RegisterUserInfoDto registerUserInfoDto) {
 
         //이메일 중복확인
         if (userRepository.existsByEmail(registerUserInfoDto.getEmail())) {
@@ -102,7 +114,7 @@ public class UserService {
                         .build()
         );
 
-        return true;
+        return "회원가입 완료 !";
     }
 
     @Transactional
@@ -161,6 +173,7 @@ public class UserService {
                     .grade(usersInfo.getGrade().name())
                     .nickname(usersInfo.getNickname())
                     .address(usersInfo.getAddress())
+                    .payMoney(usersInfo.getUsers().getPayMoneyByUserId().getPayMoneyBalance())
                     .build();
         }
     }

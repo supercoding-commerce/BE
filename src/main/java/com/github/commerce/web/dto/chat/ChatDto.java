@@ -3,6 +3,8 @@ package com.github.commerce.web.dto.chat;
 import com.github.commerce.entity.collection.Chat;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Map;
 
@@ -27,7 +29,11 @@ public class ChatDto {
 
     private String userName;
 
-    private Map<Integer, Map<String, String>> chats;
+    private String imageUrl;
+
+    private String productName;
+
+    private Map<String, Map<String, String>> chats;
 
     private Map<String, String> lastChat;
     public static ChatDto fromEntity(Chat chat){
@@ -44,7 +50,7 @@ public class ChatDto {
                 .build();
     }
 
-    public static ChatDto fromEntityList(Chat chat){
+    public static ChatDto fromEntityList(Chat chat, String productImage, String produdctName){
         return ChatDto.builder()
                 .chatId(chat.getChatId())
                 .customRoomId(chat.getCustomRoomId())
@@ -53,13 +59,31 @@ public class ChatDto {
                 .sellerId(chat.getSellerId())
                 .shopName(chat.getShopName())
                 .userName(chat.getUserName())
+                .imageUrl(productImage)
+                .productName(produdctName)
                 .lastChat(getLastChat(chat.getChats()))
                 .build();
     }
 
-    private static Map<String, String> getLastChat(Map<Integer, Map<String, String>> chat){
-        int lastKey = Collections.max(chat.keySet());
-        Map<String, String> lastKeyMap = chat.get(lastKey);
-        return lastKeyMap;
+    private static Map<String, String> getLastChat(Map<String, Map<String, String>> chat){
+        String lastKey = null;
+        LocalDateTime lastDateTime = null;
+
+        for (String key : chat.keySet()) {
+            // 앞의 19글자만 추출하여 LocalDateTime으로 변환
+            String keyDateTimeStr = key.substring(0, 19);
+            LocalDateTime keyDateTime = LocalDateTime.parse(keyDateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+            if (lastDateTime == null || keyDateTime.isAfter(lastDateTime)) {
+                lastDateTime = keyDateTime;
+                lastKey = key;
+            }
+        }
+
+        if (lastKey != null) {
+            return chat.get(lastKey);
+        } else {
+            return null;
+        }
     }
 }

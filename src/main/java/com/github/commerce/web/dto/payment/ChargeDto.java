@@ -7,23 +7,20 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.time.LocalDateTime;
 
-public class PurchaseDto {
+
+public class ChargeDto {
 
     @Getter
-    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class PurchaseRequest {
+    public static class ChargeRequest {
 
         @ApiModelProperty(value = "주문 번호")
         private Long orderId;
 
         @ApiModelProperty(value = "쿠폰 번호")
         private Long couponId;
-
-        @ApiModelProperty(value = "포인트 사용여부", example = "false")
-        private Boolean isUsePoint = false;
 
         @Enumerated(EnumType.STRING)
         @ApiModelProperty(value = "결제 수단", example = "1")
@@ -36,13 +33,16 @@ public class PurchaseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class PurchaseResponse {
+    public static class ChargeResponse {
 
         @ApiModelProperty(value = "주문 번호")
         private Long orderId;
 
-        @ApiModelProperty(value = "총 결제 금액")
-        private Long totalPrice;
+        @ApiModelProperty(value = "충전 페이머니")
+        private Long chargePayMoney;
+
+        @ApiModelProperty(value = "충전시 결제된 금액")
+        private Long paymentAmount;
 
         @ApiModelProperty(value = "남은 페이 머니")
         private Long payMoneyBalance;
@@ -54,15 +54,15 @@ public class PurchaseDto {
         @ApiModelProperty(value = "결제 수단", example = "1")
         private String paymentMethod;
 
-        public static PurchaseResponse from(PaymentDto paymentDto){
-            return PurchaseDto.PurchaseResponse.builder()
-                    .orderId(paymentDto.getOrderId())
-                    .totalPrice(paymentDto.getTotalPrice())
-                    .payMoneyBalance(paymentDto.getPayMoneyBalance())
-                    .paymentMethod(paymentDto.getPaymentMethod())
-                    .createdAt(paymentDto.getCreatedAt())
+        public static ChargeDto.ChargeResponse from(PayMoneyDto payMoneyDto){
+            return ChargeResponse.builder()
+//                    .chargePayMoney()
                     .build();
         }
+
+//        public static PayMoney from(Long id, ChargeRequest request) {
+//            return ;
+//        }
     }
 
 }

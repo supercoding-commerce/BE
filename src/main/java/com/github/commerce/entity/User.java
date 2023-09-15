@@ -1,5 +1,7 @@
 package com.github.commerce.entity;
 
+import com.github.commerce.service.payment.exception.PaymentErrorCode;
+import com.github.commerce.service.payment.exception.PaymentException;
 import lombok.*;
 
 import javax.persistence.*;
@@ -7,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,8 +54,15 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "users",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UsersCoupon> userCoupons;
+
+    @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UsersInfo usersInfo;
+
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private List<PayMoney> payMoney;
+
 
     // is_used = false 가져오기
     // 반환타입이 List인 이유는 목록을 가져와야 하기 때문에
@@ -62,14 +72,27 @@ public class User {
                 .collect(Collectors.toList());
     }
 
+    public PayMoney getPayMoneyByUserId(){
+        return payMoney.stream().max(Comparator.comparing(PayMoney::getId)).orElse(null);
+    }
 
-    // 찾고있는 번호가 없는경우 에러 "쿠폰을 찾을 수 없습니다."
+
+
     public UsersCoupon setUserCouponIsUsedTrue(Long couponId){
-        UsersCoupon usersCoupon = userCoupons.stream()
-                .filter(usersCoupon1 -> usersCoupon1.getId().equals(couponId))
-                .findFirst().orElseThrow();
-        usersCoupon.setIsUsed(true);
-        return usersCoupon;
+        if(couponId != null && couponId >0){
+            UsersCoupon usersCoupon = userCoupons.stream()
+                    .filter(usersCoupon1 -> usersCoupon1.getId().equals(couponId))
+                    .findFirst()
+                    .orElse(null);
+            if(usersCoupon != null){
+                usersCoupon.setIsUsed(true);
+                return usersCoupon;
+            }else{
+                return null;
+            }
+        }else {
+            return null;
+        }
     }
 
 

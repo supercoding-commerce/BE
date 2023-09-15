@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ReigsterSellerDto extends RegisterUserDto{
+public class RegisterSellerDto extends RegisterUserDto{
     private String shopName;
     private String address;
 }

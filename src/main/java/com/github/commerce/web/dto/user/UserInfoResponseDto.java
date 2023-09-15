@@ -12,4 +12,5 @@ public class UserInfoResponseDto {
     private String grade;
     private String nickname;
     private String address;
+    private Long payMoney;
 }
