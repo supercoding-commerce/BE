@@ -28,11 +28,13 @@ public class CouponService {
     private final UserInfoRepository userInfoRepository;
 
     //전체 쿠폰 목록 조회
+    @Transactional(readOnly = true)
     public List<CouponResponseDto> getAllCoupons(){
         return couponRepository.findAll().stream().map(CouponResponseDto::new).collect(Collectors.toList());
     }
 
     //쿠폰아이디로 쿠폰 조회
+    @Transactional(readOnly = true)
     public CouponResponseDto getCouponByCouponId(Long couponId){
         return new CouponResponseDto(couponRepository.findCouponById(couponId));
     }
