@@ -21,12 +21,9 @@ public class UsersInfo {
     private Long id;
 
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
-
-//    @Column(name = "balance", precision = 10, scale = 2)
-//    private BigDecimal balance;
 
     @Column(name = "grade")
     @Enumerated(value = EnumType.STRING)

@@ -173,6 +173,7 @@ public class UserService {
                     .grade(usersInfo.getGrade().name())
                     .nickname(usersInfo.getNickname())
                     .address(usersInfo.getAddress())
+                    .payMoney(usersInfo.getUsers().getPayMoneyByUserId().getPayMoneyBalance())
                     .build();
         }
     }
