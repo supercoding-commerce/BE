@@ -59,6 +59,7 @@ public class ProductDto {
         return ProductDto.builder()
                 .productId(product.getId())
                 .sellerId(product.getSeller().getId())
+                .shopName(product.getSeller().getShopName())
                 .name(product.getName())
                 .content(product.getContent())
                 .price(product.getPrice())
