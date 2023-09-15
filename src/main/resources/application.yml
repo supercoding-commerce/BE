@@ -44,6 +44,13 @@ spring:
     username: ${RMQ_USER}
     password: ${RMQ_PASSWORD}
 
+  #multipart file 기본 설정 1MB
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
+      enabled: true
+
 springdoc:
   swagger-ui:
     path: /api-doc.html
