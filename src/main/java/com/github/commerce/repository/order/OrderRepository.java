@@ -28,6 +28,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query(
             "SELECT o, o.products.price, o.products.name, o.products.thumbnailUrl FROM Order o " +
                     "WHERE o.users.id = :userId " +
+                    "AND o.orderState = 1 " +
                     //"SELECT c FROM Cart c " +
                     "ORDER BY o.createdAt DESC "
     )
@@ -37,7 +38,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "SELECT o, o.products.price, o.products.name, o.products.thumbnailUrl FROM Order o " +
                     "WHERE o.sellers.id = :sellerId " +
                     //"SELECT c FROM Cart c " +
-                    "AND o.orderState = 1 " +
+                    "AND o.orderState in (2, 3, 4, 5) " +
                     "ORDER BY o.createdAt DESC "
     )
     List<Order> findPaidOrderBySellerIdSortByCreatedAtDesc(Long sellerId);
