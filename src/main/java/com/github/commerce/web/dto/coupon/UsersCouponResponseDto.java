@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UsersCouponResponseDto {
 
-    private String userEmail;
+    private Long userId;
     private Long couponId;
     private String couponTitle;
     private String couponContent;
@@ -19,7 +19,7 @@ public class UsersCouponResponseDto {
     private Boolean isUsed;
 
     public UsersCouponResponseDto(UsersCoupon usersCoupon){
-        this.userEmail = usersCoupon.getUsers().getEmail();
+        this.userId = usersCoupon.getUsers().getId();
         this.couponId = usersCoupon.getCoupons().getId();
         this.couponTitle = usersCoupon.getCoupons().getTitle();
         this.couponContent = usersCoupon.getCoupons().getContent();
