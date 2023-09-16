@@ -34,7 +34,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     @Query(
             "SELECT c, c.products.price, c.products.name, c.products.thumbnailUrl, c.products.leftAmount FROM Cart c " +
                     "WHERE c.users.id = :userId " +
-                    "AND (c.cartState = 0 OR c.cartState = 2)" +
+                    "AND c.cartState in (0, 2)" +
                     //"SELECT c FROM Cart c " +
                     "ORDER BY c.createdAt DESC "
     )
