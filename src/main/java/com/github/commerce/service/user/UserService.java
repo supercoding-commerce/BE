@@ -3,6 +3,7 @@ package com.github.commerce.service.user;
 import com.github.commerce.config.security.JwtUtil;
 import com.github.commerce.entity.*;
 import com.github.commerce.repository.user.*;
+import com.github.commerce.service.coupon.UserCouponService;
 import com.github.commerce.service.product.AwsS3Service;
 import com.github.commerce.service.product.ProductImageUploadService;
 import com.github.commerce.service.user.exception.UserErrorCode;
@@ -36,6 +37,7 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final ProductImageUploadService productImageUploadService;
     private final AwsS3Service awsS3Service;
+    private final UserCouponService userCouponService;
 
     @Transactional
     public String registerSeller(RegisterSellerDto registerSellerDto, MultipartFile shopImgFile) {
@@ -102,16 +104,17 @@ public class UserService {
             throw new UserException(UserErrorCode.UNAUTHORIZED_UPDATE_PASSWORD);
         }
 
-        User user = User.builder()
-                .email(registerUserInfoDto.getEmail())
-                .password(passwordEncoder.encode(registerUserInfoDto.getPassword()))
-                .userName(registerUserInfoDto.getUserName())
-                .telephone(registerUserInfoDto.getTelephone())
-                .role(UserRoleEnum.USER)
-                .isDelete(false)
-                .createdAt(LocalDateTime.now())
-                .build();
-        userRepository.save(user);
+        User user = userRepository.save(
+                User.builder()
+                        .email(registerUserInfoDto.getEmail())
+                        .password(passwordEncoder.encode(registerUserInfoDto.getPassword()))
+                        .userName(registerUserInfoDto.getUserName())
+                        .telephone(registerUserInfoDto.getTelephone())
+                        .role(UserRoleEnum.USER)
+                        .isDelete(false)
+                        .createdAt(LocalDateTime.now())
+                        .build()
+        );
         userInfoRepository.save(
                 UsersInfo.builder()
                         .users(user)
@@ -123,6 +126,9 @@ public class UserService {
                         .nickname(registerUserInfoDto.getNickname())
                         .build()
         );
+
+        //회원가입시 자동 신규회원 쿠폰발급
+        userCouponService.issueUserCoupon(user.getId(), 1l);
 
         return "회원가입 완료되었습니다.";
     }
@@ -252,7 +258,7 @@ public class UserService {
         }
 
         //쇼핑몰 이름 변경있으면 중복확인
-        if(!sellerInfo.getShopName().equals(seller.get().getShopName())) {
+        if (!sellerInfo.getShopName().equals(seller.get().getShopName())) {
             if (sellerRepository.existsByShopNameAndUsersIsDeleteFalse(sellerInfo.getShopName())) {
                 throw new UserException(UserErrorCode.SHOP_NAME_ALREADY_EXIST);
             }
@@ -277,7 +283,7 @@ public class UserService {
     public UserInfo getUserInfo(Long userId) {
         Optional<UsersInfo> userInfo = userInfoRepository.findByUsersId(userId);
 
-        if(userInfo.isEmpty() || userInfo.get().getUsers().getIsDelete()==true) {
+        if (userInfo.isEmpty() || userInfo.get().getUsers().getIsDelete() == true) {
             throw new UserException(UserErrorCode.UER_NOT_FOUND);
         }
 
@@ -294,12 +300,12 @@ public class UserService {
     public String updateUserInfo(UserInfo userInfoDto, Long userId) {
         Optional<UsersInfo> userInfo = userInfoRepository.findByUsersId(userId);
 
-        if(userInfo.isEmpty() || userInfo.get().getUsers().getIsDelete()==true) {
+        if (userInfo.isEmpty() || userInfo.get().getUsers().getIsDelete() == true) {
             throw new UserException(UserErrorCode.UER_NOT_FOUND);
         }
 
         //닉네임 변경있으면 중복확인
-        if(!userInfoDto.getNickname().equals(userInfo.get().getNickname())) {
+        if (!userInfoDto.getNickname().equals(userInfo.get().getNickname())) {
             if (userInfoRepository.existsByNicknameAndUsersIsDeleteFalse(userInfoDto.getNickname())) {
                 throw new UserException(UserErrorCode.USER_NICKNAME_ALREADY_EXIST);
             }
@@ -311,6 +317,6 @@ public class UserService {
         userInfo.get().setAddressDetail(userInfoDto.getAddressDetail());
         userInfo.get().setNickname(userInfoDto.getNickname());
 
-      return "회원정보 수정 되었습니다!";
+        return "회원정보 수정 되었습니다!";
     }
 }
