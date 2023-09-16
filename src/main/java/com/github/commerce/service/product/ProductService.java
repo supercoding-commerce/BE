@@ -130,12 +130,18 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDto getOneProduct(Long productId, Long userId, String userName) {
-
+        List<String> imageUrlList = new ArrayList<>();
         Product product = productRepository.findById(productId).orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
+
+        List<ProductContentImage> productImages = productContentImageRepository.findAllByProduct_Id(productId);
+
+        productImages.forEach(p -> {
+            imageUrlList.add(p.getImageUrl());
+        });
         boolean isSeller = validateProductMethod.isThisProductSeller(product.getSeller().getId(), userId);
         List<Order> orderList = orderRepository.findAllByUsersIdForDetailPage(userId);
         List<DetailPageOrderDto> orderDtoList = orderList.stream().map(DetailPageOrderDto::fromEntity).collect(Collectors.toList());
-        return ProductDto.fromEntityDetail(product, isSeller, orderDtoList, userId, userName);
+        return ProductDto.fromEntityDetail(product, isSeller, orderDtoList, userId, userName, imageUrlList);
     }
 
     @Transactional(readOnly = true)

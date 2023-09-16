@@ -1,7 +1,10 @@
 package com.github.commerce.service.order;
 
 import com.github.commerce.entity.*;
+import com.github.commerce.repository.cart.CartRepository;
 import com.github.commerce.repository.order.OrderRepository;
+import com.github.commerce.service.cart.exception.CartErrorCode;
+import com.github.commerce.service.cart.exception.CartException;
 import com.github.commerce.service.order.exception.OrderErrorCode;
 import com.github.commerce.service.order.exception.OrderException;
 import com.github.commerce.service.order.util.ValidateOrderMethod;
@@ -27,6 +30,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ValidateOrderMethod validateOrderMethod;
     private final RabbitTemplate rabbitTemplate;
+    private final CartRepository cartRepository;
 
     @Transactional
     public List<String> createOrder(List<PostOrderDto.PostOrderRequest> requestList, Long userId) {
@@ -34,19 +38,18 @@ public class OrderService {
         for(PostOrderDto.PostOrderRequest request : requestList) {
             Long inputProductId = request.getProductId();
             Integer inputQuantity = request.getQuantity();
-            Long inputCartId = request.getCartId();
             List<String> inputOptions = request.getOptions();
 
             // Gson 인스턴스 생성
             Gson gson = new Gson();
             // inputOptions를 JSON 문자열로 변환
             String inputOptionsJson = gson.toJson(inputOptions);
-
-            Cart validatedCart = null;
-
-            if (inputCartId != null) {
-                validatedCart = validateOrderMethod.validateCart(inputCartId, userId);
-            }
+//
+//            Cart validatedCart = null;
+//
+//            if (inputCartId != null) {
+//                validatedCart = validateOrderMethod.validateCart(inputCartId, userId);
+//            }
 
             User validatedUser = validateOrderMethod.validateUser(userId);
             //TODO: 재고 소진 기능마련
@@ -63,7 +66,7 @@ public class OrderService {
                             .createdAt(LocalDateTime.now())
                             .quantity(inputQuantity)
                             .orderState(1)
-                            .carts(validatedCart)
+                            //.carts(validatedCart)
                             .totalPrice((long) (validatedProduct.getPrice() * inputQuantity))
                             .options(inputOptionsJson)
                             .build()
@@ -74,6 +77,43 @@ public class OrderService {
         }
         return nameList;
     }
+
+    @Transactional
+    public List<String> createOrderFromCart(List<Long> cartIdList, Long userId) {
+        User validatedUser = validateOrderMethod.validateUser(userId);
+        List<String >nameList = new ArrayList<>();
+        System.out.println(cartIdList.get(0));
+        System.out.println(cartIdList.get(1));
+        System.out.println(cartIdList.get(2));
+        cartIdList.forEach(cartId -> {
+            //Cart cart = cartRepository.findById(cartId).orElseThrow(()-> new CartException(CartErrorCode.THIS_CART_DOES_NOT_EXIST));
+            Cart validatedCart = validateOrderMethod.validateCart(cartId, userId);
+            Product product = validatedCart.getProducts();
+            Seller seller = product.getSeller();
+            validateOrderMethod.validateStock(validatedCart.getQuantity(), product);
+
+            OrderRmqDto newOrder = OrderRmqDto.fromEntity(
+                    Order.builder()
+                            .users(validatedUser)
+                            .sellers(seller)
+                            .products(product)
+                            .createdAt(LocalDateTime.now())
+                            .quantity(validatedCart.getQuantity())
+                            .orderState(1)
+                            .carts(validatedCart)
+                            .totalPrice((long) product.getPrice() * validatedCart.getQuantity())
+                            .options(validatedCart.getOptions())
+                            .build()
+            );
+
+            rabbitTemplate.convertAndSend("exchange", "postOrder", newOrder);
+            nameList.add(product.getName()+ "상품 주문요청");
+        });
+
+        return nameList;
+
+    }
+
 
     @Transactional(readOnly = true)
     public List<Map<LocalDate, List<OrderDto>>> getPurchasedOrderList(Long userId){
@@ -181,6 +221,7 @@ public class OrderService {
         orderRepository.deleteById(orderId);
         return validatedOrder.getId() + "번 주문 삭제";
     }
+
 
 
 //    // 판매자에게 SSE 이벤트를 발생시키는 메서드
