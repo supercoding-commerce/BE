@@ -115,12 +115,13 @@ public class ProductController {
     // 상품 삭제
     @ApiOperation(value="상품 식별값을 입력하여 단일의 product 레코드를 삭제합니다.")
     @DeleteMapping("/{productId}")
-    public ResponseEntity<?> deleteProduct(
+    public ResponseDto<String> deleteProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("productId") Long productId){
+        // 유저 존재 확인
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
         productService.deleteProductByProductId(productId,profileId);
-        return ResponseEntity.ok(productId + "번 상품 삭제 성공");
+        return ResponseDto.success(productId + "번 상품이 삭제 되었습니다.");
     }
 
 

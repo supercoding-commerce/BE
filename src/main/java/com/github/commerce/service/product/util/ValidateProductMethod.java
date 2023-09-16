@@ -1,5 +1,6 @@
 package com.github.commerce.service.product.util;
 
+import com.github.commerce.entity.Product;
 import com.github.commerce.entity.Seller;
 import com.github.commerce.entity.User;
 import com.github.commerce.repository.cart.CartRepository;
@@ -11,6 +12,7 @@ import com.github.commerce.service.order.exception.OrderErrorCode;
 import com.github.commerce.service.order.exception.OrderException;
 import com.github.commerce.service.product.exception.ProductErrorCode;
 import com.github.commerce.service.product.exception.ProductException;
+import com.github.commerce.web.advice.custom.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,5 +41,10 @@ public class ValidateProductMethod {
     public boolean isThisProductSeller(Long sellerId, Long userId) {
         Optional<Seller> sellerOptional = sellerRepository.findByUsersId(userId);
         return sellerOptional.isPresent() && sellerOptional.get().getId().equals(sellerId);
+    }
+
+    public Product validateProduct(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
     }
 }
