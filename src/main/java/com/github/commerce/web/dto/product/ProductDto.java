@@ -54,11 +54,12 @@ public class ProductDto {
     private List<DetailPageOrderDto> orderList;
 
 
-    public static ProductDto fromEntity(Product product){
+    public static ProductDto fromEntity(Product product,boolean isSeller){
 
         return ProductDto.builder()
                 .productId(product.getId())
                 .sellerId(product.getSeller().getId())
+                .shopName(product.getSeller().getShopName())
                 .name(product.getName())
                 .content(product.getContent())
                 .price(product.getPrice())
@@ -69,6 +70,7 @@ public class ProductDto {
                 .createdAt(product.getCreatedAt())
                 .thumbnailUrl(product.getThumbnailUrl())
                 .options(product.getOptions())
+                .isSeller(isSeller)
                 .build();
     }
 

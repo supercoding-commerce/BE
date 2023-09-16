@@ -1,9 +1,6 @@
 package com.github.commerce.service.product;
 
-import com.github.commerce.entity.Order;
-import com.github.commerce.entity.Product;
-import com.github.commerce.entity.ProductContentImage;
-import com.github.commerce.entity.Seller;
+import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.product.ProductContentImageRepository;
 import com.github.commerce.repository.product.ProductRepository;
@@ -54,6 +51,7 @@ public class ProductService {
     @Transactional
     public ProductDto createProductItem(String productRequest,  List<MultipartFile> imageFiles, Long profileId) {
         Seller seller = validateProductMethod.validateSeller(profileId);
+        boolean isSeller = validateProductMethod.isThisProductSeller(seller.getId(), profileId);
         Gson gson = new Gson();
         ProductRequest convertedRequest = gson.fromJson(productRequest, ProductRequest.class);
         List<String> options = convertedRequest.getOptions();
@@ -89,10 +87,10 @@ public class ProductService {
 
                     String firstUrl = urlList.get(0);
                     product.setThumbnailUrl(firstUrl);
-                    return ProductDto.fromEntity(product);
+                    return ProductDto.fromEntity(product,isSeller);
 
             }
-            return ProductDto.fromEntity(product);
+            return ProductDto.fromEntity(product,isSeller);
 
         }catch (Exception e){
             throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
@@ -178,6 +176,8 @@ public class ProductService {
             return productRepository.findAllSortById(inputAgeCategory, inputGenderCategory, pageable);
         }
     }
+
+
 }
 
 

@@ -73,7 +73,7 @@ public class User {
     }
 
     public PayMoney getPayMoneyByUserId(){
-        return payMoney.stream().max(Comparator.comparing(PayMoney::getId)).orElse(null);
+        return payMoney.stream().max(Comparator.comparing(PayMoney::getId)).orElseGet(PayMoney::new);
     }
 
 

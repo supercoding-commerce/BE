@@ -2,7 +2,11 @@ package com.github.commerce.web.controller.product;
 
 import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.product.ProductService;
+import com.github.commerce.service.product.util.ValidateProductMethod;
 import com.github.commerce.service.review.ReviewService;
+import com.github.commerce.web.advice.custom.CustomException;
+import com.github.commerce.web.advice.custom.ErrorCode;
+import com.github.commerce.web.advice.custom.ResponseDto;
 import com.github.commerce.web.dto.product.GetProductDto;
 import com.github.commerce.web.dto.product.ProductDto;
 import com.github.commerce.web.dto.product.ProductRequest;
@@ -13,12 +17,14 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -79,20 +85,20 @@ public class ProductController {
         return ResponseEntity.ok(productService.getOneProduct(productId, userId));
     }
 
+
     // 판매자가 상품 등록
     @ApiOperation(value = "상품 등록")
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductDto> createProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart String productRequest,//JSON.stringify()
-            @RequestPart(required = false) List<MultipartFile> imageFiles) {
+            @RequestParam(name = "productRequest") String productRequest,//JSON.stringify()
+            @RequestParam(required = false) List<MultipartFile> imageFiles) {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
-
-        return ResponseEntity.ok(productService.createProductItem(productRequest, imageFiles, profileId));
+       return ResponseEntity.ok(productService.createProductItem(productRequest, imageFiles, profileId));
     }
 
     // 상품 수정
-    @ApiOperation(value = "상품 식별값을 입력하여 단일의 product 레코드를 수정합니다.")
+    @ApiOperation(value = "상품 식별값을 입력하여 product 레코드를 수정합니다.")
     @PatchMapping(value = "/{productId}")
     public ResponseEntity<?> updateProduct(@PathVariable("productId") Long productId,
                                            @ModelAttribute ProductRequest productRequest,
