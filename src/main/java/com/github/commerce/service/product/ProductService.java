@@ -51,6 +51,7 @@ public class ProductService {
     @Transactional
     public ProductDto createProductItem(String productRequest,  List<MultipartFile> imageFiles, Long profileId) {
         Seller seller = validateProductMethod.validateSeller(profileId);
+        boolean isSeller = validateProductMethod.isThisProductSeller(seller.getId(), profileId);
         Gson gson = new Gson();
         ProductRequest convertedRequest = gson.fromJson(productRequest, ProductRequest.class);
         List<String> options = convertedRequest.getOptions();
@@ -85,10 +86,10 @@ public class ProductService {
 
                     String firstUrl = urlList.get(0);
                     product.setThumbnailUrl(firstUrl);
-                    return ProductDto.fromEntity(product);
+                    return ProductDto.fromEntity(product,isSeller);
 
             }
-            return ProductDto.fromEntity(product);
+            return ProductDto.fromEntity(product,isSeller);
 
         }catch (Exception e){
             throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
@@ -181,12 +182,7 @@ public class ProductService {
         }
     }
 
-//    public Object getProductsBySeller(Long userId) {
-//        // 유저 정보가 있는지 확인
-//        User validUserId = validateProductMethod.validateUser(userId);
-//        // 판매자가 아닌지 확인
-//
-//    }
+
 }
 
 

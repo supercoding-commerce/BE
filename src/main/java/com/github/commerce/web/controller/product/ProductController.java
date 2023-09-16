@@ -4,6 +4,8 @@ import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.product.ProductService;
 import com.github.commerce.service.product.util.ValidateProductMethod;
 import com.github.commerce.service.review.ReviewService;
+import com.github.commerce.web.advice.custom.CustomException;
+import com.github.commerce.web.advice.custom.ErrorCode;
 import com.github.commerce.web.advice.custom.ResponseDto;
 import com.github.commerce.web.dto.product.GetProductDto;
 import com.github.commerce.web.dto.product.ProductDto;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -83,14 +86,6 @@ public class ProductController {
         return ResponseEntity.ok(productService.getOneProduct(productId, userId, userName));
     }
 
-//    @ApiOperation(value = "판매자가 등록한 상품들을 조회 합니다.")
-//    @GetMapping()
-//    public ResponseDto<?> getProductsBySeller(
-//            @AuthenticationPrincipal UserDetailsImpl userDetails
-//    ){
-//        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
-//        return ResponseDto.success(productService.getProductsBySeller(userId));
-//    }
 
     // 판매자가 상품 등록
     @ApiOperation(value = "상품 등록")
@@ -100,9 +95,7 @@ public class ProductController {
             @RequestParam(name = "productRequest") String productRequest,//JSON.stringify()
             @RequestParam(required = false) List<MultipartFile> imageFiles) {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
-        System.out.println(111111);
-        System.out.println(productRequest);
-        return ResponseEntity.ok(productService.createProductItem(productRequest, imageFiles, profileId));
+       return ResponseEntity.ok(productService.createProductItem(productRequest, imageFiles, profileId));
     }
 
     // 상품 수정
