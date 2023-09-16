@@ -27,7 +27,10 @@ public enum  ProductErrorCode {
     UNPROCESSABLE_ENTITY("요청이 유효하지만 업데이트를 수행할 수 없습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
 
     //409
-    FAIL_TO_SAVE( "서버 측의 문제로 데이터의 저장에 실패했습니다. 다시 한 번 시도해주세요.",HttpStatus.CONFLICT);
+    FAIL_TO_SAVE( "서버 측의 문제로 데이터의 저장에 실패했습니다. 다시 한 번 시도해주세요.",HttpStatus.CONFLICT),
+
+    //413
+    HEAVY_FILESIZE("업로드할 이미지는 하나당 2MB 이하여야 합니다.", HttpStatus.PAYLOAD_TOO_LARGE );
 
 
 

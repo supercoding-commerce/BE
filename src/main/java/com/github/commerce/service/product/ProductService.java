@@ -57,7 +57,6 @@ public class ProductService {
         String inputOptionsJson = gson.toJson(options);
 
         boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
-
         if(imageExists && imageFiles.size() > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
 
         try{
@@ -78,7 +77,7 @@ public class ProductService {
             );
 
             if(product.getId() != null && imageExists){
-
+                validateProductMethod.validateImage(imageFiles);
                 List<String>urlList = productImageUploadService.uploadImageFileList(imageFiles);
                 for (String url : urlList) {
                         productContentImageRepository.save(ProductContentImage.from(product, url));

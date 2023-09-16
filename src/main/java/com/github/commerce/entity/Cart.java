@@ -43,6 +43,9 @@ public class Cart {
 //    @Column(name = "option_id", length = 50)
 //    private String optionId;
 
+    @Column(name = "cart_state", columnDefinition = "int default 0")
+    private Integer cartState;
+
     @Column(name = "options")
     private String options;
 
