@@ -29,7 +29,7 @@ public class ProductService {
     private final OrderRepository orderRepository;
     private final ProductContentImageRepository productContentImageRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<GetProductDto> searchProducts(Integer pageNumber, String searchWord, String ageCategory, String genderCategory, String sortBy) {
         String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
