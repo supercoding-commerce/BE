@@ -39,6 +39,10 @@ public class UsersInfo {
     @Column(name = "address", nullable = false)
     private String address;
 
+    @Size(max = 255)
+    @Column(name = "address_detail")
+    private String addressDetail;
+
     @Size(max = 4)
     @NotNull
     @Column(name = "age", nullable = false)

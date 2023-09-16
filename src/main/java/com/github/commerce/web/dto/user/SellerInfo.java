@@ -1,12 +1,15 @@
 package com.github.commerce.web.dto.user;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
-public class RegisterSellerDto extends RegisterUserDto{
+@Builder
+public class SellerInfo {
+    private String userName;
+    private String telephone;
     private String shopName;
     private String address;
     private String addressDetail;
+    private String shopImageUrl;
 }

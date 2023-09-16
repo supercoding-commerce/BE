@@ -32,6 +32,10 @@ public class Seller {
     @Column(name = "address")
     private String address;
 
+    @Size(max = 255)
+    @Column(name = "address_detail")
+    private String addressDetail;
+
     @Column(name = "shop_image_url",length = 255)
     private String shopImageUrl;
 

@@ -11,7 +11,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,7 +31,7 @@ public class UserController {
     @ApiOperation("판매자 회원가입")
     @PostMapping(value = "/register-seller")
     public ResponseEntity<String> registerSeller(@RequestPart RegisterSellerDto registerSellerDto, @RequestPart(required = false) MultipartFile multipartFile) {
-        return ResponseEntity.ok(userService.registerSeller(registerSellerDto,multipartFile));
+        return ResponseEntity.ok(userService.registerSeller(registerSellerDto, multipartFile));
     }
 
     @ApiOperation("구매자 회원가입")
@@ -54,11 +53,11 @@ public class UserController {
     @ApiOperation("로그인한 회원 정보 가져오기")
     @GetMapping(value = "/getInfo")
     @PreAuthorize("isAuthenticated()")//메소드 실행 전 로그인되어야함
-    public ResponseEntity<UserInfoResponseDto> getUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<MyInfoResponseDto> getMyInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = userDetails.getUser();
         if (user.getIsDelete() == true)
             throw new UserException(UserErrorCode.UER_NOT_FOUND);
-        return ResponseEntity.ok(userService.getUserInfo(user.getId(), user.getRole().name()));
+        return ResponseEntity.ok(userService.getMyInfo(user.getId(), user.getRole().name()));
 
     }
 
@@ -69,15 +68,45 @@ public class UserController {
     }
 
     @ApiOperation("닉네임 중복 확인")
-    @GetMapping(value = "/checkNickName")
-    public ResponseEntity<String> checkNickName(@RequestParam String nickName) {
-        return ResponseEntity.ok(userService.checkNickName(nickName));
+    @GetMapping(value = "/checkNickname")
+    public ResponseEntity<String> checkNickName(@RequestParam String nickname) {
+        return ResponseEntity.ok(userService.checkNickName(nickname));
     }
 
     @ApiOperation("쇼핑몰 이름 중복 확인")
     @GetMapping(value = "/checkShopName")
     public ResponseEntity<String> checkShopName(@RequestParam String shopName) {
         return ResponseEntity.ok(userService.checkShopName(shopName));
+    }
+
+    @ApiOperation("비밀번호 변경")
+    @PatchMapping(value = "/updatePassword")
+    public ResponseEntity<String> updatePassword(@RequestBody UpdatePasswordReq updatePasswordReq,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(userService.updatePassword(updatePasswordReq,userDetails));
+    }
+
+    @ApiOperation("판매자 회원 수정 정보 가져오기")
+    @GetMapping(value = "/getSellerInfo")
+    public ResponseEntity<SellerInfo> getSellerInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(userService.getSellerInfo(userDetails.getUser().getId()));
+    }
+
+    @ApiOperation("판매자 회원 정보 수정")
+    @PatchMapping(value = "/updateSeller")
+    public ResponseEntity<String> updateSeller(@RequestPart SellerInfo sellerInfo, @RequestPart(required = false) MultipartFile shopImgFile,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(userService.updateSeller(sellerInfo, shopImgFile,userDetails.getUser().getId()));
+    }
+
+    @ApiOperation("구매자 회원 수정 정보 가져오기")
+    @GetMapping(value = "/getUserInfo")
+    public ResponseEntity<UserInfo> getUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(userService.getUserInfo(userDetails.getUser().getId()));
+    }
+
+    @ApiOperation("구매자 회원 정보 수정")
+    @PatchMapping(value = "/update")
+    public ResponseEntity<String> updateUserInfo(@RequestBody UserInfo userInfo,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(userService.updateUserInfo(userInfo,userDetails.getUser().getId()));
     }
 
 }
