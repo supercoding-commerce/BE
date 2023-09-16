@@ -26,6 +26,10 @@ public class ProductDto {
 
     private Long sellerId;
 
+    private Long enteredUserId;
+
+    private String enteredUserName;
+
     private String shopName;
 
     private String name;
@@ -74,11 +78,13 @@ public class ProductDto {
     }
 
 
-    public static ProductDto fromEntityDetail(Product product, boolean isSeller, List<DetailPageOrderDto> orderList){
+    public static ProductDto fromEntityDetail(Product product, boolean isSeller, List<DetailPageOrderDto> orderList, Long userId, String userName){
         Seller seller = product.getSeller();
         return ProductDto.builder()
                 .productId(product.getId())
                 .sellerId(seller.getId())
+                .enteredUserId(userId)
+                .enteredUserName(userName)
                 .shopName(seller.getShopName())
                 .name(product.getName())
                 .content(product.getContent())

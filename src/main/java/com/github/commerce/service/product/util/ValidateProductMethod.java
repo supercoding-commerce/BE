@@ -45,7 +45,7 @@ public class ValidateProductMethod {
     }
 
     public void validateImage(List<MultipartFile> imageFiles) {
-        long maxFileSize = 2L * 1024 * 1024; // 2 MB in bytes
+        long maxFileSize = 5L * 1024 * 1024; // 5 MB in bytes
 
         for (MultipartFile file : imageFiles) {
             if (file.getSize() > maxFileSize) {

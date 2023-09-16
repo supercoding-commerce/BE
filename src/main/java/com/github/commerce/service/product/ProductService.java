@@ -129,13 +129,13 @@ public class ProductService {
 
 
     @Transactional(readOnly = true)
-    public ProductDto getOneProduct(Long productId, Long userId) {
+    public ProductDto getOneProduct(Long productId, Long userId, String userName) {
 
         Product product = productRepository.findById(productId).orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
         boolean isSeller = validateProductMethod.isThisProductSeller(product.getSeller().getId(), userId);
         List<Order> orderList = orderRepository.findAllByUsersIdForDetailPage(userId);
         List<DetailPageOrderDto> orderDtoList = orderList.stream().map(DetailPageOrderDto::fromEntity).collect(Collectors.toList());
-        return ProductDto.fromEntityDetail(product, isSeller, orderDtoList);
+        return ProductDto.fromEntityDetail(product, isSeller, orderDtoList, userId, userName);
     }
 
     @Transactional(readOnly = true)

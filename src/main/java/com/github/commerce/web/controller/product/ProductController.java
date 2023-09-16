@@ -79,7 +79,8 @@ public class ProductController {
             @PathVariable Long productId
     ){
         Long userId = userDetails != null ? userDetails.getUser().getId() : null;
-        return ResponseEntity.ok(productService.getOneProduct(productId, userId));
+        String userName = userDetails != null ? userDetails.getUser().getUserName() : null;
+        return ResponseEntity.ok(productService.getOneProduct(productId, userId, userName));
     }
 
 //    @ApiOperation(value = "판매자가 등록한 상품들을 조회 합니다.")
