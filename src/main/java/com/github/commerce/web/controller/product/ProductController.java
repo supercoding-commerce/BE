@@ -104,7 +104,7 @@ public class ProductController {
                                            @ModelAttribute ProductRequest productRequest,
                                            @AuthenticationPrincipal UserDetailsImpl userDetails
                                            ) {
-        Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;carts
+        Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
         productService.updateProductById(productId,profileId,productRequest);
 
         return ResponseEntity.ok(productId + "번 상품 수정 성공");
