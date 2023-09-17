@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class UserInfoResponseDto {
+public class MyInfoResponseDto {
     private String role;
     private String grade;
     private String nickname;
