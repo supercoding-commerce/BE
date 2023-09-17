@@ -4,6 +4,7 @@ import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.product.ProductContentImageRepository;
 import com.github.commerce.repository.product.ProductRepository;
+import com.github.commerce.repository.review.ReviewRepository;
 import com.github.commerce.service.product.exception.ProductErrorCode;
 import com.github.commerce.service.product.exception.ProductException;
 import com.github.commerce.service.product.util.ValidateProductMethod;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -28,8 +30,9 @@ public class ProductService {
     private final ValidateProductMethod validateProductMethod;
     private final OrderRepository orderRepository;
     private final ProductContentImageRepository productContentImageRepository;
+    private final ReviewRepository reviewRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<GetProductDto> searchProducts(Integer pageNumber, String searchWord, String ageCategory, String genderCategory, String sortBy) {
         String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
@@ -58,7 +61,6 @@ public class ProductService {
         String inputOptionsJson = gson.toJson(options);
 
         boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
-
         if(imageExists && imageFiles.size() > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
 
         try{
@@ -79,7 +81,7 @@ public class ProductService {
             );
 
             if(product.getId() != null && imageExists){
-
+                validateProductMethod.validateImage(imageFiles);
                 List<String>urlList = productImageUploadService.uploadImageFileList(imageFiles);
                 for (String url : urlList) {
                         productContentImageRepository.save(ProductContentImage.from(product, url));
@@ -131,13 +133,36 @@ public class ProductService {
 
 
     @Transactional(readOnly = true)
-    public ProductDto getOneProduct(Long productId, Long userId) {
-
+    public ProductDto getOneProduct(Long productId, Long userId, String userName) {
+        List<String> imageUrlList = new ArrayList<>();
         Product product = productRepository.findById(productId).orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
+
+        //이미지 배열 불러오기
+        List<ProductContentImage> productImages = productContentImageRepository.findAllByProduct_Id(productId);
+        productImages.forEach(p -> {
+            imageUrlList.add(p.getImageUrl());
+        });
+
+        //채팅관련기능 : 로그인한 유저의 seller flag - true or false
         boolean isSeller = validateProductMethod.isThisProductSeller(product.getSeller().getId(), userId);
+
+        //리뷰관련기능 : 로그인한 유저의 결제완료 주문내역
         List<Order> orderList = orderRepository.findAllByUsersIdForDetailPage(userId);
         List<DetailPageOrderDto> orderDtoList = orderList.stream().map(DetailPageOrderDto::fromEntity).collect(Collectors.toList());
-        return ProductDto.fromEntityDetail(product, isSeller, orderDtoList);
+
+        //리뷰관련기능 : 별점 평균
+        Double averageStar = null;
+         List<Review> reviewList = reviewRepository.findReviewsByProductId(productId, false, 0L);
+        Optional<Short> optionalSum = reviewList.stream()
+                .map(Review::getStarPoint)
+                .reduce((s1, s2) -> (short) (s1 + s2));  // 명시적으로 Short 타입에 대한 덧셈을 수행
+
+        if (optionalSum.isPresent() && !reviewList.isEmpty()) {
+            averageStar = optionalSum.get() / (double) reviewList.size();
+        }
+
+
+        return ProductDto.fromEntityDetail(product, isSeller, orderDtoList, userId, userName, imageUrlList, averageStar);
     }
 
     @Transactional(readOnly = true)

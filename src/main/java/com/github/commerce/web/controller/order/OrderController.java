@@ -29,11 +29,11 @@ public class  OrderController {
     private final OrderService orderService;
 
     /**
-     * 주문 생성
+     * 상품페이지로부터 바로 주문
      * @param
      * @return
      */
-    @ApiOperation(value = "주문 등록, 로그인필요")
+    @ApiOperation(value = "상품상세페이지로부터 주문 등록, 로그인필요")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 400, message = "Bad Request")
@@ -45,6 +45,26 @@ public class  OrderController {
             ){
         Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(orderService.createOrder(postOrderRequestList, userId));
+    }
+
+    /**
+     * 장바구니로부터 주문 생성
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "장바구니로부터 주문 등록, 로그인필요")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = String.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
+    @PostMapping("/cart")
+    public ResponseEntity<List<String>> createOrderFromCart(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            //@PathVariable Long cartId
+            @RequestBody PostOrderDto.PostOrderRequestFromCart request
+    ){
+        Long userId = userDetails.getUser().getId();
+        return ResponseEntity.ok(orderService.createOrderFromCart(request.getCartIdList(), userId));
     }
 
     /**
@@ -101,41 +121,41 @@ public class  OrderController {
         return ResponseEntity.ok(orderService.getSellerOrderList(userId));
     }
 
-    @ApiOperation(value = "Deprecated: 개별주문 상세조회, 로그인필요")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = OrderDto.class),
-            @ApiResponse(code = 400, message = "Bad Request")
-    })
-    @GetMapping("/{orderId}")
-    public ResponseEntity<OrderDto> getOrder(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long orderId
-    ){
-        Long userId = userDetails.getUser().getId();
+//    @ApiOperation(value = "Deprecated: 개별주문 상세조회, 로그인필요")
+//    @ApiResponses(value = {
+//            @ApiResponse(code = 200, message = "Success", response = OrderDto.class),
+//            @ApiResponse(code = 400, message = "Bad Request")
+//    })
+//    @GetMapping("/{orderId}")
+//    public ResponseEntity<OrderDto> getOrder(
+//            @AuthenticationPrincipal UserDetailsImpl userDetails,
+//            @PathVariable Long orderId
+//    ){
+//        Long userId = userDetails.getUser().getId();
+//
+//        return ResponseEntity.ok(
+//                orderService.getOrder(orderId, userId)
+//        );
+//    }
 
-        return ResponseEntity.ok(
-                orderService.getOrder(orderId, userId)
-        );
-    }
-
-    /**
-     * 주문 수정
-     * @param
-     * @return
-     */
-    @ApiOperation(value = "Deprecated: 개별주문 수정, 로그인필요")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = String.class),
-            @ApiResponse(code = 400, message = "Bad Request")
-    })
-    @PutMapping
-    public ResponseEntity<String> modify(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PutOrderDto.PutOrderRequest putOrderRequest
-    ){
-        Long userId = userDetails.getUser().getId();
-        return ResponseEntity.ok(orderService.modifyOrder(putOrderRequest, userId));
-    }
+//    /**
+//     * 주문 수정
+//     * @param
+//     * @return
+//     */
+//    @ApiOperation(value = "Deprecated: 개별주문 수정, 로그인필요")
+//    @ApiResponses(value = {
+//            @ApiResponse(code = 200, message = "Success", response = String.class),
+//            @ApiResponse(code = 400, message = "Bad Request")
+//    })
+//    @PutMapping
+//    public ResponseEntity<String> modify(
+//            @AuthenticationPrincipal UserDetailsImpl userDetails,
+//            @RequestBody PutOrderDto.PutOrderRequest putOrderRequest
+//    ){
+//        Long userId = userDetails.getUser().getId();
+//        return ResponseEntity.ok(orderService.modifyOrder(putOrderRequest, userId));
+//    }
 
     /**
      * 주문 개별삭제

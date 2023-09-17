@@ -13,9 +13,19 @@ public class PostOrderDto {
     public static class PostOrderRequest {
 
         private Long productId;
-        private Long cartId;
         private Integer quantity;
         private List<String> options;
+    }
+
+    @Setter
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class PostOrderRequestFromCart {
+
+        private List<Long> cartIdList;
+
     }
 
     @Setter

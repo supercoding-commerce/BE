@@ -14,6 +14,9 @@ import com.github.commerce.service.product.exception.ProductException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -39,5 +42,15 @@ public class ValidateProductMethod {
     public boolean isThisProductSeller(Long sellerId, Long userId) {
         Optional<Seller> sellerOptional = sellerRepository.findByUsersId(userId);
         return sellerOptional.isPresent() && sellerOptional.get().getId().equals(sellerId);
+    }
+
+    public void validateImage(List<MultipartFile> imageFiles) {
+        long maxFileSize = 5L * 1024 * 1024; // 5 MB in bytes
+
+        for (MultipartFile file : imageFiles) {
+            if (file.getSize() > maxFileSize) {
+                throw new ProductException(ProductErrorCode.HEAVY_FILESIZE);
+            }
+        }
     }
 }
