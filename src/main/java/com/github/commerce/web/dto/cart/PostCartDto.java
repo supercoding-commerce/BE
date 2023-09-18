@@ -38,7 +38,7 @@ public class PostCartDto {
                     .productId(cartDto.getProductId())
                     .quantity(cartDto.getQuantity())
                     .isOrdered(cartDto.getIsOrdered())
-                    .options(cartDto.getOptions())
+                    .options(cartDto.getOption())
                     .build();
         }
     }

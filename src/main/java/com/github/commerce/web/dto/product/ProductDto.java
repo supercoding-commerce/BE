@@ -56,7 +56,7 @@ public class ProductDto {
     private List<DetailPageOrderDto> orderList;
 
 
-    public static ProductDto fromEntity(Product product,boolean isSeller){
+    public static ProductDto fromEntity(Product product,boolean isSeller, List<String> imageUrls){
 
         return ProductDto.builder()
                 .productId(product.getId())
@@ -71,6 +71,7 @@ public class ProductDto {
                 .genderCategory(product.getGenderCategory())
                 .createdAt(product.getCreatedAt())
                 .thumbnailUrl(product.getThumbnailUrl())
+                .imageUrls(imageUrls)
                 .options(product.getOptions())
                 .isSeller(isSeller)
                 .build();

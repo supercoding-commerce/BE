@@ -7,6 +7,7 @@ import com.github.commerce.web.dto.review.ReviewDto;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -32,11 +33,11 @@ public class ReviewController {
             @ApiResponse(code = 200, message = "Success", response = PostReviewDto.Response.class),
             @ApiResponse(code = 400, message = "Bad Request")
     })
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ReviewDto> createReview(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart String request,
-            @RequestPart MultipartFile multipartFile
+            @RequestParam(name = "request") String request,//JSON.stringify()
+            @RequestParam(required = false) MultipartFile multipartFile
     ){
         Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(

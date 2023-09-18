@@ -69,9 +69,9 @@ public class CartController {
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @PostMapping
-    public ResponseEntity<String> add(
+    public ResponseEntity<List<String>> add(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody PostCartDto.PostCartRequest request
+            @RequestBody List<PostCartDto.PostCartRequest> request
             ){
         Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(
