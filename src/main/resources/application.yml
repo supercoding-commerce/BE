@@ -6,25 +6,25 @@ spring:
   datasource:
     master:
       hikari:
-        maxLifetime: 300000
+        maxLifetime: 500000
         username: ${DB_USER}
         password: ${DB_PASSWORD}
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}
+        jdbc-url: jdbc:mysql://${DB_HOST_MASTER}:3306/${DB_NAME}
     slave:
       hikari:
-        maxLifetime: 300000
+        maxLifetime: 500000
         username: ${DB_USER}
         password: ${DB_PASSWORD}
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}
+        jdbc-url: jdbc:mysql://${DB_HOST_SLAVE1}:3306/${DB_NAME}
     slave2:
       hikari:
-        maxLifetime: 300000
+        maxLifetime: 500000
         username: ${DB_USER}
         password: ${DB_PASSWORD}
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}
+        jdbc-url: jdbc:mysql://${DB_HOST_SLAVE2}:3306/${DB_NAME}
   jpa:
 # local
 #    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
@@ -47,8 +47,8 @@ spring:
   #multipart file 기본 설정 1MB
   servlet:
     multipart:
-      max-file-size: 2MB
-      max-request-size: 2MB
+      max-file-size: 5MB
+      max-request-size: 5MB
       enabled: true
 
 springdoc:

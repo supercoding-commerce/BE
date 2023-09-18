@@ -4,6 +4,8 @@ import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.product.ProductService;
 import com.github.commerce.service.product.util.ValidateProductMethod;
 import com.github.commerce.service.review.ReviewService;
+import com.github.commerce.web.advice.custom.CustomException;
+import com.github.commerce.web.advice.custom.ErrorCode;
 import com.github.commerce.web.advice.custom.ResponseDto;
 import com.github.commerce.web.dto.product.GetProductDto;
 import com.github.commerce.web.dto.product.ProductDto;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -79,17 +82,9 @@ public class ProductController {
             @PathVariable Long productId
     ){
         Long userId = userDetails != null ? userDetails.getUser().getId() : null;
-        return ResponseEntity.ok(productService.getOneProduct(productId, userId));
+        String userName = userDetails != null ? userDetails.getUser().getUserName() : null;
+        return ResponseEntity.ok(productService.getOneProduct(productId, userId, userName));
     }
-
-//    @ApiOperation(value = "판매자가 등록한 상품들을 조회 합니다.")
-//    @GetMapping()
-//    public ResponseDto<?> getProductsBySeller(
-//            @AuthenticationPrincipal UserDetailsImpl userDetails
-//    ){
-//        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
-//        return ResponseDto.success(productService.getProductsBySeller(userId));
-//    }
 
     // 판매자가 상품 등록
     @ApiOperation(value = "상품 등록")
@@ -99,13 +94,11 @@ public class ProductController {
             @RequestParam(name = "productRequest") String productRequest,//JSON.stringify()
             @RequestParam(required = false) List<MultipartFile> imageFiles) {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
-        System.out.println(111111);
-        System.out.println(productRequest);
         return ResponseEntity.ok(productService.createProductItem(productRequest, imageFiles, profileId));
     }
 
     // 상품 수정
-    @ApiOperation(value = "상품 식별값을 입력하여 product 레코드를 수정합니다.")
+    @ApiOperation(value = "상품 식별값을 입력하여 해당 상품을 수정합니다.")
     @PatchMapping(value = "/{productId}")
     public ResponseEntity<?> updateProduct(@PathVariable("productId") Long productId,
                                            @ModelAttribute ProductRequest productRequest,
@@ -113,21 +106,21 @@ public class ProductController {
                                            ) {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
         productService.updateProductById(productId,profileId,productRequest);
-
         return ResponseEntity.ok(productId + "번 상품 수정 성공");
     }
 
 
 
     // 상품 삭제
-    @ApiOperation(value="상품 식별값을 입력하여 단일의 product 레코드를 삭제합니다.")
+    @ApiOperation(value="상품 식별값을 입력하여 해당 상품을 삭제합니다.")
     @DeleteMapping("/{productId}")
-    public ResponseEntity<?> deleteProduct(
+    public ResponseDto<String> deleteProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("productId") Long productId){
+        // 유저 존재 확인
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
         productService.deleteProductByProductId(productId,profileId);
-        return ResponseEntity.ok(productId + "번 상품 삭제 성공");
+        return ResponseDto.success(productId + "번 상품이 삭제 되었습니다.");
     }
 
 

@@ -1,17 +1,11 @@
 package com.github.commerce.web.dto.product;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.github.commerce.entity.Order;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.Seller;
 import com.github.commerce.web.dto.order.DetailPageOrderDto;
-import com.github.commerce.web.dto.order.OrderDto;
-import com.github.commerce.web.dto.order.OrderStateEnum;
-import io.swagger.models.auth.In;
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +19,10 @@ public class ProductDto {
     private Long productId;
 
     private Long sellerId;
+
+    private Long enteredUserId;
+
+    private String enteredUserName;
 
     private String shopName;
 
@@ -47,18 +45,23 @@ public class ProductDto {
 
     private String thumbnailUrl;
 
+    private List<String> imageUrls;
+
     private String options;
+
+    private Double averageStarPoint;
 
     private boolean isSeller;
 
     private List<DetailPageOrderDto> orderList;
 
 
-    public static ProductDto fromEntity(Product product){
+    public static ProductDto fromEntity(Product product,boolean isSeller, List<String> imageUrls){
 
         return ProductDto.builder()
                 .productId(product.getId())
                 .sellerId(product.getSeller().getId())
+                .shopName(product.getSeller().getShopName())
                 .name(product.getName())
                 .content(product.getContent())
                 .price(product.getPrice())
@@ -68,16 +71,22 @@ public class ProductDto {
                 .genderCategory(product.getGenderCategory())
                 .createdAt(product.getCreatedAt())
                 .thumbnailUrl(product.getThumbnailUrl())
+                .imageUrls(imageUrls)
                 .options(product.getOptions())
+                .isSeller(isSeller)
                 .build();
     }
 
 
-    public static ProductDto fromEntityDetail(Product product, boolean isSeller, List<DetailPageOrderDto> orderList){
+    public static ProductDto fromEntityDetail(Product product, boolean isSeller, List<DetailPageOrderDto> orderList,
+                                              Long userId, String userName, List<String> imageUrls, Double averageStar
+                                              ){
         Seller seller = product.getSeller();
         return ProductDto.builder()
                 .productId(product.getId())
                 .sellerId(seller.getId())
+                .enteredUserId(userId)
+                .enteredUserName(userName)
                 .shopName(seller.getShopName())
                 .name(product.getName())
                 .content(product.getContent())
@@ -88,7 +97,9 @@ public class ProductDto {
                 .genderCategory(product.getGenderCategory())
                 .createdAt(product.getCreatedAt())
                 .thumbnailUrl(product.getThumbnailUrl())
+                .imageUrls(imageUrls)
                 .options(product.getOptions())
+                .averageStarPoint(averageStar)
                 .isSeller(isSeller)
                 .orderList(orderList)
                 .build();

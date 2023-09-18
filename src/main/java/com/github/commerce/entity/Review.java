@@ -39,9 +39,6 @@ public class Review {
     @Column(name = "author", length = 100)
     private String author;
 
-    @Column(name = "title", length = 100)
-    private String title;
-
     @Column(name = "content", length = 200)
     private String content;
 

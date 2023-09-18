@@ -11,11 +11,13 @@ import lombok.Getter;
 public class DetailPageOrderDto {
 
         private Long orderId;
+        private Boolean isReviewed;
         private String orderOption;
 
         public static DetailPageOrderDto fromEntity(Order order){
             return DetailPageOrderDto.builder()
                     .orderId(order.getId())
+                    .isReviewed(order.getIsReviewed())
                     .orderOption(order.getOptions())
                     .build();
         }

@@ -4,6 +4,7 @@ import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.product.ProductContentImageRepository;
 import com.github.commerce.repository.product.ProductRepository;
+import com.github.commerce.repository.review.ReviewRepository;
 import com.github.commerce.service.product.exception.ProductErrorCode;
 import com.github.commerce.service.product.exception.ProductException;
 import com.github.commerce.service.product.util.ValidateProductMethod;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -28,8 +30,9 @@ public class ProductService {
     private final ValidateProductMethod validateProductMethod;
     private final OrderRepository orderRepository;
     private final ProductContentImageRepository productContentImageRepository;
+    private final ReviewRepository reviewRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<GetProductDto> searchProducts(Integer pageNumber, String searchWord, String ageCategory, String genderCategory, String sortBy) {
         String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
@@ -51,13 +54,16 @@ public class ProductService {
     @Transactional
     public ProductDto createProductItem(String productRequest,  List<MultipartFile> imageFiles, Long profileId) {
         Seller seller = validateProductMethod.validateSeller(profileId);
+        boolean isSeller = validateProductMethod.isThisProductSeller(seller.getId(), profileId);
+
         Gson gson = new Gson();
         ProductRequest convertedRequest = gson.fromJson(productRequest, ProductRequest.class);
         List<String> options = convertedRequest.getOptions();
         String inputOptionsJson = gson.toJson(options);
 
-        boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
+        List<String> imageUrls = new ArrayList<>();
 
+        boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
         if(imageExists && imageFiles.size() > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
 
         try{
@@ -78,18 +84,19 @@ public class ProductService {
             );
 
             if(product.getId() != null && imageExists){
-
+                validateProductMethod.validateImage(imageFiles);
                 List<String>urlList = productImageUploadService.uploadImageFileList(imageFiles);
+                imageUrls = urlList;
                 for (String url : urlList) {
                         productContentImageRepository.save(ProductContentImage.from(product, url));
                     }
 
                     String firstUrl = urlList.get(0);
                     product.setThumbnailUrl(firstUrl);
-                    return ProductDto.fromEntity(product);
+                    return ProductDto.fromEntity(product,isSeller, imageUrls);
 
             }
-            return ProductDto.fromEntity(product);
+            return ProductDto.fromEntity(product,isSeller, null);
 
         }catch (Exception e){
             throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
@@ -99,15 +106,29 @@ public class ProductService {
     @Transactional
     // 상품 삭제
     public void deleteProductByProductId(Long productId, Long profileId) {
-        Product valiProduct = validProfileAndProduct(productId,profileId);
-        productRepository.deleteById(valiProduct.getId());
+        // 로그인한 user가 seller인지 확인
+        Seller validateSeller = validateProductMethod.validateSeller(profileId);
+        // 조회하려는 상품 존재하는지 확인
+        Product validateProduct = validateProductMethod.validateProduct(productId);
+        // 로그인한 판매자가 등록한 상품이 맞으면 삭제,아니면 예외처리
+        Product existingProduct = productRepository.findBySellerIdAndId(validateSeller.getId(), validateProduct.getId());
+        if (existingProduct != null) {
+            productRepository.delete(existingProduct);
+        } else {
+            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
+        }
     }
 
     @Transactional
     // 상품 수정
     public void updateProductById(Long productId, Long profileId, ProductRequest productRequest) {
-        Product originProduct = validProfileAndProduct(productId,profileId);
-
+        Seller validateSeller = validateProductMethod.validateSeller(profileId);
+        Product validateProduct = validateProductMethod.validateProduct(productId);
+        Product originProduct = productRepository.findBySellerIdAndId(validateSeller.getId(),validateProduct.getId());
+        // 판매자가 등록한 상품이 아닐 경우 예외처리
+        if(originProduct == null){
+            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
+        }
         try {
             Product updateProduct = Product.from(originProduct,productRequest);
             productRepository.save(updateProduct);
@@ -116,27 +137,37 @@ public class ProductService {
         }
     }
 
-    private Product validProfileAndProduct(Long productId, Long profileId) {
-//        Long validProfileId = Optional.ofNullable(profileId)
-//                .orElseThrow(()-> new UserException(UserErrorCode.UER_NOT_FOUND));
-        Seller seller = validateProductMethod.validateSeller(productId);
-        Product product = productRepository.findById(productId)
-                .orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
-        if(!Objects.equals(product.getSeller().getId(), seller.getId())){
-            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
-        }
-        return product;
-    }
-
-
     @Transactional(readOnly = true)
-    public ProductDto getOneProduct(Long productId, Long userId) {
-
+    public ProductDto getOneProduct(Long productId, Long userId, String userName) {
+        List<String> imageUrlList = new ArrayList<>();
         Product product = productRepository.findById(productId).orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
+
+        //이미지 배열 불러오기
+        List<ProductContentImage> productImages = productContentImageRepository.findAllByProduct_Id(productId);
+        productImages.forEach(p -> {
+            imageUrlList.add(p.getImageUrl());
+        });
+
+        //채팅관련기능 : 로그인한 유저의 seller flag - true or false
         boolean isSeller = validateProductMethod.isThisProductSeller(product.getSeller().getId(), userId);
+
+        //리뷰관련기능 : 로그인한 유저의 결제완료 주문내역
         List<Order> orderList = orderRepository.findAllByUsersIdForDetailPage(userId);
         List<DetailPageOrderDto> orderDtoList = orderList.stream().map(DetailPageOrderDto::fromEntity).collect(Collectors.toList());
-        return ProductDto.fromEntityDetail(product, isSeller, orderDtoList);
+
+        //리뷰관련기능 : 별점 평균
+        Double averageStar = null;
+         List<Review> reviewList = reviewRepository.findReviewsByProductId(productId, false, 0L);
+        Optional<Short> optionalSum = reviewList.stream()
+                .map(Review::getStarPoint)
+                .reduce((s1, s2) -> (short) (s1 + s2));  // 명시적으로 Short 타입에 대한 덧셈을 수행
+
+        if (optionalSum.isPresent() && !reviewList.isEmpty()) {
+            averageStar = optionalSum.get() / (double) reviewList.size();
+        }
+
+
+        return ProductDto.fromEntityDetail(product, isSeller, orderDtoList, userId, userName, imageUrlList, averageStar);
     }
 
     @Transactional(readOnly = true)
@@ -154,7 +185,7 @@ public class ProductService {
         }else if(Objects.equals(sortBy, "price")){
             return productRepository.findByProductCategorySortByPrice(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
            // return products.stream().map(ProductDto::fromObjectResult).collect(Collectors.toList());
-        } else {
+        } else{
             return productRepository.findByProductCategorySortById(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
         }
     }
@@ -176,12 +207,7 @@ public class ProductService {
         }
     }
 
-//    public Object getProductsBySeller(Long userId) {
-//        // 유저 정보가 있는지 확인
-//        User validUserId = validateProductMethod.validateUser(userId);
-//        // 판매자가 아닌지 확인
-//
-//    }
+
 }
 
 
