@@ -71,6 +71,8 @@ public class ReviewService {
             saveReviewImage(review, imageUrl);
         }
 
+        validatedPaidOrder.setIsReviewed(true);
+
         //포인트 적립 결제액 2%
         Long point = validatedPay.getPointBalance();
         if (point == null) {

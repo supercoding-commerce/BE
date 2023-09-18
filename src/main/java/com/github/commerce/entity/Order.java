@@ -57,6 +57,9 @@ public class Order {
     @Column(name = "options")
     private String options;
 
+    @Column(name = "is_reviewed", columnDefinition = "tinyint default 0")
+    private Boolean isReviewed;
+
     @Column(name = "failed_causes")
     private String failed_causes;
 }
