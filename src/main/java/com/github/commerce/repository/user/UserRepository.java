@@ -8,12 +8,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findUserByEmail(String userEmail);
     User findUserById(Long id);
-
-<<<<<<< Updated upstream
     boolean existsByEmail(String email);
-
     String findRoleById(Long profileId);
-=======
     boolean existsByEmailAndIsDeleteIsFalse(String email);
->>>>>>> Stashed changes
 }
