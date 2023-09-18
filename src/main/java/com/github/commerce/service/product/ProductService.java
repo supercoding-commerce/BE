@@ -102,15 +102,13 @@ public class ProductService {
     public void deleteProductByProductId(Long productId, Long profileId) {
         // 로그인한 user가 seller인지 확인
         Seller validateSeller = validateProductMethod.validateSeller(profileId);
-        // 상품 존재 확인
+        // 조회하려는 상품 존재하는지 확인
         Product validateProduct = validateProductMethod.validateProduct(productId);
-        // 로그인한 판매자의 sellerid와 productId가 같은 행이 있는지 확인하고 있다면 삭제, 없다면 예외처리
+        // 로그인한 판매자가 등록한 상품이 맞으면 삭제,아니면 예외처리
         Product existingProduct = productRepository.findBySellerIdAndId(validateSeller.getId(), validateProduct.getId());
         if (existingProduct != null) {
-            // 같은 행이 있다면 삭제
             productRepository.delete(existingProduct);
         } else {
-            // 같은 행이 없으면 예외처리
             throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
         }
     }
@@ -121,7 +119,10 @@ public class ProductService {
         Seller validateSeller = validateProductMethod.validateSeller(profileId);
         Product validateProduct = validateProductMethod.validateProduct(productId);
         Product originProduct = productRepository.findBySellerIdAndId(validateSeller.getId(),validateProduct.getId());
-
+        // 판매자가 등록한 상품이 아닐 경우 예외처리
+        if(originProduct == null){
+            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
+        }
         try {
             Product updateProduct = Product.from(originProduct,productRequest);
             productRepository.save(updateProduct);

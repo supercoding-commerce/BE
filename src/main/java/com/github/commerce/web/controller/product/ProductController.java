@@ -85,7 +85,6 @@ public class ProductController {
         return ResponseEntity.ok(productService.getOneProduct(productId, userId));
     }
 
-
     // 판매자가 상품 등록
     @ApiOperation(value = "상품 등록")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -94,11 +93,11 @@ public class ProductController {
             @RequestParam(name = "productRequest") String productRequest,//JSON.stringify()
             @RequestParam(required = false) List<MultipartFile> imageFiles) {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
-       return ResponseEntity.ok(productService.createProductItem(productRequest, imageFiles, profileId));
+        return ResponseEntity.ok(productService.createProductItem(productRequest, imageFiles, profileId));
     }
 
     // 상품 수정
-    @ApiOperation(value = "상품 식별값을 입력하여 product 레코드를 수정합니다.")
+    @ApiOperation(value = "상품 식별값을 입력하여 해당 상품을 수정합니다.")
     @PatchMapping(value = "/{productId}")
     public ResponseEntity<?> updateProduct(@PathVariable("productId") Long productId,
                                            @ModelAttribute ProductRequest productRequest,
@@ -106,14 +105,13 @@ public class ProductController {
                                            ) {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
         productService.updateProductById(productId,profileId,productRequest);
-
         return ResponseEntity.ok(productId + "번 상품 수정 성공");
     }
 
 
 
     // 상품 삭제
-    @ApiOperation(value="상품 식별값을 입력하여 단일의 product 레코드를 삭제합니다.")
+    @ApiOperation(value="상품 식별값을 입력하여 해당 상품을 삭제합니다.")
     @DeleteMapping("/{productId}")
     public ResponseDto<String> deleteProduct(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
