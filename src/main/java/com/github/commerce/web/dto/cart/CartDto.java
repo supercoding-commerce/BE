@@ -23,6 +23,7 @@ public class CartDto {
     private Integer stock;
     private Integer quantity;
     private Boolean isOrdered;
+    private String cartState;
     private Integer totalPrice;
     private String options;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -40,6 +41,7 @@ public class CartDto {
                 .imageUrl(product.getThumbnailUrl())
                 .stock(product.getLeftAmount())
                 .isOrdered(cart.getIsOrdered())
+                .cartState(CartStateEnum.getByCode(cart.getCartState()))
                 .quantity(cart.getQuantity())
                 .totalPrice((int) (product.getPrice() * cart.getQuantity()))
                 .options(cart.getOptions())

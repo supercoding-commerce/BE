@@ -82,7 +82,8 @@ public class ProductController {
             @PathVariable Long productId
     ){
         Long userId = userDetails != null ? userDetails.getUser().getId() : null;
-        return ResponseEntity.ok(productService.getOneProduct(productId, userId));
+        String userName = userDetails != null ? userDetails.getUser().getUserName() : null;
+        return ResponseEntity.ok(productService.getOneProduct(productId, userId, userName));
     }
 
     // 판매자가 상품 등록

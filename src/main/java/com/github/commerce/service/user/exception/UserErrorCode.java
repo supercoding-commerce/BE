@@ -16,7 +16,13 @@ public enum UserErrorCode {
     //status(HttpStatus.BAD_REQUEST) 400
     LOGIN_FAIL("로그인에 실패하였습니다.", HttpStatus.BAD_REQUEST),
     UER_NOT_FOUND("존재하지 않는 유저입니다.", HttpStatus.BAD_REQUEST),
+<<<<<<< Updated upstream
     NOT_USER("USER가 아닙니다.",HttpStatus.BAD_REQUEST),
+=======
+    NOT_USER("판매자는 찜을 할 수 없습니다.",HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_UPDATE_PASSWORD("비밀번호는 영문, 숫자만 가능하고 8자~20자이어야 합니다.",HttpStatus.BAD_REQUEST),
+    NOT_EQUL_PASSWORD("기존의 비밀번호와 일치하지 않습니다.",HttpStatus.BAD_REQUEST),
+>>>>>>> Stashed changes
 
     //status(HttpStatus.UNAUTHORIZED) 401
     AUTHENTICATION_FAIL("인증에 실패하였습니다.",HttpStatus.UNAUTHORIZED);

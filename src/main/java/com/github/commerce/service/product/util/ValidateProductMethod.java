@@ -17,6 +17,9 @@ import com.github.commerce.web.advice.custom.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -45,7 +48,16 @@ public class ValidateProductMethod {
 
     public Product validateProduct(Long productId) {
         return productRepository.findById(productId)
-                .orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
+                .orElseThrow(() -> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
+    }
+    public void validateImage(List<MultipartFile> imageFiles) {
+        long maxFileSize = 5L * 1024 * 1024; // 5 MB in bytes
+
+        for (MultipartFile file : imageFiles) {
+            if (file.getSize() > maxFileSize) {
+                throw new ProductException(ProductErrorCode.HEAVY_FILESIZE);
+            }
+        }
     }
 
     public String validateUserRole(Long profileId) {
