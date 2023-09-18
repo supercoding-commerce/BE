@@ -55,10 +55,13 @@ public class ProductService {
     public ProductDto createProductItem(String productRequest,  List<MultipartFile> imageFiles, Long profileId) {
         Seller seller = validateProductMethod.validateSeller(profileId);
         boolean isSeller = validateProductMethod.isThisProductSeller(seller.getId(), profileId);
+
         Gson gson = new Gson();
         ProductRequest convertedRequest = gson.fromJson(productRequest, ProductRequest.class);
         List<String> options = convertedRequest.getOptions();
         String inputOptionsJson = gson.toJson(options);
+
+        List<String> imageUrls = new ArrayList<>();
 
         boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
         if(imageExists && imageFiles.size() > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
@@ -83,16 +86,17 @@ public class ProductService {
             if(product.getId() != null && imageExists){
                 validateProductMethod.validateImage(imageFiles);
                 List<String>urlList = productImageUploadService.uploadImageFileList(imageFiles);
+                imageUrls = urlList;
                 for (String url : urlList) {
                         productContentImageRepository.save(ProductContentImage.from(product, url));
                     }
 
                     String firstUrl = urlList.get(0);
                     product.setThumbnailUrl(firstUrl);
-                    return ProductDto.fromEntity(product,isSeller);
+                    return ProductDto.fromEntity(product,isSeller, imageUrls);
 
             }
-            return ProductDto.fromEntity(product,isSeller);
+            return ProductDto.fromEntity(product,isSeller, null);
 
         }catch (Exception e){
             throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
