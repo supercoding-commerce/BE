@@ -158,4 +158,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
     @Query("SELECT p FROM Product p WHERE p.id IN :productIds")
     List<Product> findProductsByProductIds(@Param("productIds") List<Long> productIds);
+
+    void deleteBySellerIdAndId(Long id, Long productId);
+
+    Product findBySellerIdAndId(Long id, Long id1);
 }
