@@ -180,7 +180,7 @@ public class ProductService {
         }else if(Objects.equals(sortBy, "price")){
             return productRepository.findByProductCategorySortByPrice(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
            // return products.stream().map(ProductDto::fromObjectResult).collect(Collectors.toList());
-        } else {
+        } else{
             return productRepository.findByProductCategorySortById(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
         }
     }

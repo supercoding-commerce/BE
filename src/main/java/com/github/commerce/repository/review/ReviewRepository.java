@@ -12,7 +12,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query(value = "SELECT r " +
             "FROM Review r " +
-            "WHERE r.products.id = :productId AND r.isDeleted = :isDeleted AND r.id > :cursorId ")
+            "WHERE r.products.id = :productId AND r.isDeleted = :isDeleted AND r.id > :cursorId " +
+            "ORDER BY r.createdAt DESC")
     List<Review> findReviewsByProductId(
             @Param("productId") Long productId,
             @Param("isDeleted") boolean isDeleted,

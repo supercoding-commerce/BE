@@ -59,7 +59,6 @@ public class ReviewService {
                         .users(validatedUser)
                         .products(validatedProduct)
                         .author(validatedUsersInfo.getNickname())
-                        .title(reviewRequest.getTitle())
                         .content(reviewRequest.getContent())
                         .starPoint(reviewRequest.getStarPoint())
                         .isDeleted(false)
@@ -67,11 +66,16 @@ public class ReviewService {
                         .build()
                 );
 
-        String imageUrl = productImageUploadService.uploadReviewImage(multipartFile);
-        Review savedReview = saveReviewImage(review, imageUrl);
+        if(!multipartFile.isEmpty()) {
+            String imageUrl = productImageUploadService.uploadReviewImage(multipartFile);
+            saveReviewImage(review, imageUrl);
+        }
 
         //포인트 적립 결제액 2%
         Long point = validatedPay.getPointBalance();
+        if (point == null) {
+            point = 0L;
+        }
         Long paidPrice = validatedPaidOrder.getTotalPrice();
         Long additionalPoints = Math.round(paidPrice * 0.02);
         Long modifiedPoint = point + additionalPoints;
@@ -82,7 +86,7 @@ public class ReviewService {
         //포인트 총액 업데이트
         payMoneyRepository.save(validatedPay);
 
-        return ReviewDto.fromEntity(savedReview);
+        return ReviewDto.fromEntity(review);
     }
 
 
