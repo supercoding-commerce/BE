@@ -1,5 +1,6 @@
 package com.github.commerce.service.product.util;
 
+import com.github.commerce.entity.Product;
 import com.github.commerce.entity.Seller;
 import com.github.commerce.entity.User;
 import com.github.commerce.repository.cart.CartRepository;
@@ -11,6 +12,8 @@ import com.github.commerce.service.order.exception.OrderErrorCode;
 import com.github.commerce.service.order.exception.OrderException;
 import com.github.commerce.service.product.exception.ProductErrorCode;
 import com.github.commerce.service.product.exception.ProductException;
+import com.github.commerce.web.advice.custom.CustomException;
+import com.github.commerce.web.advice.custom.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +36,6 @@ public class ValidateProductMethod {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new OrderException(OrderErrorCode.USER_NOT_FOUND));
     }
-
     public Seller validateSeller(Long userId){
         return sellerRepository.findByUsersId(userId)
                 .orElseThrow(() -> new ProductException(ProductErrorCode.NOT_REGISTERED_SELLER));
@@ -44,6 +46,10 @@ public class ValidateProductMethod {
         return sellerOptional.isPresent() && sellerOptional.get().getId().equals(sellerId);
     }
 
+    public Product validateProduct(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
+    }
     public void validateImage(List<MultipartFile> imageFiles) {
         long maxFileSize = 5L * 1024 * 1024; // 5 MB in bytes
 
@@ -53,4 +59,5 @@ public class ValidateProductMethod {
             }
         }
     }
+
 }

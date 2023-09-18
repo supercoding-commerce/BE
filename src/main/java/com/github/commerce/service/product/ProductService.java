@@ -102,15 +102,29 @@ public class ProductService {
     @Transactional
     // 상품 삭제
     public void deleteProductByProductId(Long productId, Long profileId) {
-        Product valiProduct = validProfileAndProduct(productId,profileId);
-        productRepository.deleteById(valiProduct.getId());
+        // 로그인한 user가 seller인지 확인
+        Seller validateSeller = validateProductMethod.validateSeller(profileId);
+        // 조회하려는 상품 존재하는지 확인
+        Product validateProduct = validateProductMethod.validateProduct(productId);
+        // 로그인한 판매자가 등록한 상품이 맞으면 삭제,아니면 예외처리
+        Product existingProduct = productRepository.findBySellerIdAndId(validateSeller.getId(), validateProduct.getId());
+        if (existingProduct != null) {
+            productRepository.delete(existingProduct);
+        } else {
+            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
+        }
     }
 
     @Transactional
     // 상품 수정
     public void updateProductById(Long productId, Long profileId, ProductRequest productRequest) {
-        Product originProduct = validProfileAndProduct(productId,profileId);
-
+        Seller validateSeller = validateProductMethod.validateSeller(profileId);
+        Product validateProduct = validateProductMethod.validateProduct(productId);
+        Product originProduct = productRepository.findBySellerIdAndId(validateSeller.getId(),validateProduct.getId());
+        // 판매자가 등록한 상품이 아닐 경우 예외처리
+        if(originProduct == null){
+            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
+        }
         try {
             Product updateProduct = Product.from(originProduct,productRequest);
             productRepository.save(updateProduct);
@@ -118,19 +132,6 @@ public class ProductService {
             throw new ProductException(ProductErrorCode.UNPROCESSABLE_ENTITY);
         }
     }
-
-    private Product validProfileAndProduct(Long productId, Long profileId) {
-//        Long validProfileId = Optional.ofNullable(profileId)
-//                .orElseThrow(()-> new UserException(UserErrorCode.UER_NOT_FOUND));
-        Seller seller = validateProductMethod.validateSeller(productId);
-        Product product = productRepository.findById(productId)
-                .orElseThrow(()-> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
-        if(!Objects.equals(product.getSeller().getId(), seller.getId())){
-            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
-        }
-        return product;
-    }
-
 
     @Transactional(readOnly = true)
     public ProductDto getOneProduct(Long productId, Long userId, String userName) {
