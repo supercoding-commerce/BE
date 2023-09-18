@@ -30,6 +30,7 @@ public enum ErrorCode {
     NOT_FOUND_WISHLIST(HttpStatus.NOT_FOUND,"찜 등록된 상품이 존재하지 않습니다."),
     NOT_USER(HttpStatus.BAD_REQUEST,"유저가 아닙니다."),
 
+
     // 충전
     CHARGE_PAY_MONEY_SELLER_OPERATION_FORBIDDEN(HttpStatus.FORBIDDEN, "SELLER는 이 작업을 수행할 수 없습니다."),
 

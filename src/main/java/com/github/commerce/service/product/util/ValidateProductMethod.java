@@ -60,7 +60,4 @@ public class ValidateProductMethod {
         }
     }
 
-    public String validateUserRole(Long profileId) {
-        return userRepository.findRoleById(profileId);
-    }
 }
