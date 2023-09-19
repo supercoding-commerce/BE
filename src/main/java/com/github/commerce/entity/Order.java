@@ -20,17 +20,17 @@ public class Order {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "sellers_id", nullable = false)
     private Seller sellers;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "products_id", nullable = false)
     private Product products;
 
@@ -42,8 +42,9 @@ public class Order {
     @JoinColumn(name = "reviews_id", nullable = true)
     private Review reviews;
 
+    @Builder.Default
     @Column(name = "order_state")
-    private Integer orderState;
+    private Integer orderState = 1;
 
     @Column(name="quantity")
     private Integer quantity;
@@ -57,8 +58,9 @@ public class Order {
     @Column(name = "options")
     private String options;
 
+    @Builder.Default
     @Column(name = "is_reviewed", columnDefinition = "tinyint default 0")
-    private Boolean isReviewed;
+    private Boolean isReviewed = false;
 
     @Column(name = "failed_causes")
     private String failed_causes;

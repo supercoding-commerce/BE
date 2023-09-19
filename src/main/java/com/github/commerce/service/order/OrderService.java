@@ -71,9 +71,6 @@ public class OrderService {
     public List<String> createOrderFromCart(List<Long> cartIdList, Long userId) {
         User validatedUser = validateOrderMethod.validateUser(userId);
         List<String >nameList = new ArrayList<>();
-        System.out.println(cartIdList.get(0));
-        System.out.println(cartIdList.get(1));
-        System.out.println(cartIdList.get(2));
         cartIdList.forEach(cartId -> {
             Cart validatedCart = validateOrderMethod.validateCart(cartId, userId);
             Product product = validatedCart.getProducts();
