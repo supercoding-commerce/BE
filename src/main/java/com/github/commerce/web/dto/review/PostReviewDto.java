@@ -11,7 +11,6 @@ public class PostReviewDto {
     public static class ReviewRequest {
         private Long orderId;
         private Long productId;
-        private String title;
         private String content;
         private Short starPoint;
 
@@ -27,7 +26,6 @@ public class PostReviewDto {
         private Long reviewId;
         private Long productId;
         private String author;
-        private String title;
         private String content;
         private Integer starPoint;
 
@@ -37,7 +35,6 @@ public class PostReviewDto {
                     .author(reviewDto.getAuthor())
                     .reviewId(reviewDto.getReviewId())
                     .productId(reviewDto.getProductId())
-                    .title(reviewDto.getTitle())
                     .content(reviewDto.getContent())
                     .starPoint(reviewDto.getStarPoint())
                     .build();

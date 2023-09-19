@@ -22,28 +22,34 @@ public class Cart {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "products_id", nullable = false)
     private Product products;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
 
     @Column(name = "quantity")
     private Integer quantity;
 
+    @Builder.Default
     @Column(name = "is_ordered", columnDefinition = "tinyint default 0")
-    private Boolean isOrdered;
+    private Boolean isOrdered = false;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-//    @Column(name = "option_id", length = 50)
-//    private String optionId;
+    @Builder.Default
+    @Column(name = "cart_state", columnDefinition = "int default 0")
+    private Integer cartState = 0;
 
+    @Column(name = "failed_causes")
+    private String failed_causes;
+
+    @Builder.Default
     @Column(name = "options")
-    private String options;
+    private String options = "[]";
 
 }

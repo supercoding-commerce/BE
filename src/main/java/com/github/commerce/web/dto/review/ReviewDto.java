@@ -19,7 +19,6 @@ public class ReviewDto {
     private String options;
     private Long reviewId;
     private String author;
-    private String title;
     private String content;
     private Integer starPoint;
     private String imageUrl;
@@ -38,7 +37,6 @@ public class ReviewDto {
                 .productName(product.getName())
                 .options(product.getOptions())
                 .starPoint(Integer.valueOf(review.getStarPoint()))
-                .title(review.getTitle())
                 .content(review.getContent())
                 .imageUrl(review.getImageUrl())
                 .createdAt(review.getCreatedAt())

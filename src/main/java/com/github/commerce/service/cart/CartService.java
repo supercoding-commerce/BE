@@ -66,33 +66,37 @@ public class CartService {
     }
 
     @Transactional
-    public String addToCart(PostCartDto.PostCartRequest request, Long userId) {
-        Long inputProductId = request.getProductId();
-        Integer inputQuantity = request.getQuantity();
-        List<String> inputOptions = request.getOptions();
+    public List<String> addToCart(List<PostCartDto.PostCartRequest> requestList, Long userId) {
+        List<String >nameList = new ArrayList<>();
+        for(PostCartDto.PostCartRequest request : requestList) {
+            Long inputProductId = request.getProductId();
+            Integer inputQuantity = request.getQuantity();
+            List<String> inputOptions = request.getOptions();
 
-        // Gson 인스턴스 생성
-        Gson gson = new Gson();
+            // Gson 인스턴스 생성
+            Gson gson = new Gson();
 
-        // inputOptions를 JSON 문자열로 변환
-        String inputOptionsJson = gson.toJson(inputOptions);
+            // inputOptions를 JSON 문자열로 변환
+            String inputOptionsJson = gson.toJson(inputOptions);
 
-        User validatedUser = validatCartMethod.validateUser(userId);
-        Product validatedProduct = validatCartMethod.validateProduct(inputProductId);
-        validatCartMethod.validateStock(inputQuantity, validatedProduct);
+            User validatedUser = validatCartMethod.validateUser(userId);
+            Product validatedProduct = validatCartMethod.validateProduct(inputProductId);
+            validatCartMethod.validateStock(inputQuantity, validatedProduct);
 
-        CartRmqDto newCart = CartRmqDto.fromEntityForPost(
-                Cart.builder()
-                        .users(validatedUser)
-                        .products(validatedProduct)
-                        .options(inputOptionsJson)
-                        .quantity(inputQuantity)
-                        .isOrdered(false)
-                        .build()
-        );
+            CartRmqDto newCart = CartRmqDto.fromEntityForPost(
+                    Cart.builder()
+                            .users(validatedUser)
+                            .products(validatedProduct)
+                            .options(inputOptionsJson)
+                            .quantity(inputQuantity)
+                            .isOrdered(false)
+                            .build()
+            );
 
-        rabbitTemplate.convertAndSend("exchange", "postCart", newCart);
-        return validatedProduct.getName() + "상품을 장바구니에 넣습니다.";
+            rabbitTemplate.convertAndSend("exchange", "postCart", newCart);
+            nameList.add(validatedProduct.getName() + "상품을 장바구로 추가합니다.");
+        }
+        return nameList;
     }
 
     @Transactional

@@ -21,26 +21,21 @@ public class Review {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users_id", nullable = false)
+    @JoinColumn(name = "users_id")
     private User users;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "products_id", nullable = false)
     private Product products;
 
-    @NotNull
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "orders_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orders_id")
     private Order orders;
 
     @Column(name = "author", length = 100)
     private String author;
-
-    @Column(name = "title", length = 100)
-    private String title;
 
     @Column(name = "content", length = 200)
     private String content;
@@ -48,8 +43,9 @@ public class Review {
     @Column(name = "star_point", nullable = false, columnDefinition = "int default 0")
     private Short starPoint;
 
+    @Builder.Default
     @Column(name = "is_deleted", columnDefinition = "tinyint default 0")
-    private Boolean isDeleted;
+    private Boolean isDeleted = false;
 
     @Column(name = "image_url", length = 200)
     private String imageUrl;

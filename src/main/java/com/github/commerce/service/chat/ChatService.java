@@ -17,6 +17,7 @@ import java.util.*;
 import com.github.commerce.service.user.exception.UserException;
 import com.github.commerce.web.dto.chat.ChatDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,6 +92,11 @@ public class ChatService {
         resultMap.put("chatList", resultList);
         resultMap.put("shopImage", shopImageUrl);
         return resultMap;
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?", zone = "Asia/Seoul")  // This will run at midnight every day
+    public void cleanupOldChats() {
+        chatRepositoryCustom.cleanupOldChats();
     }
 
     private Map<String, String> getProductImageAndName(Long productId){

@@ -6,7 +6,6 @@ public enum OrderStateEnum {
     배송대기(3, "배송대기"),
     배송중(4, "배송중"),
     배송완료(5, "배송완료"),
-
     주문실패(6, "주문실패");
 
     private final int value;
