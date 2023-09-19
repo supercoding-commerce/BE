@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Objects;
+
 @Component
 @RequiredArgsConstructor
 @Transactional
@@ -56,5 +59,15 @@ public class ValidatCartMethod {
 
     private boolean existsInCart(Long userId, Long productId){
         return cartRepository.existsByUsersIdAndProductsId(userId, productId);
+    }
+
+    public void validateDuplicateCart(Product validatedProduct, Long userId, String options) {
+        Long productId = validatedProduct.getId();
+        List<Cart> cartList = cartRepository.findAllByProductsIdAndUsersId(productId, userId);
+        cartList.forEach((cart)->{
+            if(Objects.equals(validatedProduct.getId(), cart.getProducts().getId()) && Objects.equals(cart.getOptions(), options)){
+                throw new CartException(CartErrorCode.PRODUCT_DUPLICATE, productId, options);
+            }
+        });
     }
 }

@@ -17,8 +17,12 @@ public enum CartErrorCode {
 
     //status(HttpStatus.CONFLICT) 409
     OUT_OF_STOCK("상품이 품절되었습니다.", HttpStatus.CONFLICT),
-    PRODUCT_ALREADY_EXISTS("장바구니에 이미 존재하는 상품입니다.", HttpStatus.CONFLICT);
-
+    PRODUCT_ALREADY_EXISTS("장바구니에 이미 존재하는 상품입니다.", HttpStatus.CONFLICT),
+    PRODUCT_DUPLICATE("장바구니에 같은 옵션의 상품이 존재합니다. ProductId: %s , options: %s", HttpStatus.CONFLICT);
     private final String description;
     private final HttpStatus httpStatus;
+
+    public String getDescriptionTemplate(Object... args) {
+        return String.format(description, args);
+    }
 }
