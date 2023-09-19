@@ -9,6 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class PaymentErrorResponse {
-    private CouponErrorCode errorCode;
+    private PaymentErrorCode errorCode;
     private String errorMessage;
 }
