@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
             HttpMessageNotReadableException e
     ){
         ErrorResponse errorResponse = new ErrorResponse(ErrorCode.BAD_REQUEST,
-                "Request Body가 비어 있습니다");
+                "Request Body 형식이 잘못되었습니다.");
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
