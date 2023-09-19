@@ -9,6 +9,8 @@ import com.github.commerce.service.coupon.exception.CouponErrorResponse;
 import com.github.commerce.service.coupon.exception.CouponException;
 import com.github.commerce.service.order.exception.OrderErrorResponse;
 import com.github.commerce.service.order.exception.OrderException;
+import com.github.commerce.service.payment.exception.PaymentErrorResponse;
+import com.github.commerce.service.payment.exception.PaymentException;
 import com.github.commerce.service.product.exception.ProductErrorResponse;
 import com.github.commerce.service.product.exception.ProductException;
 import com.github.commerce.service.review.exception.ReviewErrorResponse;
@@ -105,6 +107,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleChatException(ChatException e){
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(ChatErrorResponse.builder()
+                        .errorCode(e.getErrorCode())
+                        .errorMessage(e.getErrorMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<?> handleOrderException(PaymentException e){
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(PaymentErrorResponse.builder()
                         .errorCode(e.getErrorCode())
                         .errorMessage(e.getErrorMessage())
                         .build());
