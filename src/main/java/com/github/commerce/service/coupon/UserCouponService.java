@@ -138,7 +138,8 @@ public class UserCouponService {
             throw new CouponException(CouponErrorCode.USER_DOES_NOT_HAVE_THIS_COUPON);
         }
 
-        usersCoupon.setIsUsed(true);
+        // TODO : 원활한 테스트를 위하여 false로 설정, 마무리 작업시 다시 true로 변경예정
+        usersCoupon.setIsUsed(false);
 
         return new UsersCouponResponseDto(usersCouponRepository.save(usersCoupon));
     }
