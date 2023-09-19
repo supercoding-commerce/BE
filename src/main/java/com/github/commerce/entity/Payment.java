@@ -1,5 +1,6 @@
 package com.github.commerce.entity;
 
+import com.github.commerce.web.dto.payment.PaymentDto;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -23,10 +24,6 @@ public class Payment {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pay_money_id")
     private PayMoney payMoney;
@@ -41,12 +38,25 @@ public class Payment {
     @Column(name = "status")
     private Integer status;
 
+    @Column(name = "pay_money_amount")
+    private Long payMoneyAmount;
+
     public static Payment payment(Payment payment){
         return Payment.builder()
-                .order(payment.getOrder())
                 .payMoney(payment.getPayMoney())
                 .paymentMethod(payment.getPaymentMethod())
                 .status(payment.getStatus())
                 .build();
     }
+
+
+    public static Payment fromDto(PaymentDto paymentDto) {
+        Payment payment = new Payment();
+        payment.setPaymentMethod(Integer.valueOf(paymentDto.getPaymentMethod()));
+        payment.setPayMoneyAmount(paymentDto.getPayMoneyAmount());
+
+        return payment;
+    }
+
+
 }

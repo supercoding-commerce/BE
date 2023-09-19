@@ -1,29 +1,33 @@
 package com.github.commerce.web.dto.payment;
 
 import com.github.commerce.entity.Payment;
-import com.github.commerce.entity.UsersCoupon;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class PaymentDto {
 
-    @ApiModelProperty(value = "주문 번호")
-    private Long orderId;
+    @ApiModelProperty(value = "거래 식별값")
+    private Long id;
 
-    @ApiModelProperty(value = "페이머니 번호")
+    @ApiModelProperty(value = "주문리스트 식별값")
+    private List<Long> orderIdList;
+
+    @ApiModelProperty(value = "페이머니 식별값")
     private Long payMoneyId;
-
-    @ApiModelProperty(value = "주문 금액")
-    private Long orderPrice;
 
     @ApiModelProperty(value = "쿠폰 번호")
     private Long couponId;
@@ -34,8 +38,8 @@ public class PaymentDto {
     @ApiModelProperty(value = "보유 페이머니")
     private Long payMoney;
 
-    @ApiModelProperty(value = "총 결제 금액")
-    private Long totalPrice;
+    @ApiModelProperty(value = "최총 결제 금액")
+    private Long payMoneyAmount;
 
     @Enumerated(EnumType.STRING)
     @ApiModelProperty(value = "결제 수단")
@@ -47,18 +51,21 @@ public class PaymentDto {
     @ApiModelProperty(value = "결제 시간")
     private LocalDateTime createdAt;
 
-    public static PaymentDto fromEntity(Payment payment) {
+    @Enumerated(EnumType.STRING)
+    @ApiModelProperty(value = "결제 상태")
+    private String status;
 
+    public static PaymentDto fromEntity(Payment payment) {
         return PaymentDto.builder()
-                .orderId(payment.getOrder().getId())
-                .orderPrice(payment.getOrder().getTotalPrice())
-//                .couponId(usersCoupon.getId())
-                .point(payment.getPayMoney().getPointBalance() != null ? payment.getPayMoney().getPointBalance() : 0L)
-                .payMoney(payment.getPayMoney().getPayMoneyBalance())
-                .totalPrice(payment.getPayMoney().getUsedChargePayMoney())
+                .id(payment.getId())
+                .payMoneyId(payment.getPayMoney().getId())
                 .paymentMethod(PaymentMethodEnum.getByCode(payment.getPaymentMethod()))
+                .status(PaymentStatusEnum.getByCode(payment.getStatus()))
+                .payMoneyAmount(payment.getPayMoneyAmount())
+                .createdAt(payment.getCreateAt())
                 .payMoneyBalance(payment.getPayMoney().getPayMoneyBalance())
-                .createdAt(LocalDateTime.from(payment.getCreateAt()))
+                .point(payment.getPayMoney().getPointBalance())
                 .build();
     }
+
 }
