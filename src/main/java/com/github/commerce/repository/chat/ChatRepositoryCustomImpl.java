@@ -52,9 +52,11 @@ public class ChatRepositoryCustomImpl implements ChatRepository {
     public void cleanupOldChats() {
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
         String oldestChatTimeStr = sevenDaysAgo.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        int batchStartId = Integer.parseInt(oldestChatTimeStr.substring(oldestChatTimeStr.length() - 1));
+        int batchLastId = batchStartId + 100;
 
-        // Fetch all Chat objects
-        List<Chat> chats = mongoTemplate.findAll(Chat.class, "chat");
+        Query query = new Query(Criteria.where("sellerId").gte(batchStartId).lte(batchLastId));
+        List<Chat> chats = mongoTemplate.find(query, Chat.class);
 
         // Iterate through each Chat object and filter its chats field
         for (Chat chat : chats) {

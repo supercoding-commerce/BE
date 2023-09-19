@@ -94,7 +94,7 @@ public class ChatService {
         return resultMap;
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")  // This will run at midnight every day
+    @Scheduled(cron = "0 0 0 * * ?", zone = "Asia/Seoul")  // This will run at midnight every day
     public void cleanupOldChats() {
         chatRepositoryCustom.cleanupOldChats();
     }
