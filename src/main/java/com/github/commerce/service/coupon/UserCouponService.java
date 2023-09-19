@@ -13,7 +13,6 @@ import com.github.commerce.service.coupon.exception.CouponException;
 import com.github.commerce.web.dto.coupon.UsersCouponResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -144,11 +143,12 @@ public class UserCouponService {
         return new UsersCouponResponseDto(usersCouponRepository.save(usersCoupon));
     }
 
+    /**Spring Batch로 전환하였습니다.(ExpiredUsersCouponJobConfig, ExpiredUsersCouponScheduler)*/
     //만료 날짜 지난 쿠폰 주기적으로 삭제 - 삭제 일시: 매일 오전 12:00:00
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul") //초 분 시 일 월 요일 (*: 매번)
-    @Transactional
-    public void deleteExpiredUsersCoupon(){
-        log.info("유효기간 만료 쿠폰 삭제 = {}", LocalDateTime.now());
-        usersCouponRepository.deleteUsersCouponByExpiredAtBefore(LocalDateTime.now());
-    }
+//    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul") //초 분 시 일 월 요일 (*: 매번)
+//    @Transactional
+//    public void deleteExpiredUsersCoupon(){
+//        //log.info("유효기간 만료 쿠폰 삭제 = {}", LocalDateTime.now());
+//        usersCouponRepository.deleteUsersCouponByExpiredAtBefore(LocalDateTime.now());
+//    }
 }
