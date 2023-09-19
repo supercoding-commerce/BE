@@ -81,6 +81,7 @@ public class CartService {
 
             User validatedUser = validatCartMethod.validateUser(userId);
             Product validatedProduct = validatCartMethod.validateProduct(inputProductId);
+            validatCartMethod.validateDuplicateCart(validatedProduct, userId, inputOptionsJson);
             validatCartMethod.validateStock(inputQuantity, validatedProduct);
 
             CartRmqDto newCart = CartRmqDto.fromEntityForPost(
