@@ -94,7 +94,7 @@ public class CartService {
             );
 
             rabbitTemplate.convertAndSend("exchange", "postCart", newCart);
-            nameList.add(validatedProduct.getName() + "상품을 장바구니서 수정합니다.");
+            nameList.add(validatedProduct.getName() + "상품을 장바구로 추가합니다.");
         }
         return nameList;
     }
