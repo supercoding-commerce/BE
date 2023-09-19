@@ -51,6 +51,12 @@ spring:
       max-request-size: 5MB
       enabled: true
 
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: ALWAYS
+
 springdoc:
   swagger-ui:
     path: /api-doc.html
