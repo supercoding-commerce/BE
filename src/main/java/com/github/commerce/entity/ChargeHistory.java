@@ -9,6 +9,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -25,9 +28,9 @@ public class ChargeHistory {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "payments_id", nullable = false)
-    private Payment payments;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pay_moneys_id", nullable = false)
+    private PayMoney payMoneyId;
 
     @Column(name = "pay_money")
     private Long payMoney;
