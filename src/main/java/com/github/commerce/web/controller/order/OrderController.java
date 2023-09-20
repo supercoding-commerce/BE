@@ -58,7 +58,7 @@ public class  OrderController {
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @PostMapping("/cart")
-    public ResponseEntity<List<String>> createOrderFromCart(
+    public ResponseEntity<String> createOrderFromCart(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             //@PathVariable Long cartId
             @RequestBody PostOrderDto.PostOrderRequestFromCart request
@@ -93,6 +93,52 @@ public class  OrderController {
                     orderService.getOrderListByCursor(userId, cursorId))
             );
         }
+    }
+
+    /**
+     * 해당 장바구니를 통한 주문들 조회
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "해당 장바구니를 통한 주문들 조회")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = List.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
+    @GetMapping("/cart/{orderTag}")
+    public ResponseEntity<List<OrderDto>> getOrderListFromCart(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable String orderTag
+    ){
+        Long userId = userDetails.getUser().getId();
+
+            return ResponseEntity.ok(
+                    orderService.getOrderListFromCart(userId, orderTag)
+            );
+
+    }
+
+    /**
+     * 유저의 해당 상품의 주문들 조회
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "해당 장바구니를 통한 주문들 조회")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = List.class),
+            @ApiResponse(code = 400, message = "Bad Request")
+    })
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<List<OrderDto>> getOrderListFromProduct(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long productId
+    ){
+        Long userId = userDetails.getUser().getId();
+
+        return ResponseEntity.ok(
+                orderService.getOrderListFromProduct(userId, productId)
+        );
+
     }
 
     @ApiOperation(value = "구매자의 구매내역 조회, 로그인필요")
