@@ -1,5 +1,6 @@
 package com.github.commerce.repository.order;
 
+import com.github.commerce.entity.Cart;
 import com.github.commerce.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -72,4 +73,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "WHERE o.createdAt >= :oneMonthBefore and o.orderState > 1 GROUP BY o.users.id "
             )
     List<Map<String, Object>> getUserTotalPriceFromOneMonth(LocalDateTime oneMonthBefore);
+
+
+    Optional<Order> findByCartsId(Long cartId);
+
+    List<Order> findByUsersIdAndOrderTag(Long userId, String orderTag);
+
+    List<Order> findByUsersIdAndProductsId(Long userId, Long productId);
 }
+
+
