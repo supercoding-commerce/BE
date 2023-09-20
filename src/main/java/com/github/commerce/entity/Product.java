@@ -70,26 +70,4 @@ public class Product {
 
     @Column(name = "options")
     private String options;
-
-    public static Product from(Product originProduct, ProductRequest productRequest) {
-        List<String> options = productRequest.getOptions();
-        Gson gson = new Gson();
-        String inputOptionsJson = gson.toJson(options);
-        return Product.builder()
-                .id(originProduct.getId())
-                .options(inputOptionsJson)
-                .name(productRequest.getName())
-                .seller(originProduct.getSeller())
-                .price(productRequest.getPrice())
-                .content(productRequest.getContent())
-                .leftAmount(productRequest.getLeftAmount())
-                .updatedAt(LocalDateTime.now())
-                .isDeleted(false)
-                .productCategory(productRequest.getProductCategory())
-                .ageCategory(productRequest.getAgeCategory())
-                .genderCategory(productRequest.getGenderCategory())
-                .build();
-    }
-
-
 }

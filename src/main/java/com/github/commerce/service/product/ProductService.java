@@ -31,6 +31,7 @@ public class ProductService {
     private final OrderRepository orderRepository;
     private final ProductContentImageRepository productContentImageRepository;
     private final ReviewRepository reviewRepository;
+    private final AwsS3Service awsS3Service;
 
     @Transactional(readOnly = true)
     public List<GetProductDto> searchProducts(Integer pageNumber, String searchWord, String ageCategory, String genderCategory, String sortBy) {
@@ -61,7 +62,7 @@ public class ProductService {
         List<String> options = convertedRequest.getOptions();
         String inputOptionsJson = gson.toJson(options);
 
-        List<String> imageUrls = new ArrayList<>();
+        List<String> imageUrls;
 
         boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
         if(imageExists && imageFiles.size() > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
@@ -85,7 +86,7 @@ public class ProductService {
 
             if(product.getId() != null && imageExists){
                 validateProductMethod.validateImage(imageFiles);
-                List<String>urlList = productImageUploadService.uploadImageFileList(imageFiles);
+                List<String> urlList = productImageUploadService.uploadImageFileList(imageFiles);
                 imageUrls = urlList;
                 for (String url : urlList) {
                         productContentImageRepository.save(ProductContentImage.from(product, url));
@@ -102,6 +103,101 @@ public class ProductService {
             throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
         }
     }
+    @Transactional
+    // 상품 수정
+    public void updateProductById(Long productId, Long profileId, String productRequest,MultipartFile thumbnailFile, List<MultipartFile> imageFiles) {
+        Seller validateSeller = validateProductMethod.validateSeller(profileId);
+        Product validateProduct = validateProductMethod.validateProduct(productId);
+        Product originProduct = productRepository.findBySellerIdAndId(validateSeller.getId(),validateProduct.getId());
+
+        // 판매자가 등록한 상품이 아닐 경우 예외처리
+        if(originProduct == null){
+            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
+        }
+
+        Gson gson = new Gson();
+        UpdateProductRequest convertedRequest = gson.fromJson(productRequest, UpdateProductRequest.class);
+        List<String> options = convertedRequest.getOptions();
+        List<String> targetImageUrls = convertedRequest.getDeleteImageUrls();
+        String targetThumbnailUrl = convertedRequest.getDeleteThumbnailUrl();
+        String inputOptionsJson = gson.toJson(options);
+
+        boolean imageExists = Optional.ofNullable(imageFiles).isPresent();
+        boolean thumbnailExists = Optional.ofNullable(thumbnailFile).isPresent();
+        boolean deleteUrlsExists= Optional.ofNullable(targetImageUrls).isPresent();
+        boolean deleteThumbnailUrlExists= Optional.ofNullable(targetThumbnailUrl).isPresent();
+        if(imageFiles.size() > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
+
+        try {
+            originProduct.setName(convertedRequest.getName());
+            originProduct.setContent(convertedRequest.getContent());
+            originProduct.setPrice(convertedRequest.getPrice());
+            originProduct.setLeftAmount(convertedRequest.getLeftAmount());
+            originProduct.setUpdatedAt(LocalDateTime.now());
+            originProduct.setProductCategory(ProductCategoryEnum.switchCategory(convertedRequest.getProductCategory()));
+            originProduct.setGenderCategory(GenderCategoryEnum.switchCategory(convertedRequest.getGenderCategory()));
+            originProduct.setAgeCategory(AgeCategoryEnum.switchCategory(convertedRequest.getAgeCategory()));
+            originProduct.setOptions(inputOptionsJson);
+            originProduct.setIsDeleted(false);
+//            Product updateProduct = productRepository.save(
+//                    Product.builder()
+//                            .id(originProduct.getId())
+//                            .seller(originProduct.getSeller())
+//                            .name(convertedRequest.getName())
+//                            .content(convertedRequest.getContent())
+//                            .price(convertedRequest.getPrice())
+//                            .leftAmount(convertedRequest.getLeftAmount())
+//                            .createdAt(originProduct.getCreatedAt())
+//                            .updatedAt(LocalDateTime.now())
+//                            .isDeleted(false)
+//                            .productCategory(ProductCategoryEnum.switchCategory(convertedRequest.getProductCategory()))
+//                            .genderCategory(GenderCategoryEnum.switchCategory(convertedRequest.getGenderCategory()))
+//                            .ageCategory(AgeCategoryEnum.switchCategory(convertedRequest.getAgeCategory()))
+//                            .options(inputOptionsJson)
+//                            .build()
+//            );
+
+            //썸네일 이미지를 지우고 업데이트 하는 경우
+            if(deleteThumbnailUrlExists && thumbnailExists){
+                awsS3Service.removeFile(targetThumbnailUrl);
+                String newThumbUrl = productImageUploadService.uploadImageFile(thumbnailFile);
+                originProduct.setThumbnailUrl(newThumbUrl);
+            }
+
+            //이외의 이미지들을 새로 추가하고 삭제도 하는 경우
+            if(imageExists && deleteUrlsExists){
+                validateProductMethod.validateImage(imageFiles);
+
+                if(targetImageUrls.size() != imageFiles.size()){
+                    throw new ProductException(ProductErrorCode.HEAVY_FILESIZE);
+                }
+
+                List<String> newImageUrls = awsS3Service.updateFiles(imageFiles, targetImageUrls);
+                for (int i = 0; i < newImageUrls.size(); i++) {
+                    productContentImageRepository.updateByImageUrl(newImageUrls.get(i), targetImageUrls.get(i));
+                }
+
+            //기존 이미지 삭제만 하는 경우
+            }else if(deleteUrlsExists){
+                targetImageUrls.forEach((imageUrl) -> {
+                    awsS3Service.removeFile(imageUrl);
+                    productContentImageRepository.deleteByImageUrl(imageUrl);
+                });
+
+
+            //이미지만 추가되는 경우
+            }else if(imageExists){
+                validateProductMethod.validateImage(imageFiles);
+                List<String> newImageUrl = productImageUploadService.uploadImageFileList(imageFiles);
+                newImageUrl.forEach((url) -> {
+                    productContentImageRepository.save(ProductContentImage.from(originProduct, url));
+                });
+            }
+
+        } catch (Exception e){
+            throw new ProductException(ProductErrorCode.UNPROCESSABLE_ENTITY);
+        }
+    }
 
     @Transactional
     // 상품 삭제
@@ -116,24 +212,6 @@ public class ProductService {
             productRepository.delete(existingProduct);
         } else {
             throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
-        }
-    }
-
-    @Transactional
-    // 상품 수정
-    public void updateProductById(Long productId, Long profileId, ProductRequest productRequest) {
-        Seller validateSeller = validateProductMethod.validateSeller(profileId);
-        Product validateProduct = validateProductMethod.validateProduct(productId);
-        Product originProduct = productRepository.findBySellerIdAndId(validateSeller.getId(),validateProduct.getId());
-        // 판매자가 등록한 상품이 아닐 경우 예외처리
-        if(originProduct == null){
-            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
-        }
-        try {
-            Product updateProduct = Product.from(originProduct,productRequest);
-            productRepository.save(updateProduct);
-        } catch (Exception e){
-            throw new ProductException(ProductErrorCode.UNPROCESSABLE_ENTITY);
         }
     }
 

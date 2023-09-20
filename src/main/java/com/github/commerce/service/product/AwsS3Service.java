@@ -19,7 +19,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,17 +55,27 @@ public class AwsS3Service {
      * @return updateUrl 경로
      * @throws IOException
      */
-    public String updateFile(MultipartFile multipartFile, String imageUrl) throws IOException {
-        log.info("imageUrl: {}", imageUrl);
-        String filePath = FilePathUtils.convertImageUrlToFilePath(imageUrl);
-        log.info("filePath: {}", filePath);
+    public List<String> updateFiles(List<MultipartFile> imageFiles, List<String> imageUrls) throws IOException {
+        List<String> updatedImageUrls = new ArrayList<>();
 
-        File updateFile = convert(multipartFile)
-                .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
+        for (int i = 0; i < imageFiles.size(); i++) {
+            MultipartFile multipartFile = imageFiles.get(i);
+            String imageUrl = imageUrls.get(i);
+            log.info("Processing image URL: {}", imageUrl);
 
-        removeFile(imageUrl);
+            String filePath = FilePathUtils.convertImageUrlToFilePath(imageUrl);
+            log.info("File path for image: {}", filePath);
 
-        return putS3(updateFile, filePath);
+            File updateFile = convert(multipartFile)
+                    .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
+
+            removeFile(imageUrl);
+
+            String updatedImageUrl = putS3(updateFile, filePath);
+            updatedImageUrls.add(updatedImageUrl);
+        }
+
+        return updatedImageUrls;
     }
 
     /**
@@ -96,6 +109,23 @@ public class AwsS3Service {
         log.info("File: {}", convertFile.getName());
         return Optional.of(convertFile);
     }
+
+    public String createFileName(String fileName) {
+        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
+    }
+
+    private String getFileExtension(String fileName) {
+        try {
+            String extension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+            if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg") || extension.equals(".webp")) {
+                return extension;
+            }
+            throw new ProductException(ProductErrorCode.NOT_IMAGE_EXTENSION);
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new ProductException(ProductErrorCode.INVALID_FORMAT_FILE);
+        }
+    }
+
 
 
 }

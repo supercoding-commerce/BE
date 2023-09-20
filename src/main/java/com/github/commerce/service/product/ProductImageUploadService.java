@@ -72,7 +72,18 @@ public class ProductImageUploadService {
         return urlList;
 }
 
-    private String createFileName(String fileName) {
+    public String uploadImageFile(MultipartFile multipartFile) {
+
+            String fileName = createFileName(multipartFile.getOriginalFilename());
+            try {
+                return awsS3Service.memoryUpload(multipartFile, fileName);
+
+            } catch (IOException e) {
+                throw new ProductException(ProductErrorCode.FAIL_TO_SAVE);
+            }
+    }
+
+    public String createFileName(String fileName) {
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
 
