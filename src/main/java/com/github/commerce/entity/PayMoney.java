@@ -31,27 +31,21 @@ public class PayMoney {
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
 
-    @ColumnDefault("null")
     @OneToOne(mappedBy = "payMoneyId", cascade = CascadeType.ALL, orphanRemoval = true)
     private ChargeHistory chargeHistories;
 
-    @ColumnDefault("null")
     @OneToOne(mappedBy = "payMoney")
     private Payment payment;
 
-    @ColumnDefault("null")
     @Column(name = "charge_pay_money_total")
     private Long chargePayMoneyTotal;
 
-    @ColumnDefault("null")
     @Column(name = "used_charge_pay_money")
     private Long usedChargePayMoney;
 
-    @ColumnDefault("null")
     @Column(name = "pay_money_balance")
     private Long payMoneyBalance;
 
-    @ColumnDefault("null")
     @Column(name = "point_balance")
     private Long pointBalance;
 
@@ -69,4 +63,7 @@ public class PayMoney {
                 .build();
     }
 
+    public Long calculatePayMoneyBalance() {
+        return (chargePayMoneyTotal != null ? chargePayMoneyTotal : 0L) - (usedChargePayMoney != null ? usedChargePayMoney : 0L);
+    }
 }
