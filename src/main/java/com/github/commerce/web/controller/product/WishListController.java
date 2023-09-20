@@ -38,9 +38,9 @@ public class WishListController {
     private final ProductRepository productRepository;
     private final SellerRepository sellerRepository;
 
-    @PostMapping("/add")
+    @PostMapping("/add/{productId}")
     @ApiOperation(value = "찜 등록", notes = "찜 목록에 상품을 추가 합니다.")
-    public ResponseDto<String> addWishlist(@RequestParam(value = "productId",required = false) Long productId,
+    public ResponseDto<String> addWishlist(@PathVariable(value = "productId",required = false) Long productId,
                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long profileId = userDetails.getUser().getId();
         User validateProfileId = validateProductMethod.validateUser(profileId);
@@ -58,9 +58,9 @@ public class WishListController {
         }
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/delete/{productId}")
     @ApiOperation(value = "찜 삭제", notes = "찜 목록에서 상품을 삭제합니다.")
-    public ResponseDto<String> removeWishlist(@RequestParam(value = "productId" , required = false) Long productId,
+    public ResponseDto<String> removeWishlist(@PathVariable(value = "productId" , required = false) Long productId,
                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long profileId = userDetails.getUser().getId();
         User validateProfileId = validateProductMethod.validateUser(profileId);
