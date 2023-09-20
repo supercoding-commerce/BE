@@ -179,7 +179,7 @@ public class UserService {
             Seller seller = sellerRepository.findByUsersId(userId).orElseThrow(() -> new UserException(UserErrorCode.UER_NOT_FOUND));
             return MyInfoResponseDto.builder()
                     .role(seller.getUsers().getRole().name())
-                    //.address(seller.getAddress())
+                    .shopName(seller.getShopName())
                     .build();
         } else {
             UsersInfo usersInfo = userInfoRepository.findByUsersId(userId).orElseThrow(() -> new UserException(UserErrorCode.UER_NOT_FOUND));
@@ -189,6 +189,7 @@ public class UserService {
                     .nickname(usersInfo.getNickname())
                     .address(usersInfo.getAddress())
                     .payMoney(usersInfo.getUsers().getPayMoneyByUserId().getPayMoneyBalance())
+                    .point(usersInfo.getUsers().getPayMoneyByUserId().getPointBalance())
                     .build();
         }
     }
