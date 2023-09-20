@@ -13,4 +13,6 @@ public class MyInfoResponseDto {
     private String nickname;
     private String address;
     private Long payMoney;
+    private Long point;
+    private String shopName;
 }
