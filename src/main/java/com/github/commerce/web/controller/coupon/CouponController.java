@@ -36,7 +36,6 @@ public class CouponController {
     }
 
     //쿠폰 생성
-    //TODO. Admin 권한 확인 - UserDetails 사용
     @ApiOperation("관리자가 쿠폰 생성")
     @PostMapping("/register")
     public ResponseEntity<CouponResponseDto> registerCoupon(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CouponRegisterRequest couponRegisterRequest){
