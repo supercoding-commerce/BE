@@ -100,13 +100,14 @@ public class ProductController {
     // 상품 수정
     @ApiOperation(value = "상품 식별값을 입력하여 해당 상품을 수정합니다.")
     @PatchMapping(value = "/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable("productId") Long productId,
-                                           @ModelAttribute ProductRequest productRequest,
-                                           @AuthenticationPrincipal UserDetailsImpl userDetails
-                                           ) {
+    public ResponseDto<?> updateProduct(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                           @PathVariable("productId") Long productId,
+                                           @RequestParam(name = "productRequest") String productRequest,
+                                           @RequestParam(required = false) MultipartFile thumbnailFile,
+                                           @RequestParam(required = false) List<MultipartFile> imageFiles) {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
-        productService.updateProductById(productId,profileId,productRequest);
-        return ResponseEntity.ok(productId + "번 상품 수정 성공");
+        productService.updateProductById(productId,profileId,productRequest,thumbnailFile ,imageFiles);
+        return ResponseDto.success(productId + "번 상품 수정이 수정 되었습니다.");
     }
 
 

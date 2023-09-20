@@ -12,6 +12,7 @@ public enum  ProductErrorCode {
     NOT_IMAGE_EXTENSION("파일 확장자가 없습니다.",HttpStatus.BAD_REQUEST ),
     INVALID_FORMAT_FILE("올바른 파일 이름이 아닙니다", HttpStatus.BAD_REQUEST),
     INVALID_CATEGORY("카테고리 값이 잘못 입력되었습니다",HttpStatus.BAD_REQUEST  ),
+    //INVALID_IMAGE_NUMBER("")
 
 
     //403

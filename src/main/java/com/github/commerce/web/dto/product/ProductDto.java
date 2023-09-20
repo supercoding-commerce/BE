@@ -55,6 +55,8 @@ public class ProductDto {
 
     private List<DetailPageOrderDto> orderList;
 
+    private String shopImageUrl;
+
 
     public static ProductDto fromEntity(Product product,boolean isSeller, List<String> imageUrls){
 
@@ -98,6 +100,7 @@ public class ProductDto {
                 .createdAt(product.getCreatedAt())
                 .thumbnailUrl(product.getThumbnailUrl())
                 .imageUrls(imageUrls)
+                .shopImageUrl(seller.getShopImageUrl())
                 .options(product.getOptions())
                 .averageStarPoint(averageStar)
                 .isSeller(isSeller)
