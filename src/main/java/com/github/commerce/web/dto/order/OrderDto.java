@@ -18,7 +18,8 @@ public class OrderDto {
     private Integer price;
     private String productName;
     private String imageUrl;
-    private Long cartId;
+//    private Long cartId;
+    private String orderTag;
     private String orderState;
     private Integer quantity;
     private Long totalPrice;
@@ -38,6 +39,7 @@ public class OrderDto {
                 .quantity(order.getQuantity())
                 .totalPrice(order.getTotalPrice())
                 .orderState(OrderStateEnum.getByCode(order.getOrderState()))
+                .orderTag(order.getOrderTag())
                 .options(order.getOptions())
                 .createdAt(order.getCreatedAt())
                 .build();

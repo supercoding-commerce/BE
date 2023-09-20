@@ -12,25 +12,24 @@ import lombok.*;
 public class OrderRmqDto {
     private Long orderId;
     private Long productId;
-    private Long cartId;
     private Long userId;
     private Long sellerId;
     private Integer orderState;
+    private String orderTag;
     private Integer quantity;
     private Long total_price;
     private String options;
 
     public static OrderRmqDto fromEntity(Order order){
         Product product = order.getProducts();
-        Long cartId = order.getCarts() != null ? order.getCarts().getId() : null;
         return OrderRmqDto.builder()
-                .cartId(cartId)
                 .userId(order.getUsers().getId())
                 .productId(product.getId())
                 .sellerId(order.getSellers().getId())
                 .quantity(order.getQuantity())
                 .total_price(order.getTotalPrice())
                 .orderState(order.getOrderState())
+                .orderTag(order.getOrderTag())
                 .options(order.getOptions())
                 .build();
     }

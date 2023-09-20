@@ -2,8 +2,6 @@ package com.github.commerce.service.order;
 
 import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
-import com.github.commerce.service.order.exception.OrderErrorCode;
-import com.github.commerce.service.order.exception.OrderException;
 import com.github.commerce.service.order.util.ValidateOrderMethod;
 import com.github.commerce.web.dto.order.*;
 import com.google.gson.Gson;
@@ -19,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -68,14 +67,18 @@ public class OrderService {
     }
 
     @Transactional
-    public List<String> createOrderFromCart(List<Long> cartIdList, Long userId) {
+    public String createOrderFromCart(List<Long> cartIdList, Long userId) {
         User validatedUser = validateOrderMethod.validateUser(userId);
+        String orderTag = UUID.randomUUID().toString().substring(0, 19);
+
         List<String >nameList = new ArrayList<>();
         cartIdList.forEach(cartId -> {
             Cart validatedCart = validateOrderMethod.validateCart(cartId, userId);
             Product product = validatedCart.getProducts();
             Seller seller = product.getSeller();
+
             validateOrderMethod.validateStock(validatedCart.getQuantity(), product);
+            validatedCart.setOrderTag(orderTag);
 
             OrderRmqDto newOrder = OrderRmqDto.fromEntity(
                     Order.builder()
@@ -86,6 +89,7 @@ public class OrderService {
                             .quantity(validatedCart.getQuantity())
                             .orderState(1)
                             .carts(validatedCart)
+                            .orderTag(validatedCart.getOrderTag())
                             .totalPrice((long) product.getPrice() * validatedCart.getQuantity())
                             .options(validatedCart.getOptions())
                             .build()
@@ -95,7 +99,7 @@ public class OrderService {
             nameList.add(product.getName()+ "상품 주문요청");
         });
 
-        return nameList;
+        return orderTag;
 
     }
 
@@ -207,6 +211,17 @@ public class OrderService {
         return validatedOrder.getId() + "번 주문 삭제";
     }
 
+    public List<OrderDto> getOrderListFromCart(Long userId, String orderTag) {
+        validateOrderMethod.validateUser(userId);
+        List<Order> orderList = orderRepository.findByUsersIdAndOrderTag(userId, orderTag);
+        return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
+    }
+
+    public List<OrderDto> getOrderListFromProduct(Long userId, Long productId) {
+        validateOrderMethod.validateUser(userId);
+        List<Order> orderList = orderRepository.findByUsersIdAndProductsId(userId, productId);
+        return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
+    }
 
 
 //    // 판매자에게 SSE 이벤트를 발생시키는 메서드
