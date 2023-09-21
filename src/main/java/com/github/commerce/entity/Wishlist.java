@@ -20,13 +20,13 @@ public class Wishlist {
     private Long id;
 
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "users_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "users_id")
     private User users;
 
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "products_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "products_id")
     private Product products;
 
     @Column(name = "created_at", nullable = false)
