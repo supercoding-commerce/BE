@@ -19,8 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -90,8 +92,9 @@ public class ProductService {
                 List<String> urlList = productImageUploadService.uploadImageFileList(imageFiles);
                 imageUrls = urlList;
                 for (String url : urlList) {
-                        productContentImageRepository.save(ProductContentImage.from(product, url));
-                    }
+                    productContentImageRepository.save(ProductContentImage.from(product, url));
+                }
+
 
                     String firstUrl = urlList.get(0);
                     productContentImageRepository.deleteByImageUrl(firstUrl);
@@ -150,6 +153,7 @@ public class ProductService {
             originProduct.setOptions(inputOptionsJson);
             originProduct.setIsDeleted(false);
 
+
             // 썸네일 이미지 삭제하고 새로운 이미지 추가, 또는 기존 썸네일 이미지 그대로 사용 (왜냐하면 상품이미지 한개는 필수이므로)
             if (deleteThumbnailUrlExists) {
                 if (thumbnailExists) {
@@ -157,6 +161,7 @@ public class ProductService {
                     String newThumbUrl = productImageUploadService.uploadImageFile(thumbnailFile);
                     originProduct.setThumbnailUrl(newThumbUrl);
                 } else {originProduct.setThumbnailUrl(originProduct.getThumbnailUrl());}
+
             }
             // 기존 상품 삭제 요청이 있는 경우
             if (deleteUrlsExists) {

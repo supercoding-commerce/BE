@@ -84,6 +84,7 @@ public class AwsS3Service {
      */
     public void removeFile(String imageUrl) throws ProductException {
         String filePath = FilePathUtils.convertImageUrlToFilePath(imageUrl);
+        log.info("filePath={}", filePath);
         if(!amazonS3Client.doesObjectExist(bucket, filePath)){
             throw new ProductException(ProductErrorCode.NOTFOUND_URL_IN_S3);
         }

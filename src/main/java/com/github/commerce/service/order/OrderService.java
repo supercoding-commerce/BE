@@ -3,9 +3,12 @@ package com.github.commerce.service.order;
 import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.service.order.util.ValidateOrderMethod;
-import com.github.commerce.web.dto.order.*;
+import com.github.commerce.web.dto.order.OrderDto;
+import com.github.commerce.web.dto.order.OrderRmqDto;
+import com.github.commerce.web.dto.order.PostOrderDto;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class OrderService {
@@ -28,9 +32,15 @@ public class OrderService {
     private final RabbitTemplate rabbitTemplate;
 
     @Transactional
-    public List<String> createOrder(List<PostOrderDto.PostOrderRequest> requestList, Long userId) {
-        List<String >nameList = new ArrayList<>();
+    public List<Long> createOrder(List<PostOrderDto.PostOrderRequest> requestList, Long userId) {
+        List<String>nameList = new ArrayList<>();
+        List<Long> orderIdList = new ArrayList<>();
+        Order prevOrder = orderRepository.findOrderOrderByIdDesc();
+        Long orderId = prevOrder.getId()+1;
+        //List<OrderRmqDto> orderRmqDtoList = new ArrayList<>();
+
         for(PostOrderDto.PostOrderRequest request : requestList) {
+            orderIdList.add(orderId++);
             Long inputProductId = request.getProductId();
             Integer inputQuantity = request.getQuantity();
             List<String> inputOptions = request.getOptions();
@@ -61,9 +71,13 @@ public class OrderService {
             );
 
             rabbitTemplate.convertAndSend("exchange", "postOrder", newOrder);
+            //OrderRmqDto orderRmqDto = rabbitTemplate.convertSendAndReceive("exchange", "postOrder", newOrder, OrderRmqDto.class);
             nameList.add(validatedProduct.getName()+ "상품 주문요청");
+            //orderRmqDtoList.add(newOrder);
+            //log.info("dto={}", newOrder);
         }
-        return nameList;
+        //log.info("list size={}", orderRmqDtoList.size());
+        return orderIdList;
     }
 
     @Transactional
@@ -79,6 +93,7 @@ public class OrderService {
 
             validateOrderMethod.validateStock(validatedCart.getQuantity(), product);
             validatedCart.setOrderTag(orderTag);
+            //log.info("ordertag={}", validatedCart.getOrderTag());
 
             OrderRmqDto newOrder = OrderRmqDto.fromEntity(
                     Order.builder()
@@ -211,9 +226,11 @@ public class OrderService {
         return validatedOrder.getId() + "번 주문 삭제";
     }
 
+    @Transactional
     public List<OrderDto> getOrderListFromCart(Long userId, String orderTag) {
         validateOrderMethod.validateUser(userId);
-        List<Order> orderList = orderRepository.findByUsersIdAndOrderTag(userId, orderTag);
+        List<Order> orderList = orderRepository.findByUsersIdAndOrderTagAndOrderState(userId, orderTag, 1);
+        //log.info("order.size={}", orderList.size());
         return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
     }
 
