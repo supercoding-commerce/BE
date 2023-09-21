@@ -63,6 +63,9 @@ public class ChatService {
         List<Chat> chatList = chatRepositoryCustom.getSellerChatList(sellerId, productId);
         List<ChatDto> resultList = new ArrayList<>();
         chatList.forEach(chat -> {
+            if(chat.getChats() == null){
+                return;
+            }
             Map<String,String> productInfo = getProductImageAndName(chat.getProductId());
             String productName = productInfo.get("name");
             String productImage = productInfo.get("url");
@@ -82,6 +85,9 @@ public class ChatService {
         List<Chat> chatList = chatRepositoryCustom.getUserChatList(userId, sellerId);
         List<ChatDto> resultList = new ArrayList<>();
         chatList.forEach(chat -> {
+            if(chat.getChats() == null){
+                return;
+            }
            Map<String,String> productInfo = getProductImageAndName(chat.getProductId());
            String productName = productInfo.get("name");
            String productImage = productInfo.get("url");

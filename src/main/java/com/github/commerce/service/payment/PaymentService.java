@@ -1,10 +1,13 @@
 package com.github.commerce.service.payment;
 
 import com.github.commerce.entity.*;
+import com.github.commerce.repository.cart.CartRepository;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.payment.PayMoneyRepository;
 import com.github.commerce.repository.payment.PaymentRepository;
 import com.github.commerce.repository.user.UserRepository;
+import com.github.commerce.service.cart.exception.CartErrorCode;
+import com.github.commerce.service.cart.exception.CartException;
 import com.github.commerce.service.coupon.UserCouponService;
 import com.github.commerce.service.coupon.exception.CouponException;
 import com.github.commerce.service.payment.exception.PaymentErrorCode;
@@ -22,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentService {
 
+    private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final PayMoneyRepository payMoneyRepository;
     private final PaymentRepository paymentRepository;
@@ -105,11 +109,26 @@ public class PaymentService {
                 throw new PaymentException(PaymentErrorCode.PAYMENT_ORDER_ALREADY_COMPLETED);
             }
 
+            if(order.getCarts().getId() != null){
+                updateCartState(order.getCarts().getId());
+            }
+
             int orderStateCode = 2;
             order.setOrderState(orderStateCode);
             orderRepository.save(order);
         }
     }
+
+    private void updateCartState(Long cartId) {
+            Cart cart = cartRepository.findById(cartId)
+                    .orElseThrow(() -> new CartException(CartErrorCode.THIS_CART_DOES_NOT_EXIST));
+
+            cart.setIsOrdered(true);
+            int cartStateCode = 2;
+            cart.setCartState(cartStateCode);
+            cartRepository.save(cart);
+    }
+
 
 }
 
