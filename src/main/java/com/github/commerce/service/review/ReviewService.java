@@ -171,7 +171,7 @@ public class ReviewService {
                 PointHistory.builder()
                         .payMoney(validatedPay)
                         .earnedPoint(additionalPoints)
-                        .createAt(LocalDateTime.now())
+                        .createdAt(LocalDateTime.now())
                         .usedPoint(0L)
                         .status(1)
                         .build()

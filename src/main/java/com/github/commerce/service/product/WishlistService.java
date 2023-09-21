@@ -78,7 +78,7 @@ public class WishlistService {
             productMap.put("productId", product.getId());
             productMap.put("name", product.getName());
             productMap.put("price", product.getPrice());
-            productMap.put("options",product.getOptions());
+            productMap.put("shopName",product.getSeller().getShopName());
             productMap.put("thumbnailUrl",product.getThumbnailUrl());
             return productMap;
         }).collect(Collectors.toList());

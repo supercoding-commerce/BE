@@ -1,6 +1,8 @@
 package com.github.commerce.web.dto.payment;
 
+import com.github.commerce.entity.ChargeHistory;
 import com.github.commerce.entity.PayMoney;
+import com.github.commerce.entity.Payment;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Getter
 @NoArgsConstructor
@@ -38,20 +41,24 @@ public class PayMoneyDto {
     private Long pointBalance;
 
     @ApiModelProperty(value = "거래 시간")
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
-    public static PayMoneyDto fromEntity(PayMoney payMoney){
+    public static PayMoneyDto fromEntity(PayMoney payMoney) {
+        return Optional.ofNullable(payMoney)
+                .map(p -> {
+                    Payment payment = p.getPayment();
+                    ChargeHistory chargeHistory = p.getChargeHistories();
 
-        return PayMoneyDto.builder()
-                .paymentId(payMoney.getPayment().getId())
-                .chargeHistoryId(payMoney.getChargeHistories().getId())
-                .chargePayMoneyTotal(payMoney.getChargeHistories().getPayMoney())
-                .usedPayMoney(payMoney.getUsedChargePayMoney())
-                .payMoneyBalance(payMoney.getPayMoneyBalance())
-                .pointBalance(payMoney.getPointBalance())
-                .createAt(LocalDateTime.from(payMoney.getCreateAt()))
-                .build();
-
+                    return PayMoneyDto.builder()
+                            .paymentId(Optional.ofNullable(payment).map(Payment::getId).orElse(null))
+                            .chargeHistoryId(Optional.ofNullable(chargeHistory).map(ChargeHistory::getId).orElse(null))
+                            .chargePayMoneyTotal(Optional.ofNullable(chargeHistory).map(ChargeHistory::getPayMoney).orElse(null))
+                            .usedPayMoney(p.getUsedChargePayMoney())
+                            .payMoneyBalance(p.getPayMoneyBalance())
+                            .pointBalance(p.getPointBalance())
+                            .createdAt(Optional.ofNullable(p.getCreatedAt()).map(LocalDateTime::from).orElse(null))
+                            .build();
+                })
+                .orElse(null);
     }
-
 }
