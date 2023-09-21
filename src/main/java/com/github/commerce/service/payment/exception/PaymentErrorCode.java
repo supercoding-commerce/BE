@@ -18,7 +18,8 @@ public enum PaymentErrorCode {
 //    PAYMENT_DUPLICATE_COUPON_USAGE("중복된 쿠폰 사용은 허용되지 않습니다.", HttpStatus.BAD_REQUEST);
 
     PAY_MONEY_NO_RECORDS_FOUND("해당 사용자의 페이머니 내역이 없습니다", HttpStatus.BAD_REQUEST),
-
+    POINT_HISTORY_NO_RECORDS_FOUND("해당 사용자의 포인트 내역이 없습니다.", HttpStatus.BAD_REQUEST),
+    POINT_HISTORY_INVALID_POINT("적립 및 사용 포인트가 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
     CHARGE_PAY_MONEY_SELLER_OPERATION_FORBIDDEN("SELLER는 이 작업을 수행할 수 없습니다.",HttpStatus.FORBIDDEN ),
 
 

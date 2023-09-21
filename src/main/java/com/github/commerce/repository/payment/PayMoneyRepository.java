@@ -5,6 +5,7 @@ import com.github.commerce.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,4 +15,8 @@ public interface PayMoneyRepository extends JpaRepository<PayMoney, Long> {
     Optional<PayMoney> findTop1ByUsersOrderByIdDesc(User user);
 
     Optional<PayMoney> findByUsersId(Long userId);
+
+    List<PayMoney> findAllByUsersId(Long userId);
+
+    List<PayMoney> findAllByUsersIdOrderByCreatedAtDesc(Long userId);
 }
