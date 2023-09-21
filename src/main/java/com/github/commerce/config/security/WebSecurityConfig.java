@@ -33,7 +33,10 @@ public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
-    private final AuthenticationConfiguration authenticationConfiguration;
+    private static final String[] PERMIT_URL_ARRAY = {
+            "/","/v1/api/user/**","/v1/api/product/**","/v1/api/coupon","/GuerrillaCommerce",
+            "/api/v2/**", "/swagger-ui.html", "/swagger/**","/swagger-resources/**", "/webjars/**", "/v2/api-docs"
+    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -59,20 +62,10 @@ public class WebSecurityConfig {
         );
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
-                authorizeHttpRequests
-                        .requestMatchers(
-                                PathRequest.toStaticResources().atCommonLocations(), // resources 접근 허용 설정
-                                new AntPathRequestMatcher("/"),
-                                new AntPathRequestMatcher("/v1/api/user/**"),
-                                new AntPathRequestMatcher("/v1/api/product/**"),
-                                new AntPathRequestMatcher("/v1/api/coupon"),
-                                new AntPathRequestMatcher("/GuerrillaCommerce")
-                        ).permitAll()
-                        .antMatchers("/api/v2/**", "/swagger-ui.html", "/swagger/**",
-                                "/swagger-resources/**", "/webjars/**", "/v2/api-docs").permitAll()
-                        .anyRequest().authenticated() // 그 외 모든 요청 인증처리
+                        authorizeHttpRequests
+                                .antMatchers(PERMIT_URL_ARRAY).permitAll()
+                                .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
-
         // 필터 관리
         http.addFilterBefore(new JwtAuthorizationFilter(jwtUtil,userDetailsService),UsernamePasswordAuthenticationFilter.class);
 

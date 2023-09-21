@@ -1,8 +1,10 @@
 package com.github.commerce.web.controller.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.commerce.config.security.JwtUtil;
 import com.github.commerce.entity.User;
 import com.github.commerce.repository.user.UserDetailsImpl;
+import com.github.commerce.service.user.OAuthService;
 import com.github.commerce.service.user.UserService;
 import com.github.commerce.service.user.exception.UserErrorCode;
 import com.github.commerce.service.user.exception.UserException;
@@ -11,6 +13,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController {
 
     private final UserService userService;
+    private final OAuthService oAuthService;
 
     @ApiOperation("판매자 회원가입")
     @PostMapping(value = "/register-seller")
@@ -107,6 +111,16 @@ public class UserController {
     @PatchMapping(value = "/update")
     public ResponseEntity<String> updateUserInfo(@RequestBody UserInfo userInfo,@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseEntity.ok(userService.updateUserInfo(userInfo,userDetails.getUser().getId()));
+    }
+
+    @GetMapping("/kakao/callback")
+    public ResponseEntity<TokenDto> kakaoLogin(@RequestParam String code, HttpServletResponse httpServletResponse) throws JsonProcessingException {
+        TokenDto tokenDto = oAuthService.kakaoLogin(code);
+
+        httpServletResponse.setHeader(JwtUtil.ACCESS_TOKEN, tokenDto.getAccessToken());
+        httpServletResponse.setHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
+
+        return ResponseEntity.ok(tokenDto);
     }
 
 }

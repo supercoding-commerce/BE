@@ -62,7 +62,7 @@ public class PaymentDto {
                 .paymentMethod(PaymentMethodEnum.getByCode(payment.getPaymentMethod()))
                 .status(PaymentStatusEnum.getByCode(payment.getStatus()))
                 .payMoneyAmount(payment.getPayMoneyAmount())
-                .createdAt(payment.getCreateAt())
+                .createdAt(payment.getCreatedAt())
                 .payMoneyBalance(payment.getPayMoney().getPayMoneyBalance())
                 .point(payment.getPayMoney().getPointBalance())
                 .build();
