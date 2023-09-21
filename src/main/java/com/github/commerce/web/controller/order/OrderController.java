@@ -2,10 +2,7 @@ package com.github.commerce.web.controller.order;
 
 import com.github.commerce.repository.user.UserDetailsImpl;
 import com.github.commerce.service.order.OrderService;
-import com.github.commerce.web.dto.order.GetOrderDto;
-import com.github.commerce.web.dto.order.OrderDto;
-import com.github.commerce.web.dto.order.PostOrderDto;
-import com.github.commerce.web.dto.order.PutOrderDto;
+import com.github.commerce.web.dto.order.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -39,7 +36,7 @@ public class  OrderController {
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @PostMapping
-    public ResponseEntity<List<String>> createOrder(
+    public ResponseEntity<List<Long>> createOrder(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody List<PostOrderDto.PostOrderRequest> postOrderRequestList
             ){
