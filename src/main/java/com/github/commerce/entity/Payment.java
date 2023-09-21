@@ -6,8 +6,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Getter
@@ -33,7 +31,7 @@ public class Payment {
 
     @CreatedDate
     @Column(name = "create_at")
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "status")
     private Integer status;

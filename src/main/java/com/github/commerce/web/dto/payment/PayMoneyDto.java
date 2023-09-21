@@ -41,7 +41,7 @@ public class PayMoneyDto {
     private Long pointBalance;
 
     @ApiModelProperty(value = "거래 시간")
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     public static PayMoneyDto fromEntity(PayMoney payMoney) {
         return Optional.ofNullable(payMoney)
@@ -56,7 +56,7 @@ public class PayMoneyDto {
                             .usedPayMoney(p.getUsedChargePayMoney())
                             .payMoneyBalance(p.getPayMoneyBalance())
                             .pointBalance(p.getPointBalance())
-                            .createAt(Optional.ofNullable(p.getCreateAt()).map(LocalDateTime::from).orElse(null))
+                            .createdAt(Optional.ofNullable(p.getCreatedAt()).map(LocalDateTime::from).orElse(null))
                             .build();
                 })
                 .orElse(null);

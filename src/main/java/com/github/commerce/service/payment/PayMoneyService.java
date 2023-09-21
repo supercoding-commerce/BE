@@ -1,10 +1,7 @@
 package com.github.commerce.service.payment;
 
 import com.github.commerce.entity.PayMoney;
-import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.payment.PayMoneyRepository;
-import com.github.commerce.repository.payment.PaymentRepository;
-import com.github.commerce.repository.user.UserRepository;
 import com.github.commerce.web.dto.payment.GetPayMoneyDto;
 import com.github.commerce.web.dto.payment.PayMoneyDto;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +38,7 @@ public class PayMoneyService {
                     .chargePayMoney(payMoney.getChargePayMoneyTotal())
                     .point(payMoneyDto.getPointBalance())
                     .payMoneyBalance(payMoneyBalance)
-                    .createAt(payMoneyDto.getCreateAt())
+                    .createAt(payMoneyDto.getCreatedAt())
                     .build();
 
             responseList.add(response);

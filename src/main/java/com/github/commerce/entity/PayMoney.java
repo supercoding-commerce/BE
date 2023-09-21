@@ -1,7 +1,6 @@
 package com.github.commerce.entity;
 
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -9,7 +8,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Getter
 @Setter
@@ -51,7 +49,7 @@ public class PayMoney {
 
     @CreatedDate
     @Column(name = "create_at")
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
 
     // 새롭게 생성 될꺼라 , 유지되는 값이 들어가야 함.
