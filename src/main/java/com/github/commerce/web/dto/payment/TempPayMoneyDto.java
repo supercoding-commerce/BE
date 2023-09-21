@@ -26,7 +26,7 @@ public class TempPayMoneyDto {
 
         return TempPayMoneyDto.builder()
                 .payMoneyBalance(payMoney.getPayMoneyBalance())
-                .createAt(LocalDateTime.from(payMoney.getCreateAt()))
+                .createAt(LocalDateTime.from(payMoney.getCreatedAt()))
                 .build();
 
     }

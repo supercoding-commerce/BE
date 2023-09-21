@@ -37,7 +37,7 @@ public class GetPayMoneyDto {
                     .chargePayMoney(payMoneyDto.getChargePayMoneyTotal())
                     .point(payMoneyDto.getPointBalance())
                     .payMoneyBalance(payMoneyDto.getPayMoneyBalance())
-                    .createAt(payMoneyDto.getCreateAt())
+                    .createAt(payMoneyDto.getCreatedAt())
                     .build();
         }
 

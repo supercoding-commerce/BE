@@ -17,4 +17,6 @@ public interface PayMoneyRepository extends JpaRepository<PayMoney, Long> {
     Optional<PayMoney> findByUsersId(Long userId);
 
     List<PayMoney> findAllByUsersId(Long userId);
+
+    List<PayMoney> findAllByUsersIdOrderByCreatedAtDesc(Long userId);
 }
