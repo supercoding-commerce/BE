@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 
 
@@ -16,53 +17,44 @@ public class ChargeDto {
     @Builder
     public static class ChargeRequest {
 
-        @ApiModelProperty(value = "주문 번호")
-        private Long orderId;
+        @ApiModelProperty(value = "충전할 페이머니")
+        private Long payMoney;
 
-        @ApiModelProperty(value = "쿠폰 번호")
-        private Long couponId;
-
-        @Enumerated(EnumType.STRING)
-        @ApiModelProperty(value = "결제 수단", example = "1")
-        private String paymentMethod;
+        @Min(value = 10000, message = "최소 충전 금액은 10,000원 이상이어야 합니다.")
+        @ApiModelProperty(value = "충전시 결제금액")
+        private Long paymentAmount;
 
     }
 
     @Getter
-    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     public static class ChargeResponse {
 
-        @ApiModelProperty(value = "주문 번호")
-        private Long orderId;
+        @ApiModelProperty(value = "충전한 페이머니")
+        private Long payMoney;
 
-        @ApiModelProperty(value = "충전 페이머니")
-        private Long chargePayMoney;
-
-        @ApiModelProperty(value = "충전시 결제된 금액")
+        @ApiModelProperty(value = "충전시 결제금액")
         private Long paymentAmount;
 
-        @ApiModelProperty(value = "남은 페이 머니")
-        private Long payMoneyBalance;
-
-        @ApiModelProperty(value = "결제 시간")
-        private LocalDateTime createdAt;
+        @ApiModelProperty(value = "충전 날짜")
+        private LocalDateTime chargeDate;
 
         @Enumerated(EnumType.STRING)
-        @ApiModelProperty(value = "결제 수단", example = "1")
-        private String paymentMethod;
+        @ApiModelProperty(value = "결제 상태", example = "1")
+        private String status;
 
-        public static ChargeDto.ChargeResponse from(PayMoneyDto payMoneyDto){
+        public static ChargeDto.ChargeResponse from(ChargeHistoryDto chargeHistoryDto){
             return ChargeResponse.builder()
-//                    .chargePayMoney()
+                    .payMoney(chargeHistoryDto.getPayMoney())
+                    .paymentAmount(chargeHistoryDto.getPaymentAmount())
+                    .chargeDate(chargeHistoryDto.getChargeDate())
+                    .status(chargeHistoryDto.getStatus())
                     .build();
         }
 
-//        public static PayMoney from(Long id, ChargeRequest request) {
-//            return ;
-//        }
+
     }
 
 }
