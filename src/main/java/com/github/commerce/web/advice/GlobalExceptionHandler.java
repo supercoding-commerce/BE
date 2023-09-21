@@ -1,6 +1,5 @@
 package com.github.commerce.web.advice;
 
-import com.github.commerce.entity.Product;
 import com.github.commerce.service.cart.exception.CartErrorResponse;
 import com.github.commerce.service.cart.exception.CartException;
 import com.github.commerce.service.chat.exception.ChatErrorResponse;
@@ -15,6 +14,8 @@ import com.github.commerce.service.product.exception.ProductErrorResponse;
 import com.github.commerce.service.product.exception.ProductException;
 import com.github.commerce.service.review.exception.ReviewErrorResponse;
 import com.github.commerce.service.review.exception.ReviewException;
+import com.github.commerce.service.shop.exception.ShopErrorResponse;
+import com.github.commerce.service.shop.exception.ShopException;
 import com.github.commerce.service.user.exception.UserErrorResponse;
 import com.github.commerce.service.user.exception.UserException;
 import com.github.commerce.web.advice.exception.ErrorResponse;
@@ -116,6 +117,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleOrderException(PaymentException e){
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(PaymentErrorResponse.builder()
+                        .errorCode(e.getErrorCode())
+                        .errorMessage(e.getErrorMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(ShopException.class)
+    public ResponseEntity<?> handleOrderException(ShopException e){
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ShopErrorResponse.builder()
                         .errorCode(e.getErrorCode())
                         .errorMessage(e.getErrorMessage())
                         .build());

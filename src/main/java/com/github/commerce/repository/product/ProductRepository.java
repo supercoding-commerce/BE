@@ -2,7 +2,6 @@ package com.github.commerce.repository.product;
 
 import com.github.commerce.entity.Product;
 import com.github.commerce.web.dto.product.GetProductDto;
-import com.github.commerce.web.dto.product.ProductDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -162,4 +161,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     void deleteBySellerIdAndId(Long id, Long productId);
 
     Product findBySellerIdAndId(Long id, Long id1);
+
+    List<Product> findProductsBySellerIdAndIsDeleted(Long id, boolean isDeleted);
 }
