@@ -14,6 +14,7 @@ public class OrderRmqDto {
     private Long productId;
     private Long userId;
     private Long sellerId;
+    private Long cartId;
     private Integer orderState;
     private String orderTag;
     private Integer quantity;
@@ -26,6 +27,7 @@ public class OrderRmqDto {
                 .userId(order.getUsers().getId())
                 .productId(product.getId())
                 .sellerId(order.getSellers().getId())
+                .cartId(order.getCarts().getId())
                 .quantity(order.getQuantity())
                 .total_price(order.getTotalPrice())
                 .orderState(order.getOrderState())

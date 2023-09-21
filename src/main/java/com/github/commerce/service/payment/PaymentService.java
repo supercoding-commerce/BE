@@ -6,6 +6,8 @@ import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.payment.PayMoneyRepository;
 import com.github.commerce.repository.payment.PaymentRepository;
 import com.github.commerce.repository.user.UserRepository;
+import com.github.commerce.service.cart.exception.CartErrorCode;
+import com.github.commerce.service.cart.exception.CartException;
 import com.github.commerce.service.coupon.UserCouponService;
 import com.github.commerce.service.coupon.exception.CouponException;
 import com.github.commerce.service.payment.exception.PaymentErrorCode;
@@ -119,7 +121,7 @@ public class PaymentService {
 
     private void updateCartState(Long cartId) {
             Cart cart = cartRepository.findById(cartId)
-                    .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_INVALID_ORDER));
+                    .orElseThrow(() -> new CartException(CartErrorCode.THIS_CART_DOES_NOT_EXIST));
 
             cart.setIsOrdered(true);
             int cartStateCode = 2;
