@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -227,7 +229,8 @@ public class OrderService {
     @Transactional
     public List<OrderDto> getOrderListFromProduct(Long userId, Long productId) {
         validateOrderMethod.validateUser(userId);
-        List<Order> orderList = orderRepository.findByUsersIdAndProductsId(userId, productId);
+        LocalDateTime adjustTime = getKoreanTime().minusMinutes(1);
+        List<Order> orderList = orderRepository.findByUsersIdAndProductsIdWithTime(userId, productId, adjustTime);
         return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
     }
 
@@ -256,5 +259,14 @@ public class OrderService {
 //                })
 //                .block(); // 블로킹 방식으로 요청을 보냅니다.
 //    }
+
+    public LocalDateTime getKoreanTime(){
+        ZoneId koreanZone = ZoneId.of("Asia/Seoul");
+        ZonedDateTime koreanTime = ZonedDateTime.now(koreanZone);
+
+        // Convert it to LocalDateTime
+        return koreanTime.toLocalDateTime();
+
+    }
 
 }

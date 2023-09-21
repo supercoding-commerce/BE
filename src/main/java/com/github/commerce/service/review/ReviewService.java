@@ -74,19 +74,19 @@ public class ReviewService {
         validatedPaidOrder.setIsReviewed(true);
 
         //포인트 적립 결제액 2%
-        Long point = validatedPay.getPointBalance();
-        if (point == null) {
-            point = 0L;
-        }
-        Long paidPrice = validatedPaidOrder.getTotalPrice();
-        Long additionalPoints = Math.round(paidPrice * 0.02);
-        Long modifiedPoint = point + additionalPoints;
-        validatedPay.setPointBalance(modifiedPoint);
+//        Long point = validatedPay.getPointBalance();
+//        if (point == null) {
+//            point = 0L;
+//        }
+//        Long paidPrice = validatedPaidOrder.getTotalPrice();
+//        Long additionalPoints = Math.round(paidPrice * 0.02);
+//        Long modifiedPoint = point + additionalPoints;
+//        validatedPay.setPointBalance(modifiedPoint);
 
         //포인트 증가 내역
-        savePointHistory(validatedPay, additionalPoints);
+//        savePointHistory(validatedPay, additionalPoints);
         //포인트 총액 업데이트
-        payMoneyRepository.save(validatedPay);
+//        payMoneyRepository.save(validatedPay);
 
         return ReviewDto.fromEntity(review);
     }
@@ -155,7 +155,12 @@ public class ReviewService {
     }
 
     private PayMoney validatePayMoneyForReviewPoint(Long userId) {
-        return payMoneyRepository.findByUsersId(userId).orElseThrow(()->new ReviewException(ReviewErrorCode.PAYMONEY_NOT_FOUD));
+        List<PayMoney> payList = payMoneyRepository.findAllByUsersIdOrderByCreatedAtDesc(userId);
+
+        if(payList.isEmpty()){
+            throw new ReviewException(ReviewErrorCode.PAYMONEY_NOT_FOUD);
+        }
+        return payList.get(0);
     }
 
     private Review saveReviewImage(Review review, String imageURl) {
