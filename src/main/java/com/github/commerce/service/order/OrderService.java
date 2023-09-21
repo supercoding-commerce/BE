@@ -47,7 +47,7 @@ public class OrderService {
             //TODO: 재고 부족 기능마련
             validateOrderMethod.validateStock(inputQuantity, validatedProduct);
 
-            OrderRmqDto newOrder = OrderRmqDto.fromEntity(
+            OrderRmqDto newOrder = OrderRmqDto.fromEntityForProduct(
                     Order.builder()
                             .users(validatedUser)
                             .sellers(validatedSeller)
@@ -222,7 +222,6 @@ public class OrderService {
         List<Order> orderList = orderRepository.findByUsersIdAndProductsId(userId, productId);
         return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
     }
-
 
 //    // 판매자에게 SSE 이벤트를 발생시키는 메서드
 //    private void sendEventToSeller(Long sellerUserId, String message) {
