@@ -21,6 +21,7 @@ public enum  ProductErrorCode {
 
     //404
     NOTFOUND_PRODUCT("상품을 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
+    NOTFOUND_URL_IN_S3("s3에 존재하지 않는 상품 url입니다.",HttpStatus.BAD_REQUEST),
     NOT_FOUND_PRODUCT("존재하지 않는 상품입니다.",HttpStatus.NOT_FOUND),
     NOT_FOUND_FILE("파일이 존재하지 않습니다.",HttpStatus.NOT_FOUND),
 
