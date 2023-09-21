@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Api(tags = "페이머니 API")
+@Api(tags = "페이머니 조회 API")
 @RequiredArgsConstructor
 @RequestMapping("/v1/api/pay-moneys")
 @RestController
