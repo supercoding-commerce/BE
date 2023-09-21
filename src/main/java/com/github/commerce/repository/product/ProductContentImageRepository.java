@@ -15,4 +15,6 @@ public interface ProductContentImageRepository extends JpaRepository<ProductCont
     void updateByImageUrl(String newImageUrl, String deleteImageUrl);
 
     void deleteByImageUrl(String imageUrl);
+
+    List<ProductContentImage> findByProductId(Long id);
 }

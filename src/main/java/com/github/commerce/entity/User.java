@@ -63,37 +63,13 @@ public class User {
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<PayMoney> payMoney;
 
-
-    // is_used = false 가져오기
-    // 반환타입이 List인 이유는 목록을 가져와야 하기 때문에
-    public List<UsersCoupon> getUserCouponsByIsUsedFalse(){
-        return userCoupons.stream()
-                .filter(usersCoupon -> usersCoupon.getIsUsed().equals(false))
-                .collect(Collectors.toList());
-    }
+    @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Seller seller;
 
     public PayMoney getPayMoneyByUserId(){
         return payMoney.stream().max(Comparator.comparing(PayMoney::getId)).orElseGet(PayMoney::new);
     }
 
-
-
-    public UsersCoupon setUserCouponIsUsedTrue(Long couponId){
-        if(couponId != null && couponId >0){
-            UsersCoupon usersCoupon = userCoupons.stream()
-                    .filter(usersCoupon1 -> usersCoupon1.getId().equals(couponId))
-                    .findFirst()
-                    .orElse(null);
-            if(usersCoupon != null){
-                usersCoupon.setIsUsed(true);
-                return usersCoupon;
-            }else{
-                return null;
-            }
-        }else {
-            return null;
-        }
-    }
 
 
 }
