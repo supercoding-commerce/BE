@@ -223,7 +223,6 @@ public class OrderService {
         return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
     }
 
-
 //    // 판매자에게 SSE 이벤트를 발생시키는 메서드
 //    private void sendEventToSeller(Long sellerUserId, String message) {
 //        String eventData = "data: {"
