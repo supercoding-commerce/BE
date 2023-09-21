@@ -99,6 +99,7 @@ public class ProductService {
                     String firstUrl = urlList.get(0);
                     productContentImageRepository.deleteByImageUrl(firstUrl);
                     product.setThumbnailUrl(firstUrl);
+                    imageUrls.remove(firstUrl);
                     productRepository.save(product);
                     return ProductDto.fromEntity(product,isSeller, imageUrls);
 
@@ -117,9 +118,8 @@ public class ProductService {
         Product originProduct = productRepository.findBySellerIdAndId(validateSeller.getId(),validateProduct.getId());
         boolean isSeller = validateProductMethod.isThisProductSeller(validateSeller.getId(), profileId);
         // 판매자가 등록한 상품이 아닐 경우 예외처리
-        if(originProduct == null){
-            throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
-        }
+        if(originProduct == null) throw new ProductException(ProductErrorCode.NOT_AUTHORIZED_SELLER);
+
 
         Gson gson = new Gson();
         UpdateProductRequest convertedRequest = gson.fromJson(productRequest, UpdateProductRequest.class);
@@ -129,12 +129,16 @@ public class ProductService {
         String inputOptionsJson = gson.toJson(options);
         List<String> newImageFiles = new ArrayList<>();
 
-        // 기존 이미지 URL을 가져와서 newImageFiles에 추가
+        // 기존에 있는 이미지들을 가져와 newImageFiles에 넣기
         List<ProductContentImage> existingImages = productContentImageRepository.findByProductId(originProduct.getId());
-        System.out.println(existingImages);
         for (ProductContentImage existingImage : existingImages) {
             newImageFiles.add(existingImage.getImageUrl());
         }
+
+        // 기존에 있는 이미지 수 - 삭제할 이미지 수 + 새로 추가될 이미지 수가 5를 넘으면 예외처리
+        int imageFilesSize = (imageFiles != null) ? imageFiles.size() : 0;
+        if((newImageFiles.size() - targetImageUrls.size() + imageFilesSize) > 5) throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
+
         boolean imageExists = Optional.ofNullable(imageFiles).isPresent();                                        // 새로운 이미지 파일들 추가
         boolean thumbnailExists = Optional.ofNullable(thumbnailFile).isPresent();                                 // 새로운 썸네일 이미지 추가
         boolean deleteUrlsExists= Optional.ofNullable(targetImageUrls).isPresent() && targetImageUrls.size() > 0; // 기존에 있는 이미지 파일들 수정요청
@@ -168,25 +172,18 @@ public class ProductService {
                 // 기존 이미지 삭제, 새로운 이미지 추가
                 if (imageExists) {
                     validateProductMethod.validateImage(imageFiles);
-                    /**
-                     * targetImageUrl와 targetThumbnailUrl이 같으면
-                     * awsS3삭제는(왜냐면 위에서 함) 안하고 데이터베이스에서 targetImageUrl에 해당하는 값 삭제
-                     * targetImageUrl와 targetThumbnailUrl이 같지 않으면
-                     * awsS3에서 삭제 , 데이터베이스에서 삭제
-                     **/
-                    for(int i = 0; i < targetImageUrls.size(); i++){
-                        String targetImageUrl = targetImageUrls.get(i);
-                        if(targetImageUrl.equals(targetThumbnailUrl)){
+                    for (String targetImageUrl : targetImageUrls) {
+                        if (targetImageUrl.equals(targetThumbnailUrl)) {
                             productContentImageRepository.deleteByImageUrl(targetImageUrl);
-                        } else{
+                        } else {
                             awsS3Service.removeFile(targetImageUrl);
+                            newImageFiles.remove(targetImageUrl);
                             productContentImageRepository.deleteByImageUrl(targetImageUrl);
                         }
                     }
-
-                    for(int i =0; i <imageFiles.size();i++){
-                        String savedImageFiles = productImageUploadService.uploadImageFile(imageFiles.get(i));
-                        productContentImageRepository.save(ProductContentImage.from(originProduct,savedImageFiles));
+                    for (MultipartFile imageFile : imageFiles) {
+                        String savedImageFiles = productImageUploadService.uploadImageFile(imageFile);
+                        productContentImageRepository.save(ProductContentImage.from(originProduct, savedImageFiles));
                         newImageFiles.add(savedImageFiles);
                     }
 
@@ -204,6 +201,7 @@ public class ProductService {
                 }
             } else {
                 // 기존 이미지 수정 없고 이미지 추가 될 경우
+                if(thumbnailExists) throw new ProductException(ProductErrorCode.NOT_FOUND_SAVEDTHUMBNAILFILE);
                 if (imageFiles != null) {
                     for (MultipartFile imageFile : imageFiles) {
                         String savedImageFiles = productImageUploadService.uploadImageFile(imageFile);
@@ -212,9 +210,10 @@ public class ProductService {
                     }
                 }
             }
-        } finally {
+        } catch (ProductException e){
+            throw new ProductException(ProductErrorCode.TOO_MANY_FILES);
         }
-    return ProductDto.fromEntity(originProduct,isSeller,newImageFiles);
+    return ProductDto.fromUpdateEntity(originProduct,isSeller,newImageFiles);
     }
 
     @Transactional

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,7 +31,8 @@ public class PayMoney {
     @JoinColumn(name = "users_id", nullable = false)
     private User users;
 
-    @OneToOne(mappedBy = "payMoneyId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chargeHistoryId")
     private ChargeHistory chargeHistories;
 
     @OneToOne(mappedBy = "payMoney")
