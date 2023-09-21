@@ -50,7 +50,7 @@ public class ValidateProductMethod {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductException(ProductErrorCode.NOTFOUND_PRODUCT));
     }
-    public void validateImage(List<MultipartFile> imageFiles) {
+    public void validateImage(List<MultipartFile> imageFiles) throws ProductException {
         long maxFileSize = 5L * 1024 * 1024; // 5 MB in bytes
 
         for (MultipartFile file : imageFiles) {

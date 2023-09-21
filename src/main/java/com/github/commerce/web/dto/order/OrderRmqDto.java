@@ -36,6 +36,20 @@ public class OrderRmqDto {
                 .build();
     }
 
+    public static OrderRmqDto fromEntityForProduct(Order order){
+        Product product = order.getProducts();
+        return OrderRmqDto.builder()
+                .userId(order.getUsers().getId())
+                .productId(product.getId())
+                .sellerId(order.getSellers().getId())
+                .quantity(order.getQuantity())
+                .total_price(order.getTotalPrice())
+                .orderState(order.getOrderState())
+                .orderTag(order.getOrderTag())
+                .options(order.getOptions())
+                .build();
+    }
+
     public static OrderRmqDto fromEntityForModify(Order order){
 
         return OrderRmqDto.builder()

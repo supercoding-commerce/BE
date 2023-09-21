@@ -47,7 +47,7 @@ public class OrderService {
             //TODO: 재고 부족 기능마련
             validateOrderMethod.validateStock(inputQuantity, validatedProduct);
 
-            OrderRmqDto newOrder = OrderRmqDto.fromEntity(
+            OrderRmqDto newOrder = OrderRmqDto.fromEntityForProduct(
                     Order.builder()
                             .users(validatedUser)
                             .sellers(validatedSeller)

@@ -90,7 +90,11 @@ public class PaymentService {
 
         Payment savedPayment = paymentRepository.save(payment);
 
-        updateOrderStatus(request.getOrderIdList());
+        // 주문 상태 업데이트
+        List<Long> orderIdList = request.getOrderIdList();
+        if (orderIdList != null) {
+            updateOrderStatus(orderIdList);
+        }
 
         // PayMoney 엔티티 업데이트
         payMoneyRepository.save(newPayMoney);
@@ -104,12 +108,11 @@ public class PaymentService {
             Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_INVALID_ORDER));
 
-
             if (order.getOrderState() == 2) {
                 throw new PaymentException(PaymentErrorCode.PAYMENT_ORDER_ALREADY_COMPLETED);
             }
 
-            if(order.getCarts().getId() != null){
+            if (order.getCarts() != null && order.getCarts().getId() != null) {
                 updateCartState(order.getCarts().getId());
             }
 
@@ -120,6 +123,7 @@ public class PaymentService {
     }
 
     private void updateCartState(Long cartId) {
+        if (cartId != null) {
             Cart cart = cartRepository.findById(cartId)
                     .orElseThrow(() -> new CartException(CartErrorCode.THIS_CART_DOES_NOT_EXIST));
 
@@ -127,8 +131,7 @@ public class PaymentService {
             int cartStateCode = 2;
             cart.setCartState(cartStateCode);
             cartRepository.save(cart);
+        }
     }
-
-
 }
 
