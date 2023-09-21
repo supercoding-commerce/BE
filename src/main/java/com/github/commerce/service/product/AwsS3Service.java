@@ -50,42 +50,42 @@ public class AwsS3Service {
     }
     /**
      * imageUrl과 MultipartFile을 전달하면 AWS-S3에 파일을 업데이트함
-     * @param multipartFile 변경할 파일
-     * @param imageUrl 저장된 ImageUrl
+     * "@param multipartFile 변경할 파일"
+     * "@param imageUrl 저장된 ImageUrl"
      * @return updateUrl 경로
      * @throws IOException
      */
-    public List<String> updateFiles(List<MultipartFile> imageFiles, List<String> imageUrls) throws IOException {
-        List<String> updatedImageUrls = new ArrayList<>();
-
-        for (int i = 0; i < imageFiles.size(); i++) {
-            MultipartFile multipartFile = imageFiles.get(i);
-            String imageUrl = imageUrls.get(i);
-            log.info("Processing image URL: {}", imageUrl);
-
-            String filePath = FilePathUtils.convertImageUrlToFilePath(imageUrl);
-            log.info("File path for image: {}", filePath);
-
-            File updateFile = convert(multipartFile)
-                    .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
-
-            removeFile(imageUrl);
-
-            String updatedImageUrl = putS3(updateFile, filePath);
-            updatedImageUrls.add(updatedImageUrl);
-        }
-
-        return updatedImageUrls;
-    }
+//    public List<String> updateFiles(List<MultipartFile> imageFiles, List<String> imageUrls) throws IOException {
+//        List<String> updatedImageUrls = new ArrayList<>();
+//        log.info("image urls size={}",imageUrls.size());
+//        for (int i = 0; i < imageFiles.size(); i++) {
+//            MultipartFile multipartFile = imageFiles.get(i);
+//            String imageUrl = imageUrls.get(i);
+//            log.info("Processing image URL: {}", imageUrl);
+//
+//            String filePath = FilePathUtils.convertImageUrlToFilePath(imageUrl);
+//            log.info("File path for image: {}", filePath);
+//
+//            File updateFile = convert(multipartFile)
+//                    .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
+//
+//            removeFile(imageUrl);
+//
+//            String updatedImageUrl = putS3(updateFile, filePath);
+//            updatedImageUrls.add(updatedImageUrl);
+//        }
+//
+//        return updatedImageUrls;
+//    }
 
     /**
      * AWS 파일을 삭제함
      * @param imageUrl 저장된 ImageUrl 경로
      */
-    public void removeFile(String imageUrl) {
+    public void removeFile(String imageUrl) throws ProductException {
         String filePath = FilePathUtils.convertImageUrlToFilePath(imageUrl);
         if(!amazonS3Client.doesObjectExist(bucket, filePath)){
-            throw new ProductException(ProductErrorCode.NOT_FOUND_FILE);
+            throw new ProductException(ProductErrorCode.NOTFOUND_URL_IN_S3);
         }
 
         amazonS3Client.deleteObject(bucket, filePath);

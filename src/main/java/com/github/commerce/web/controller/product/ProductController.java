@@ -31,7 +31,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("v1/api/product")
-@Api(tags = "상품 CRUD API")
+@Api(tags = "상품 API")
 public class ProductController {
 
     private final ProductService productService;
@@ -106,8 +106,8 @@ public class ProductController {
                                            @RequestParam(required = false) MultipartFile thumbnailFile,
                                            @RequestParam(required = false) List<MultipartFile> imageFiles) {
         Long profileId = (userDetails != null) ? userDetails.getUser().getId() : null;
-        productService.updateProductById(productId,profileId,productRequest,thumbnailFile ,imageFiles);
-        return ResponseDto.success(productId + "번 상품 수정이 수정 되었습니다.");
+        ProductDto updatedProduct = productService.updateProductById(productId,profileId,productRequest,thumbnailFile ,imageFiles);
+        return ResponseDto.success(updatedProduct);
     }
 
 
