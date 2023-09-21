@@ -19,10 +19,8 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -42,6 +40,7 @@ public class WishlistService {
                 Wishlist wishlist = Wishlist.builder()
                             .users(validateProfileId)
                             .products(validateProduct)
+                            .createdAt(LocalDateTime.now())
                             .build();
                 wishlistRepository.save(wishlist);
                 return true;
@@ -62,27 +61,19 @@ public class WishlistService {
 
     public List<Map<String, Object>> getWishlist(User validateProfileId) {
         List<Wishlist> wishlists = wishlistRepository.findProductsIdByUsers_Id(validateProfileId.getId());
+        if(wishlists.isEmpty()) throw new CustomException(ErrorCode.NOT_FOUND_WISHLIST);
 
-        if(wishlists.isEmpty()){
-            throw new CustomException(ErrorCode.NOT_FOUND_WISHLIST);
-        }
-
-        List<Long> productIds = wishlists.stream()
-                .map(wishlist -> wishlist.getProducts().getId()) // 여기서 "products"는 엔터티 간의 관계를 나타내며, "getId()"는 제품 ID를 추출합니다.
-                .collect(Collectors.toList());
-
-        List<Product> products = productRepository.findProductsByProductIds(productIds);
-
-        List<Map<String, Object>> productMaps = products.stream().map(product -> {
-            Map<String, Object> productMap = new HashMap<>();
-            productMap.put("productId", product.getId());
-            productMap.put("name", product.getName());
-            productMap.put("price", product.getPrice());
-            productMap.put("shopName",product.getSeller().getShopName());
-            productMap.put("thumbnailUrl",product.getThumbnailUrl());
-            return productMap;
+        return wishlists.stream()
+                .sorted(Comparator.comparing(Wishlist::getCreatedAt).reversed()) // createdAt으로 정렬
+                .map(wishlist -> {
+                    Product product = wishlist.getProducts();
+                    Map<String, Object> productMap = new HashMap<>();
+                    productMap.put("productId", product.getId());
+                    productMap.put("name", product.getName());
+                    productMap.put("price", product.getPrice());
+                    productMap.put("shopName", product.getSeller().getShopName());
+                    productMap.put("thumbnailUrl", product.getThumbnailUrl());
+                    return productMap;
         }).collect(Collectors.toList());
-
-        return productMaps;
     }
 }

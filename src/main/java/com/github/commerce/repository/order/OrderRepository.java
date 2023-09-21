@@ -82,8 +82,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUsersIdAndOrderTagAndOrderState(Long userId, String orderTag, int orderState);
 
-    @Query(value = "SELECT * FROM orders ORDER BY id DESC LIMIT 1", nativeQuery = true)
-    Order findOrderOrderByIdDesc();
 }
 
 

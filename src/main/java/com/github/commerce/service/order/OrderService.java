@@ -32,15 +32,10 @@ public class OrderService {
     private final RabbitTemplate rabbitTemplate;
 
     @Transactional
-    public List<Long> createOrder(List<PostOrderDto.PostOrderRequest> requestList, Long userId) {
+    public List<String> createOrder(List<PostOrderDto.PostOrderRequest> requestList, Long userId) {
         List<String>nameList = new ArrayList<>();
-        List<Long> orderIdList = new ArrayList<>();
-        Order prevOrder = orderRepository.findOrderOrderByIdDesc();
-        Long orderId = prevOrder.getId()+1;
-        //List<OrderRmqDto> orderRmqDtoList = new ArrayList<>();
 
         for(PostOrderDto.PostOrderRequest request : requestList) {
-            orderIdList.add(orderId++);
             Long inputProductId = request.getProductId();
             Integer inputQuantity = request.getQuantity();
             List<String> inputOptions = request.getOptions();
@@ -71,13 +66,9 @@ public class OrderService {
             );
 
             rabbitTemplate.convertAndSend("exchange", "postOrder", newOrder);
-            //OrderRmqDto orderRmqDto = rabbitTemplate.convertSendAndReceive("exchange", "postOrder", newOrder, OrderRmqDto.class);
             nameList.add(validatedProduct.getName()+ "상품 주문요청");
-            //orderRmqDtoList.add(newOrder);
-            //log.info("dto={}", newOrder);
         }
-        //log.info("list size={}", orderRmqDtoList.size());
-        return orderIdList;
+        return nameList;
     }
 
     @Transactional
@@ -230,10 +221,10 @@ public class OrderService {
     public List<OrderDto> getOrderListFromCart(Long userId, String orderTag) {
         validateOrderMethod.validateUser(userId);
         List<Order> orderList = orderRepository.findByUsersIdAndOrderTagAndOrderState(userId, orderTag, 1);
-        //log.info("order.size={}", orderList.size());
         return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
     }
 
+    @Transactional
     public List<OrderDto> getOrderListFromProduct(Long userId, Long productId) {
         validateOrderMethod.validateUser(userId);
         List<Order> orderList = orderRepository.findByUsersIdAndProductsId(userId, productId);
