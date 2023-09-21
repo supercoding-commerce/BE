@@ -1,6 +1,5 @@
 package com.github.commerce.repository.order;
 
-import com.github.commerce.entity.Cart;
 import com.github.commerce.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -80,6 +79,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUsersIdAndOrderTag(Long userId, String orderTag);
 
     List<Order> findByUsersIdAndProductsId(Long userId, Long productId);
+
+    List<Order> findByUsersIdAndOrderTagAndOrderState(Long userId, String orderTag, int orderState);
+
+    @Query(value = "SELECT * FROM orders ORDER BY id DESC LIMIT 1", nativeQuery = true)
+    Order findOrderOrderByIdDesc();
 }
 
 
