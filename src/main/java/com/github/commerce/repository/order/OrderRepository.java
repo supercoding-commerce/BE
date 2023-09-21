@@ -82,6 +82,16 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUsersIdAndOrderTagAndOrderState(Long userId, String orderTag, int orderState);
 
+    @Query(
+            "SELECT o FROM Order o " +
+                    "WHERE o.users.id = :userId " +
+                    "AND o.products.id = :productId " +
+                    "AND o.createdAt > :adjustTime " +
+                    //"SELECT c FROM Cart c " +
+                    "AND o.orderState = 1 " +
+                    "ORDER BY o.createdAt DESC "
+    )
+    List<Order> findByUsersIdAndProductsIdWithTime(Long userId, Long productId, LocalDateTime adjustTime);
 }
 
 

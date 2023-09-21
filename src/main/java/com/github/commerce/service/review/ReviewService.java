@@ -155,7 +155,12 @@ public class ReviewService {
     }
 
     private PayMoney validatePayMoneyForReviewPoint(Long userId) {
-        return payMoneyRepository.findByUsersId(userId).orElseThrow(()->new ReviewException(ReviewErrorCode.PAYMONEY_NOT_FOUD));
+        List<PayMoney> payList = payMoneyRepository.findAllByUsersIdOrderByCreatedAtDesc(userId);
+
+        if(payList.isEmpty()){
+            throw new ReviewException(ReviewErrorCode.PAYMONEY_NOT_FOUD);
+        }
+        return payList.get(0);
     }
 
     private Review saveReviewImage(Review review, String imageURl) {
