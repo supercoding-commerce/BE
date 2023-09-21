@@ -36,7 +36,7 @@ public class  OrderController {
             @ApiResponse(code = 400, message = "Bad Request")
     })
     @PostMapping
-    public ResponseEntity<List<Long>> createOrder(
+    public ResponseEntity<List<String>> createOrder(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody List<PostOrderDto.PostOrderRequest> postOrderRequestList
             ){
