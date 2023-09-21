@@ -16,7 +16,9 @@ public class OrderDto {
     private Long orderId;
     private Long productId;
     private Integer price;
+    private String shopName;
     private String productName;
+    private Integer stock;
     private String imageUrl;
 //    private Long cartId;
     private String orderTag;
@@ -34,6 +36,8 @@ public class OrderDto {
                 .orderId(order.getId())
                 .productId(product.getId())
                 .productName(product.getName())
+                .shopName(product.getSeller().getShopName())
+                .stock(product.getLeftAmount())
                 .imageUrl(product.getThumbnailUrl())
                 .price(product.getPrice())
                 .quantity(order.getQuantity())

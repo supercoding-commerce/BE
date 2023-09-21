@@ -1,6 +1,7 @@
 package com.github.commerce.service.payment;
 
 import com.github.commerce.entity.*;
+import com.github.commerce.repository.cart.CartRepository;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.payment.PayMoneyRepository;
 import com.github.commerce.repository.payment.PaymentRepository;
@@ -22,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentService {
 
+    private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final PayMoneyRepository payMoneyRepository;
     private final PaymentRepository paymentRepository;
@@ -105,11 +107,26 @@ public class PaymentService {
                 throw new PaymentException(PaymentErrorCode.PAYMENT_ORDER_ALREADY_COMPLETED);
             }
 
+            if(order.getCarts().getId() != null){
+                updateCartState(order.getCarts().getId());
+            }
+
             int orderStateCode = 2;
             order.setOrderState(orderStateCode);
             orderRepository.save(order);
         }
     }
+
+    private void updateCartState(Long cartId) {
+            Cart cart = cartRepository.findById(cartId)
+                    .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_INVALID_ORDER));
+
+            cart.setIsOrdered(true);
+            int cartStateCode = 2;
+            cart.setCartState(cartStateCode);
+            cartRepository.save(cart);
+    }
+
 
 }
 
