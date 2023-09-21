@@ -43,6 +43,9 @@ public class ProductDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt;
+
     private String thumbnailUrl;
 
     private List<String> imageUrls;
@@ -112,4 +115,23 @@ public class ProductDto {
         return Arrays.asList(urlList.split(","));
     }
 
+    public static ProductDto fromUpdateEntity(Product originProduct, boolean isSeller, List<String> newImageFiles) {
+        return ProductDto.builder()
+                .productId(originProduct.getId())
+                .sellerId(originProduct.getSeller().getId())
+                .shopName(originProduct.getSeller().getShopName())
+                .name(originProduct.getName())
+                .content(originProduct.getContent())
+                .price(originProduct.getPrice())
+                .leftAmount(originProduct.getLeftAmount())
+                .productCategory(originProduct.getProductCategory())
+                .ageCategory(originProduct.getAgeCategory())
+                .genderCategory(originProduct.getGenderCategory())
+                .updatedAt(originProduct.getUpdatedAt())
+                .thumbnailUrl(originProduct.getThumbnailUrl())
+                .imageUrls(newImageFiles)
+                .options(originProduct.getOptions())
+                .isSeller(isSeller)
+                .build();
+    }
 }
