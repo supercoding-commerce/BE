@@ -24,7 +24,7 @@ public class UpdateCustomerGradeScheduler { //매월 1일 오전 12:00:00 구매
     private Job updateCustomerGradeJob;
 
     //TODO. 일단은 매일 오전 12시로 해놓고 시연할 때는 30초로 간격 줄이기
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul") //초 분 시 일 월 요일 (*: 매번) - 매월 1일 오전 12:00:00 구매 금액에 따른 회원 등급 조정
+    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul") //초 분 시 일 월 요일 (*: 매번) - 매월 1일 오전 12:00:00 구매 금액에 따른 회원 등급 조정
     public void updateCustomerGradeJobRun() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 
         JobParameters jobParameters = new JobParameters(
