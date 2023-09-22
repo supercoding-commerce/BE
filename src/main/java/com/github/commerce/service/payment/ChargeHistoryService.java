@@ -35,6 +35,8 @@ public class ChargeHistoryService {
                     // 조회된 결과가 없는 경우, 새로운 PayMoney 객체 생성
                     PayMoney newPayMoney = new PayMoney();
                     newPayMoney.setUsers(user); // 사용자 ID 설정 등 다른 필요한 초기화 작업 수행
+                    newPayMoney.setChargePayMoneyTotal(0L); // 초기값 설정
+                    newPayMoney.setPayMoneyBalance(0L); // 초기값 설정
                     return payMoneyRepository.save(newPayMoney);
                 });
 
