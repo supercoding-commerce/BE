@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -157,5 +159,12 @@ public class CartService {
         return validatedCart.getId() + "번 장바구니 삭제";
     }
 
+    public LocalDateTime getKoreanTime(){
+        ZoneId koreanZone = ZoneId.of("Asia/Seoul");
+        ZonedDateTime koreanTime = ZonedDateTime.now(koreanZone);
 
+        // Convert it to LocalDateTime
+        return koreanTime.toLocalDateTime();
+
+    }
 }
