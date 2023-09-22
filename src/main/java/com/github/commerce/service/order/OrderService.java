@@ -229,7 +229,7 @@ public class OrderService {
     @Transactional
     public List<OrderDto> getOrderListFromProduct(Long userId, Long productId) {
         validateOrderMethod.validateUser(userId);
-        LocalDateTime adjustTime = getKoreanTime().minusMinutes(1);
+        LocalDateTime adjustTime = getKoreanTime().minusSeconds(5);
         List<Order> orderList = orderRepository.findByUsersIdAndProductsIdWithTime(userId, productId, adjustTime);
         return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
     }
