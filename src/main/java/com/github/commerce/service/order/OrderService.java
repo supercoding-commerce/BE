@@ -2,6 +2,7 @@ package com.github.commerce.service.order;
 
 import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
+import com.github.commerce.service.order.util.OrderCacheMethod;
 import com.github.commerce.service.order.util.ValidateOrderMethod;
 import com.github.commerce.web.dto.order.OrderDto;
 import com.github.commerce.web.dto.order.OrderRmqDto;
@@ -32,9 +33,11 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ValidateOrderMethod validateOrderMethod;
     private final RabbitTemplate rabbitTemplate;
+    private final OrderCacheMethod orderCacheMethod;
 
     @Transactional
     public List<String> createOrder(List<PostOrderDto.PostOrderRequest> requestList, Long userId) {
+        String orderTag = UUID.randomUUID().toString().substring(0, 18);
         List<String>nameList = new ArrayList<>();
 
         for(PostOrderDto.PostOrderRequest request : requestList) {
@@ -62,10 +65,12 @@ public class OrderService {
                             .createdAt(LocalDateTime.now())
                             .quantity(inputQuantity)
                             .orderState(1)
+                            .orderTag(orderTag)
                             .totalPrice((long) (validatedProduct.getPrice() * inputQuantity))
                             .options(inputOptionsJson)
                             .build()
             );
+            orderCacheMethod.putOrderTag(userId, orderTag);
 
             rabbitTemplate.convertAndSend("exchange", "postOrder", newOrder);
             nameList.add(validatedProduct.getName()+ "상품 주문요청");
@@ -74,11 +79,11 @@ public class OrderService {
     }
 
     @Transactional
-    public String createOrderFromCart(List<Long> cartIdList, Long userId) {
+    public List<String> createOrderFromCart(List<Long> cartIdList, Long userId) {
         User validatedUser = validateOrderMethod.validateUser(userId);
-        String orderTag = UUID.randomUUID().toString().substring(0, 19);
+        String orderTag = UUID.randomUUID().toString().substring(0, 18);
 
-        List<String >nameList = new ArrayList<>();
+        List<String>nameList = new ArrayList<>();
         cartIdList.forEach(cartId -> {
             Cart validatedCart = validateOrderMethod.validateCart(cartId, userId);
             Product product = validatedCart.getProducts();
@@ -102,12 +107,13 @@ public class OrderService {
                             .options(validatedCart.getOptions())
                             .build()
             );
+            orderCacheMethod.putOrderTag(userId, orderTag);
 
             rabbitTemplate.convertAndSend("exchange", "postOrder", newOrder);
             nameList.add(product.getName()+ "상품 주문요청");
         });
 
-        return orderTag;
+        return nameList;
 
     }
 
@@ -145,17 +151,10 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<OrderDto> getOrderList(Long userId){
-        List<Order> sortedOrders = orderRepository.findAllByUsersIdOrderByCreatedAtDesc(userId);
-        // 카트 레코드를 날짜별로 그룹화
-//        Map<LocalDate, List<OrderDto>> groupedOrders = sortedOrders.stream()
-//                .collect(Collectors.groupingBy(
-//                        order -> order.getCreatedAt().toLocalDate(),
-//                        Collectors.mapping(OrderDto::fromEntity, Collectors.toList())));
-//
-//        List<Map<LocalDate, List<OrderDto>>> result = new ArrayList<>();
-//        result.add(groupedOrders);
-
-        return sortedOrders.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
+        validateOrderMethod.validateUser(userId);
+        String orderTag = orderCacheMethod.getOrderTag(userId);
+        List<Order> orderList = orderRepository.findByUsersIdAndOrderTagAndOrderState(userId, orderTag, 1);
+        return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
