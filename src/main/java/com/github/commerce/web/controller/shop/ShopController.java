@@ -18,14 +18,14 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("v1/api/order/seller")
-@Api(tags = "판매중인 내역 조회 API")
+@RequestMapping("v1/api/product/seller")
+@Api(tags = "판매중인 상품 조회 API")
 public class ShopController {
 
     private final ShopService shopService;
 
     @ApiOperation(value = "판매자의 판매중인 내역 조회, 로그인 필요")
-    @GetMapping("/selling-product")
+    @GetMapping
     public ResponseEntity<List<SellingProductDto>> getSellingProducts(@AuthenticationPrincipal UserDetailsImpl userDetails){
         Long userId = userDetails.getUser().getId();
         return ResponseEntity.ok(shopService.getSellingProducts(userId));
