@@ -285,15 +285,5 @@ class OrderServiceTest {
         assertEquals(expectedMessage, result);
     }
 
-    @Test
-    void getOrderListFromCart() {
-    }
 
-    @Test
-    void getOrderListFromProduct() {
-    }
-
-    @Test
-    void getKoreanTime() {
-    }
 }
