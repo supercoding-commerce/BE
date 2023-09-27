@@ -18,12 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -91,7 +86,6 @@ public class OrderService {
 
             validateOrderMethod.validateStock(validatedCart.getQuantity(), product);
             validatedCart.setOrderTag(orderTag);
-            //log.info("ordertag={}", validatedCart.getOrderTag());
 
             OrderRmqDto newOrder = OrderRmqDto.fromEntity(
                     Order.builder()
@@ -121,11 +115,17 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<Map<LocalDate, List<OrderDto>>> getPurchasedOrderList(Long userId){
         List<Order> sortedOrders = orderRepository.findPaidOrderByUserIdSortByCreatedAtDesc(userId);
-        // 카트 레코드를 날짜별로 그룹화
-        Map<LocalDate, List<OrderDto>> groupedOrders = sortedOrders.stream()
-                .collect(Collectors.groupingBy(
-                        order -> order.getCreatedAt().toLocalDate(),
-                        Collectors.mapping(OrderDto::fromEntity, Collectors.toList())));
+
+        Map<LocalDate, List<OrderDto>> groupedOrders = new HashMap<>();
+
+        for (Order order : sortedOrders) {
+            LocalDate orderDate = order.getCreatedAt().toLocalDate();
+            OrderDto orderDto = OrderDto.fromEntity(order);
+
+            groupedOrders
+                    .computeIfAbsent(orderDate, k -> new ArrayList<>())
+                    .add(orderDto);
+        }
 
         List<Map<LocalDate, List<OrderDto>>> result = new ArrayList<>();
         result.add(groupedOrders);
@@ -137,10 +137,16 @@ public class OrderService {
         Seller seller = validateOrderMethod.validateSellerByUserId(userId);
 
         List<Order> sortedOrders = orderRepository.findPaidOrderBySellerIdSortByCreatedAtDesc(seller.getId());
-        Map<LocalDate, List<OrderDto>> groupedOrders = sortedOrders.stream()
-                .collect(Collectors.groupingBy(
-                        order -> order.getCreatedAt().toLocalDate(),
-                        Collectors.mapping(OrderDto::fromEntity, Collectors.toList())));
+        Map<LocalDate, List<OrderDto>> groupedOrders = new HashMap<>();
+
+        for (Order order : sortedOrders) {
+            LocalDate orderDate = order.getCreatedAt().toLocalDate();
+            OrderDto orderDto = OrderDto.fromEntity(order);
+
+            groupedOrders
+                    .computeIfAbsent(orderDate, k -> new ArrayList<>())
+                    .add(orderDto);
+        }
 
         List<Map<LocalDate, List<OrderDto>>> result = new ArrayList<>();
         result.add(groupedOrders);
@@ -218,21 +224,6 @@ public class OrderService {
         return validatedOrder.getId() + "번 주문 삭제";
     }
 
-    @Transactional
-    public List<OrderDto> getOrderListFromCart(Long userId, String orderTag) {
-        validateOrderMethod.validateUser(userId);
-        List<Order> orderList = orderRepository.findByUsersIdAndOrderTagAndOrderState(userId, orderTag, 1);
-        return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
-    }
-
-    @Transactional
-    public List<OrderDto> getOrderListFromProduct(Long userId, Long productId) {
-        validateOrderMethod.validateUser(userId);
-        LocalDateTime adjustTime = getKoreanTime().minusSeconds(5);
-        List<Order> orderList = orderRepository.findByUsersIdAndProductsIdWithTime(userId, productId, adjustTime);
-        return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
-    }
-
 //    // 판매자에게 SSE 이벤트를 발생시키는 메서드
 //    private void sendEventToSeller(Long sellerUserId, String message) {
 //        String eventData = "data: {"
@@ -259,13 +250,5 @@ public class OrderService {
 //                .block(); // 블로킹 방식으로 요청을 보냅니다.
 //    }
 
-    public LocalDateTime getKoreanTime(){
-        ZoneId koreanZone = ZoneId.of("Asia/Seoul");
-        ZonedDateTime koreanTime = ZonedDateTime.now(koreanZone);
-
-        // Convert it to LocalDateTime
-        return koreanTime.toLocalDateTime();
-
-    }
 
 }
