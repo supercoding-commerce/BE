@@ -1,12 +1,10 @@
 package com.github.commerce.service.order;
 
-import com.github.commerce.entity.Cart;
-import com.github.commerce.entity.Product;
-import com.github.commerce.entity.Seller;
-import com.github.commerce.entity.User;
+import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.service.order.util.OrderCacheMethod;
 import com.github.commerce.service.order.util.ValidateOrderMethod;
+import com.github.commerce.web.dto.order.OrderDto;
 import com.github.commerce.web.dto.order.OrderRmqDto;
 import com.github.commerce.web.dto.order.PostOrderDto;
 import org.junit.jupiter.api.Assertions;
@@ -20,11 +18,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.TestPropertySource;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -127,33 +131,159 @@ class OrderServiceTest {
 
     @Test
     void getPurchasedOrderList() {
+        // Arrange
+        // Arrange
+        Long userId = 1L;
+
+        Product mockProduct = new Product();
+        mockProduct.setId(100L);
+        mockProduct.setName("Mock Product");
+        Seller mockSeller = new Seller();
+        mockSeller.setShopName("Mock Shop");
+        mockProduct.setSeller(mockSeller);
+
+        Order mockOrder1 = new Order();
+        mockOrder1.setCreatedAt(LocalDateTime.of(2023, 9, 26, 12, 0));
+        mockOrder1.setProducts(mockProduct);
+
+        Order mockOrder2 = new Order();
+        mockOrder2.setCreatedAt(LocalDateTime.of(2023, 9, 26, 15, 0));
+        mockOrder2.setProducts(mockProduct);
+
+        when(orderRepository.findPaidOrderByUserIdSortByCreatedAtDesc(userId))
+                .thenReturn(Arrays.asList(mockOrder1, mockOrder2));
+
+        // Act
+        List<Map<LocalDate, List<OrderDto>>> result = orderService.getPurchasedOrderList(userId);
+
+        // Assert
+        assertEquals(1, result.size());
+        Map<LocalDate, List<OrderDto>> ordersMap = result.get(0);
+        assertEquals(1, ordersMap.size());
+        assertEquals(2, ordersMap.get(LocalDate.of(2023, 9, 26)).size());
     }
 
     @Test
     void getSellerOrderList() {
+        // Arrange
+        Long userId = 1L;
+        Product mockProduct = new Product();
+        mockProduct.setId(100L);
+        mockProduct.setName("Mock Product");
+        Seller mockSeller = new Seller();
+        mockSeller.setShopName("Mock Shop");
+        mockSeller.setId(2L);
+        mockProduct.setSeller(mockSeller);
+
+
+        when(validateOrderMethod.validateSellerByUserId(userId)).thenReturn(mockSeller);
+
+        Order mockOrder1 = new Order();
+        mockOrder1.setCreatedAt(LocalDateTime.of(2023, 9, 26, 12, 0));
+        mockOrder1.setProducts(mockProduct);
+
+        Order mockOrder2 = new Order();
+        mockOrder2.setCreatedAt(LocalDateTime.of(2023, 9, 26, 15, 0));
+        mockOrder2.setProducts(mockProduct);
+
+        when(orderRepository.findPaidOrderBySellerIdSortByCreatedAtDesc(mockSeller.getId()))
+                .thenReturn(Arrays.asList(mockOrder1, mockOrder2));
+
+        // Act
+        List<Map<LocalDate, List<OrderDto>>> result = orderService.getSellerOrderList(userId);
+
+        // Assert
+        assertEquals(1, result.size());
+        Map<LocalDate, List<OrderDto>> ordersMap = result.get(0);
+        assertEquals(1, ordersMap.size());
+        assertEquals(2, ordersMap.get(LocalDate.of(2023, 9, 26)).size());
     }
 
     @Test
     void getOrderList() {
+        // Arrange
+        Long userId = 1L;
+        User mockUser = new User();
+        String mockOrderTag = "testTag";
+
+        Product mockProduct = new Product();
+        mockProduct.setId(100L);
+        mockProduct.setName("Mock Product");
+        Seller mockSeller = new Seller();
+        mockSeller.setShopName("Mock Shop");
+        mockProduct.setSeller(mockSeller);
+
+        Order mockOrder1 = new Order();
+        mockOrder1.setProducts(mockProduct);
+        Order mockOrder2 = new Order();
+        mockOrder2.setProducts(mockProduct);
+
+        when(validateOrderMethod.validateUser(userId)).thenReturn(mockUser);
+        when(orderCacheMethod.getOrderTag(userId)).thenReturn(mockOrderTag);
+        when(orderRepository.findByUsersIdAndOrderTagAndOrderState(userId, mockOrderTag, 1))
+                .thenReturn(Arrays.asList(mockOrder1, mockOrder2));
+
+        // Act
+        List<OrderDto> result = orderService.getOrderList(userId);
+
+        // Assert
+        assertEquals(2, result.size());
     }
 
     @Test
     void getOrderListByCursor() {
+        // Arrange
+        Long userId = 1L;
+        Long cursorId = 100L;
+        int pageSize = 10;
+
+        Product mockProduct = new Product();
+        mockProduct.setId(100L);
+        mockProduct.setName("Mock Product");
+        Seller mockSeller = new Seller();
+        mockSeller.setShopName("Mock Shop");
+        mockProduct.setSeller(mockSeller);
+
+        Order mockOrder1 = new Order();
+        mockOrder1.setProducts(mockProduct);
+        Order mockOrder2 = new Order();
+        mockOrder2.setProducts(mockProduct);
+
+        List<Order> mockOrderList = Arrays.asList(mockOrder1, mockOrder2);
+        Page<Order> mockOrderPage = new PageImpl<>(mockOrderList, PageRequest.of(0, pageSize), mockOrderList.size());
+
+        when(orderRepository.findAllByUsersIdAndCursorId(userId, cursorId, PageRequest.of(0, pageSize)))
+                .thenReturn(mockOrderPage);
+
+        // Act
+        Page<OrderDto> result = orderService.getOrderListByCursor(userId, cursorId);
+
+        // Assert
+        assertEquals(2, result.getContent().size());
     }
 
     @Test
     void deleteOne() {
+        // Arrange
+        Long userId = 1L;
+        Long orderId = 2L;
+
+        Order validatedOrder = new Order();
+        validatedOrder.setId(orderId);
+
+        when(validateOrderMethod.validateOrder(orderId, userId)).thenReturn(validatedOrder);
+
+        // Act
+        String result = orderService.deleteOne(orderId, userId);
+
+        // Assert
+        verify(validateOrderMethod).validateUser(userId);
+        verify(validateOrderMethod).validateOrder(orderId, userId);
+        verify(orderRepository).deleteById(orderId);
+
+        String expectedMessage = orderId + "번 주문 삭제";
+        assertEquals(expectedMessage, result);
     }
 
-    @Test
-    void getOrderListFromCart() {
-    }
 
-    @Test
-    void getOrderListFromProduct() {
-    }
-
-    @Test
-    void getKoreanTime() {
-    }
 }
