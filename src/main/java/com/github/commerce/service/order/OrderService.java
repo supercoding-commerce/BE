@@ -160,7 +160,12 @@ public class OrderService {
         validateOrderMethod.validateUser(userId);
         String orderTag = orderCacheMethod.getOrderTag(userId);
         List<Order> orderList = orderRepository.findByUsersIdAndOrderTagAndOrderState(userId, orderTag, 1);
-        return orderList.stream().map(OrderDto::fromEntity).collect(Collectors.toList());
+        List<OrderDto> orderDtoList = new ArrayList<>();
+        orderList.forEach(
+                order -> orderDtoList.add(OrderDto.fromEntity(order))
+        );
+
+        return orderDtoList;
     }
 
     @Transactional(readOnly = true)
