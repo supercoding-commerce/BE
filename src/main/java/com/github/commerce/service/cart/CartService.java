@@ -4,7 +4,6 @@ import com.github.commerce.entity.Cart;
 import com.github.commerce.entity.Product;
 import com.github.commerce.entity.User;
 import com.github.commerce.repository.cart.CartRepository;
-import com.github.commerce.repository.product.ProductRepository;
 import com.github.commerce.service.cart.util.ValidatCartMethod;
 import com.github.commerce.web.dto.cart.CartDto;
 import com.github.commerce.web.dto.cart.CartRmqDto;
@@ -21,9 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +32,6 @@ public class CartService {
     private final CartRepository cartRepository;
     private final ValidatCartMethod validatCartMethod;
     private final RabbitTemplate rabbitTemplate;
-    private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
     public List<Map<LocalDate, List<CartDto>>> getAllCarts(Long userId){
@@ -159,12 +154,4 @@ public class CartService {
         return validatedCart.getId() + "번 장바구니 삭제";
     }
 
-    public LocalDateTime getKoreanTime(){
-        ZoneId koreanZone = ZoneId.of("Asia/Seoul");
-        ZonedDateTime koreanTime = ZonedDateTime.now(koreanZone);
-
-        // Convert it to LocalDateTime
-        return koreanTime.toLocalDateTime();
-
-    }
 }
