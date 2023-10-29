@@ -37,21 +37,10 @@ public class ChatService {
           Chat chatEntity = chatRepository.findByCustomRoomId(customRoomId).orElseThrow(()->new ChatException(ChatErrorCode.ROOM_NOT_FOUND));
           Map<String, Map<String, String>> chats = chatEntity.getChats();
 
-          Map<String, Map<String, String>> sortedChats = chats.entrySet()
-                .stream()
-                .sorted((entry1, entry2) -> {
-                    String key1DateTimeStr = entry1.getKey().substring(0, 19);
-                    String key2DateTimeStr = entry2.getKey().substring(0, 19);
-                    LocalDateTime date1 = LocalDateTime.parse(key1DateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                    LocalDateTime date2 = LocalDateTime.parse(key2DateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                    return date1.compareTo(date2);
-
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-
+        Map<String, Map<String, String>> sortedChats = sortChatsByDate(chats);
         chatEntity.setChats(sortedChats);
-        return ChatDto.fromEntity(chatEntity);
 
+        return ChatDto.fromEntity(chatEntity);
     };
 
 
@@ -63,7 +52,7 @@ public class ChatService {
         List<Chat> chatList = chatRepositoryCustom.getSellerChatList(sellerId, productId);
         List<ChatDto> resultList = new ArrayList<>();
         chatList.forEach(chat -> {
-            if(chat.getChats() == null){
+            if(chat.getChats() == null || chat.getChats().isEmpty()){
                 return;
             }
             Map<String,String> productInfo = getProductImageAndName(chat.getProductId());
@@ -85,7 +74,7 @@ public class ChatService {
         List<Chat> chatList = chatRepositoryCustom.getUserChatList(userId, sellerId);
         List<ChatDto> resultList = new ArrayList<>();
         chatList.forEach(chat -> {
-            if(chat.getChats() == null){
+            if(chat.getChats() == null || chat.getChats().isEmpty()){
                 return;
             }
            Map<String,String> productInfo = getProductImageAndName(chat.getProductId());
@@ -105,29 +94,39 @@ public class ChatService {
         chatRepositoryCustom.cleanupOldChats();
     }
 
-    private Map<String, String> getProductImageAndName(Long productId){
-        Optional<Product> productOptional = productRepository.findById(productId);
+    protected Map<String, String> getProductImageAndName(Long productId){
+        Product product = productRepository.findById(productId).orElseThrow(()-> new ChatException(ChatErrorCode.THIS_PRODUCT_DOES_NOT_EXIST));
         Map<String, String> result = new HashMap<>();
 
-        if (productOptional.isPresent()) {
-            String urlList = productOptional.get().getThumbnailUrl();
-            String productName = productOptional.get().getName();
-            String[] urls = urlList.split(",");
 
-            if (urls.length > 0) {
-                result.put("url", urls[0]);
-            }
-
+            String url = product.getThumbnailUrl();
+            String productName = product.getName();
+            //String[] urls = urlList.split(",");
+//            if (urls.length > 0) {
+//                result.put("url", urls[0]);
+//            }
+            result.put("url", url);
             result.put("name", productName);
-        }
 
-        return result.isEmpty() ? null : result;
+
+        return result;
     }
 
-    private String getSellerImage(Long sellerId){
+    protected String getSellerImage(Long sellerId){
         Seller seller = sellerRepository.findById(sellerId).orElseThrow(()-> new ChatException(ChatErrorCode.SELLER_NOT_FOUND));
         return seller.getShopImageUrl();
     }
 
+    protected Map<String, Map<String, String>> sortChatsByDate(Map<String, Map<String, String>> chats) {
+        return chats.entrySet()
+                .stream()
+                .sorted(Comparator.comparing(entry -> extractDateTimeFromKey(entry.getKey())))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        //정렬된 순서대로 데이터를 유지하려면 LinkedHashMap이 필요합니다. 이렇게 하지 않으면, 정렬 순서가 Map에 저장될 때 무시될 수 있습니다.
+    }
 
+    private LocalDateTime extractDateTimeFromKey(String key) {
+        String dateTimeStr = key.substring(0, 19);
+        return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
 }

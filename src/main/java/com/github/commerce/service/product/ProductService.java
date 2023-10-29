@@ -275,15 +275,12 @@ public class ProductService {
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
 
         if (Objects.equals(sortBy, "createdAt")) {
-            System.out.println("111111111111");
             return productRepositoryCustom.findByProductCategorySortByCreatedAt(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
 
         }else if(Objects.equals(sortBy, "price")){
-            System.out.println("222222222222222");
             return productRepositoryCustom.findByProductCategorySortByPrice(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
 
         } else{
-            System.out.println("33333333333333");
             return productRepositoryCustom.findByProductCategorySortById(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
 
         }
