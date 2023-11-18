@@ -1,5 +1,6 @@
 package com.github.commerce.entity;
 
+import com.github.commerce.web.dto.product.GetProductDto;
 import com.github.commerce.web.dto.product.ProductRequest;
 import com.google.gson.Gson;
 import lombok.*;
@@ -17,6 +18,24 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @Entity
+@SqlResultSetMapping(
+        name = "GetProductDtoMapping",
+        classes = @ConstructorResult(
+                targetClass = GetProductDto.class,
+                columns = {
+                        @ColumnResult(name = "id", type = Long.class),
+                        @ColumnResult(name = "name", type = String.class),
+                        @ColumnResult(name = "price", type = Integer.class),
+                        @ColumnResult(name = "created_at", type = LocalDateTime.class),
+                        @ColumnResult(name = "product_category", type = String.class),
+                        @ColumnResult(name = "age_category", type = String.class),
+                        @ColumnResult(name = "gender_category", type = String.class),
+                        @ColumnResult(name = "left_amount", type = Integer.class),
+                        @ColumnResult(name = "thumbnail_url", type = String.class),
+                        @ColumnResult(name = "shop_name", type = String.class)
+                }
+        )
+)
 @Table(name = "products")
 public class Product {
     @Id

@@ -4,6 +4,7 @@ import com.github.commerce.entity.*;
 import com.github.commerce.repository.order.OrderRepository;
 import com.github.commerce.repository.product.ProductContentImageRepository;
 import com.github.commerce.repository.product.ProductRepository;
+import com.github.commerce.repository.product.ProductRepositoryCustom;
 import com.github.commerce.repository.review.ReviewRepository;
 import com.github.commerce.service.product.exception.ProductErrorCode;
 import com.github.commerce.service.product.exception.ProductException;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class ProductService {
+    private final ProductRepositoryCustom productRepositoryCustom;
     private final ProductRepository productRepository;
     private final ProductImageUploadService productImageUploadService;
     private final ValidateProductMethod validateProductMethod;
@@ -44,13 +46,11 @@ public class ProductService {
         String searchToken = "%"+searchWord+"%";
 
         if (Objects.equals(sortBy, "price")) {
-            return productRepository.searchProductSortByPrice(searchToken, inputAgeCategory,inputGenderCategory, pageable);
-           // return productList.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+            return productRepositoryCustom.searchProductSortByPrice(searchToken, inputAgeCategory,inputGenderCategory, pageable);
         }else if(Objects.equals(sortBy, "createdAt")) {
-            return productRepository.searchProductSortByCreatedAt(searchToken,inputAgeCategory,inputGenderCategory, pageable);
-           // return productList.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+            return productRepositoryCustom.searchProductSortByCreatedAt(searchToken,inputAgeCategory,inputGenderCategory, pageable);
         }else {
-            return productRepository.searchProductSortById(searchToken,inputAgeCategory,inputGenderCategory, pageable);
+            return productRepositoryCustom.searchProductSortById(searchToken,inputAgeCategory,inputGenderCategory, pageable);
         }
     }
 
@@ -275,13 +275,14 @@ public class ProductService {
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
 
         if (Objects.equals(sortBy, "createdAt")) {
-            return productRepository.findByProductCategorySortByCreatedAt(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
-           // return products.stream().map(ProductDto::fromObjectResult).collect(Collectors.toList());
+            return productRepositoryCustom.findByProductCategorySortByCreatedAt(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
+
         }else if(Objects.equals(sortBy, "price")){
-            return productRepository.findByProductCategorySortByPrice(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
-           // return products.stream().map(ProductDto::fromObjectResult).collect(Collectors.toList());
+            return productRepositoryCustom.findByProductCategorySortByPrice(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
+
         } else{
-            return productRepository.findByProductCategorySortById(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
+            return productRepositoryCustom.findByProductCategorySortById(inputProductCategory, inputAgeCategory, inputGenderCategory, pageable);
+
         }
     }
 
@@ -292,13 +293,13 @@ public class ProductService {
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
 
         if (Objects.equals(sortBy, "price")) {
-           return productRepository.findAllSortByPrice(inputAgeCategory, inputGenderCategory, pageable);
-            //return products.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+           return productRepositoryCustom.findAllSortByPrice(inputAgeCategory, inputGenderCategory, pageable);
+
         } else if(Objects.equals(sortBy, "createdAt")) {
-           return productRepository.findAllSortByCreatedAt(inputAgeCategory, inputGenderCategory, pageable);
-            //return products.stream().map(ProductDto::fromEntity).collect(Collectors.toList());
+           return productRepositoryCustom.findAllSortByCreatedAt(inputAgeCategory, inputGenderCategory, pageable);
+
         } else {
-            return productRepository.findAllSortById(inputAgeCategory, inputGenderCategory, pageable);
+            return productRepositoryCustom.findAllSortById(inputAgeCategory, inputGenderCategory, pageable);
         }
     }
 
