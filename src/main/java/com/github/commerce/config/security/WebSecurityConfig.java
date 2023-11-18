@@ -34,7 +34,7 @@ public class WebSecurityConfig {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
     private static final String[] PERMIT_URL_ARRAY = {
-            "/","/v1/api/user/**","/v1/api/product/**","/v1/api/coupon","/GuerrillaCommerce", "/v1/api/navi",
+            "/v1/api/user/**","/v1/api/product/**","/v1/api/coupon","/GuerrillaCommerce", "/v1/api/health-check",
             "/api/v2/**", "/swagger-ui.html", "/swagger/**","/swagger-resources/**", "/webjars/**", "/v2/api-docs"
     };
 
