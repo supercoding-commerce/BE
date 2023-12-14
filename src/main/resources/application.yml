@@ -73,3 +73,9 @@ cloud:
     credentials:
       accessKey: ${ACCESSKEY}
       secretKey: ${SECRETKEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
