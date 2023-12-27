@@ -14,6 +14,7 @@ import com.github.commerce.web.dto.order.DetailPageOrderDto;
 import com.github.commerce.web.dto.product.*;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,10 +40,11 @@ public class ProductService {
     private final AwsS3Service awsS3Service;
 
     @Transactional(readOnly = true)
-    public List<GetProductDto> searchProducts(Integer pageNumber, String searchWord, String ageCategory, String genderCategory, String sortBy) {
+    @Cacheable(value = "products", key = "#size.toString() + '_' + #pageNumber.toString() + '_' + #searchWord + '_' + #ageCategory + '_' + #genderCategory + '_' + #sortBy")
+    public List<GetProductDto> searchProducts(Integer size, Integer pageNumber, String searchWord, String ageCategory, String genderCategory, String sortBy) {
         String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
-        Pageable pageable = PageRequest.of(pageNumber - 1, 15); //한 페이지 15개
+        Pageable pageable = PageRequest.of(pageNumber - 1, size); //한 페이지 15개
         String searchToken = "%"+searchWord+"%";
 
         if (Objects.equals(sortBy, "price")) {
@@ -266,11 +268,12 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetProductDto> getProductsByCategory(Integer pageNumber, String productCategory, String ageCategory, String genderCategory, String sortBy) {
+    @Cacheable(value = "products", key = "#size.toString() + '_' + #pageNumber.toString() + '_' + #productCategory + '_' + #ageCategory + '_' + #genderCategory + '_' + #sortBy")
+    public List<GetProductDto> getProductsByCategory(Integer size, Integer pageNumber, String productCategory, String ageCategory, String genderCategory, String sortBy) {
         String inputProductCategory = ProductCategoryEnum.switchCategory(productCategory);
         if(inputProductCategory == null) throw new ProductException(ProductErrorCode.INVALID_CATEGORY);
 
-        Pageable pageable = PageRequest.of(pageNumber - 1, 15); //한 페이지 15개
+        Pageable pageable = PageRequest.of(pageNumber - 1, size); //한 페이지 15개
         String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
 
@@ -287,8 +290,9 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetProductDto> getProductList(Integer pageNumber, String ageCategory, String genderCategory, String sortBy) {
-        Pageable pageable = PageRequest.of(pageNumber - 1, 15); //한 페이지 15개
+    @Cacheable(value = "products", key = "#size.toString() + '_' + #pageNumber.toString() + '_' + #ageCategory + '_' + #genderCategory + '_' + #sortBy")
+    public List<GetProductDto> getProductList(Integer size, Integer pageNumber, String ageCategory, String genderCategory, String sortBy) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, size); //한 페이지 15개
         String inputAgeCategory = AgeCategoryEnum.switchCategory(ageCategory);
         String inputGenderCategory = GenderCategoryEnum.switchCategory(genderCategory);
 
