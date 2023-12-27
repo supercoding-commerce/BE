@@ -35,9 +35,9 @@ public class ChatService {
     @Transactional
     public ChatDto getChatRoom(String customRoomId){
           Chat chatEntity = chatRepository.findByCustomRoomId(customRoomId).orElseThrow(()->new ChatException(ChatErrorCode.ROOM_NOT_FOUND));
-          Map<String, Map<String, String>> chats = chatEntity.getChats();
+          List<Chat.Message> chats = chatEntity.getChats();
 
-        Map<String, Map<String, String>> sortedChats = sortChatsByDate(chats);
+        List<Chat.Message> sortedChats = sortChatsByDate(chats);
         chatEntity.setChats(sortedChats);
 
         return ChatDto.fromEntity(chatEntity);
@@ -117,12 +117,10 @@ public class ChatService {
         return seller.getShopImageUrl();
     }
 
-    protected Map<String, Map<String, String>> sortChatsByDate(Map<String, Map<String, String>> chats) {
-        return chats.entrySet()
-                .stream()
-                .sorted(Comparator.comparing(entry -> extractDateTimeFromKey(entry.getKey())))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-        //정렬된 순서대로 데이터를 유지하려면 LinkedHashMap이 필요합니다. 이렇게 하지 않으면, 정렬 순서가 Map에 저장될 때 무시될 수 있습니다.
+    protected List<Chat.Message> sortChatsByDate(List<Chat.Message> chats) {
+        return chats.stream()
+                .sorted(Comparator.comparing(Chat.Message::getTimestamp))
+                .collect(Collectors.toList());
     }
 
     private LocalDateTime extractDateTimeFromKey(String key) {

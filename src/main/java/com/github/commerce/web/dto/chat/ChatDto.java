@@ -6,6 +6,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -33,9 +35,9 @@ public class ChatDto {
 
     private String productName;
 
-    private Map<String, Map<String, String>> chats;
+    private List<Chat.Message> chats;
 
-    private Map<String, String> lastChat;
+    private Chat.Message lastChat;
     public static ChatDto fromEntity(Chat chat){
 
         return ChatDto.builder()
@@ -65,25 +67,10 @@ public class ChatDto {
                 .build();
     }
 
-    private static Map<String, String> getLastChat(Map<String, Map<String, String>> chat){
-        String lastKey = null;
-        LocalDateTime lastDateTime = null;
+    private static Chat.Message getLastChat(List<Chat.Message> chats){
 
-        for (String key : chat.keySet()) {
-            // 앞의 19글자만 추출하여 LocalDateTime으로 변환
-            String keyDateTimeStr = key.substring(0, 19);
-            LocalDateTime keyDateTime = LocalDateTime.parse(keyDateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-
-            if (lastDateTime == null || keyDateTime.isAfter(lastDateTime)) {
-                lastDateTime = keyDateTime;
-                lastKey = key;
-            }
-        }
-
-        if (lastKey != null) {
-            return chat.get(lastKey);
-        } else {
-            return null;
-        }
+        return chats.stream()
+                .max(Comparator.comparing(message -> LocalDateTime.parse(message.getTimestamp(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                .orElse(null);
     }
 }
