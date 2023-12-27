@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class ChatRepositoryCustomImpl implements ChatRepository {
@@ -51,29 +52,17 @@ public class ChatRepositoryCustomImpl implements ChatRepository {
 
     public void cleanupOldChats() {
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
-        String oldestChatTimeStr = sevenDaysAgo.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        int batchStartId = Integer.parseInt(oldestChatTimeStr.substring(oldestChatTimeStr.length() - 1));
-        int batchLastId = batchStartId + 100;
+        List<Chat> chats = mongoTemplate.findAll(Chat.class);
 
-        Query query = new Query(Criteria.where("sellerId").gte(batchStartId).lte(batchLastId));
-        List<Chat> chats = mongoTemplate.find(query, Chat.class);
-
-        // Iterate through each Chat object and filter its chats field
+        // 각 Chat 객체에 대해 최근 7일 이내의 메시지만 유지
         for (Chat chat : chats) {
-            Map<String, Map<String, String>> chatMap = chat.getChats();
+            List<Chat.Message> recentMessages = chat.getChats().stream()
+                    .filter(message -> LocalDateTime.parse(message.getTimestamp(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                            .isAfter(sevenDaysAgo))
+                    .collect(Collectors.toList());
 
-            if (chatMap != null) {
-                Map<String, Map<String, String>> filteredChatMap = new HashMap<>();
-                for (Map.Entry<String, Map<String, String>> entry : chatMap.entrySet()) {
-                    if (entry.getKey().compareTo(oldestChatTimeStr) > 0) {
-                        filteredChatMap.put(entry.getKey(), entry.getValue());
-                    }
-                }
-
-                // Update the Chat object's chats field
-                chat.setChats(filteredChatMap);
-                mongoTemplate.save(chat);
-            }
+            chat.setChats(recentMessages);
+            mongoTemplate.save(chat);
         }
     }
 

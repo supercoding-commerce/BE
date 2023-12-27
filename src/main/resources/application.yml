@@ -83,8 +83,8 @@ management:
     prometheus:
       enabled: true
 
-server:
-  compression:
-    enabled: true
-    mime-types: text/html, text/xml, text/plain, application/json
-    min-response-size: 1024
+#server:
+#  compression:
+#    enabled: true
+#    mime-types: text/html, text/xml, text/plain, application/json
+#    min-response-size: 1024
