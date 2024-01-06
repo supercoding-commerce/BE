@@ -3,6 +3,8 @@ package com.github.commerce.entity.collection;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Id;
+
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -27,7 +29,17 @@ public class Chat {
 
     private String userName;
 
-    private Map<String, Map<String, String>> chats;
+    private List<Message> chats;
 
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Message {
+        private String timestamp; // 메시지의 타임스탬프
+        private String sender;    // 메시지의 보낸 사람
+        private String content;   // 메시지 내용
+    }
 }

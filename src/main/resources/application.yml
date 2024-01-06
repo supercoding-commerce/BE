@@ -73,3 +73,18 @@ cloud:
     credentials:
       accessKey: ${ACCESSKEY}
       secretKey: ${SECRETKEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+
+#server:
+#  compression:
+#    enabled: true
+#    mime-types: text/html, text/xml, text/plain, application/json
+#    min-response-size: 1024

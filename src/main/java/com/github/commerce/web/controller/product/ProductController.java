@@ -40,25 +40,27 @@ public class ProductController {
     @ApiOperation(value = "상품 검색")
     @GetMapping("/search") //  ?pageNumber=1&searchWord=반바지
     public ResponseEntity<List<GetProductDto>> searchProduct(
+            @RequestParam(name = "size", required = false, defaultValue = "15") Integer size,
             @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
             @RequestParam(name = "searchWord", required = false, defaultValue = "") String searchWord,
             @RequestParam(name = "ageCategory", required = false, defaultValue = "") String ageCategory,
             @RequestParam(name = "genderCategory", required = false, defaultValue = "") String genderCategory,
             @RequestParam(name = "sortBy", required = false, defaultValue = "id") String sortBy
     ){
-        return ResponseEntity.ok(productService.searchProducts(pageNumber, searchWord, ageCategory,genderCategory, sortBy));
+        return ResponseEntity.ok(productService.searchProducts(size, pageNumber, searchWord, ageCategory,genderCategory, sortBy));
     }
 
     @ApiOperation(value = "메인페이지 무한스크롤")
     @GetMapping
     public ResponseEntity<List<GetProductDto>> getProducts(
+            @RequestParam(name = "size", required = false, defaultValue = "15") Integer size,
             @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
             @RequestParam(name = "ageCategory", required = false, defaultValue = "") String ageCategory,
             @RequestParam(name = "genderCategory", required = false, defaultValue = "") String genderCategory,
             @RequestParam(name = "sortBy", required = false, defaultValue = "id") String sortBy
     )
     {
-        return ResponseEntity.ok(productService.getProductList(pageNumber,ageCategory,genderCategory, sortBy));
+        return ResponseEntity.ok(productService.getProductList(size, pageNumber,ageCategory,genderCategory, sortBy));
     }
 
     @ApiOperation(value = "상품 카테고리별 조회")
@@ -66,13 +68,14 @@ public class ProductController {
     public ResponseEntity<List<GetProductDto>> getProductsByCategory(
 
             @PathVariable String productCategory, //필수
+            @RequestParam(name = "size", required = false, defaultValue = "15") Integer size,
             @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
             @RequestParam(name = "ageCategory", required = false, defaultValue = "") String ageCategory,
             @RequestParam(name = "genderCategory", required = false, defaultValue = "") String genderCategory,
             @RequestParam(name = "sortBy", required = false, defaultValue = "id") String sortBy
     )
     {
-        return ResponseEntity.ok(productService.getProductsByCategory(pageNumber, productCategory,ageCategory,genderCategory, sortBy));
+        return ResponseEntity.ok(productService.getProductsByCategory(size, pageNumber, productCategory,ageCategory,genderCategory, sortBy));
     }
 
     @ApiOperation(value = "상품 상세 조회")
